@@ -28,7 +28,7 @@ private:
     vector<Attribute> schema;
 public:
     Parser(string query_str);
-    void Parse();
+    bool Parse();
     bool Create_Table_Query();
     bool Insert_Query();
     bool Read_Schema();

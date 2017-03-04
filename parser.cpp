@@ -1,19 +1,25 @@
 #include "parser.hpp"
+#include "color.h"
 #include <cstdio>
 #include <vector>
 
 using namespace std;
 Parser::Parser(string query_str): query_str(query_str), scanner(query_str) {}
 
-void Parser::Parse(){
+bool Parser::Parse(){
     string token;
     token = scanner.nextToken();
-    if(token == "create")
-        Create_Table_Query();
-    else if(token == "insert")
-        Insert_Query();
-    else
-        fprintf(stderr, "Syntax Error: unknown operator '%s'\n", token.c_str());
+    if(token == "create") {
+        if (not Create_Table_Query()) return false;
+    }
+    else if(token == "insert") {
+        if (not Insert_Query()) return false;
+    }
+    else {
+        fprintf(stderr, LIGHT_RED "Syntax Error: unknown operator '%s'\n" WHITE, token.c_str());
+        return false;
+    }
+    return true;
 }
 
 bool Parser::Create_Table_Query(){
@@ -32,13 +38,14 @@ bool Parser::Create_Table_Query(){
     }
     schema.clear();
 
-    Read_Schema();    
+    if(not Read_Schema()) return false;   
+    return true; 
 }
 
 bool Parser::Read_Schema() {
     Attribute attr;
     while(true) {
-        Read_Attr_Def(attr);
+        if (not Read_Attr_Def(attr)) return false;
         schema.push_back(attr);
         if(scanner.lookAhead() == ")")
             break;
@@ -49,6 +56,7 @@ bool Parser::Read_Schema() {
             return false;
         }
     }
+    return true;
 }
 
 bool Parser::Read_Attr_Def(Attribute& attr) {
@@ -83,6 +91,7 @@ bool Parser::Read_Attr_Def(Attribute& attr) {
         }
         attr.isPrimaryKey = true;
     }
+    return true;
 }
 
 
