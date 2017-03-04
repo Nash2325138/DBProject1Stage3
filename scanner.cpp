@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <string>
 #include <cstring>
+#include <algorithm>
 
 using std::string;
 Scanner::Scanner(string str): pos(0) {
@@ -19,7 +20,10 @@ string Scanner::nextToken() {
 		fprintf(stderr, "sscanf wrong at nextToken()\n");
 	}
 	pos += chars_read;
-	return string(buffer);
+
+	string ret(buffer);
+	std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
+	return ret;
 }
 string Scanner::lookAhead() {
 	char buffer[1000];
@@ -29,5 +33,7 @@ string Scanner::lookAhead() {
 	else {
 		fprintf(stderr, "sscanf wrong at lookAhead()\n");
 	}
-	return string(buffer);
+	string ret(buffer);
+	std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
+	return ret;
 }

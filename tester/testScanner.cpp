@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
-#include "scanner.hpp"
+#include "../scanner.hpp"
 
 using namespace std;
 int main(int argc, char const *argv[])
