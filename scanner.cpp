@@ -16,30 +16,52 @@ string Scanner::nextToken() {
 	char buffer[10000];
 	buffer[0] = '\0';
 	int chars_read = 0;
-	if(pos >= strlen(query))
+	if (pos >= strlen(query)) {
 		return "";
-	if (sscanf(query + pos, " \"%[^\"]%n", buffer, &chars_read)) {
-		// if(chars_read == 0){
-		// 	fprintf(stderr, "Syntax Error: expected '\"'\n");
-		// 	return "";
-		// }
-		char temp[10002];
-		if (*(query + pos + chars_read) == '\"') { 
-			strcat(strcat(strcpy(temp, "\""), buffer), "\"");
-			strcpy(buffer, temp);
-		} else {
-			strcat(strcpy(temp, "\""), buffer);
-			strcpy(buffer, temp);
-		}
 	}
-	else if (sscanf(query + pos, " \'%[^\']\'%n", buffer, &chars_read)) {
-		if(chars_read == 0){
-			fprintf(stderr, "Syntax Error: expected '\"'\n");
-			return "";
+	if (sscanf(query + pos, " %1[\"]%n", buffer, &chars_read)) {
+		pos += chars_read;
+		if (query[pos] == '\"') {
+			// printf("EMPTY_QUOTES\n");
+			pos ++;
+			return "\"\"";
+		} else if (query[pos] == '\0') {
+			return "\"";
 		}
-		char temp[10002];
-		strcat(strcat(strcpy(temp, "\'"), buffer), "\'");
-		strcpy(buffer, temp);
+		else {
+			sscanf(query + pos, "%[^\"]%n", buffer, &chars_read);
+			char temp[10002];
+			if (query[pos + chars_read] == '\"') { 
+				strcat(strcat(strcpy(temp, "\""), buffer), "\"");
+				strcpy(buffer, temp);
+				chars_read++;
+			} else {
+				strcat(strcpy(temp, "\""), buffer);
+				strcpy(buffer, temp);
+			}
+		}
+	} 
+	else if (sscanf(query + pos, " %1[\']%n", buffer, &chars_read)) {
+		pos += chars_read;
+		if (query[pos] == '\'') {
+			// printf("EMPTY_QUOTES\n");
+			pos ++;
+			return "\'\'";
+		} else if (query[pos] == '\0') {
+			return "\'";
+		}
+		else {
+			sscanf(query + pos, "%[^\']%n", buffer, &chars_read);
+			char temp[10002];
+			if (query[pos + chars_read] == '\'') { 
+				strcat(strcat(strcpy(temp, "\'"), buffer), "\'");
+				strcpy(buffer, temp);
+				chars_read++;
+			} else {
+				strcat(strcpy(temp, "\'"), buffer);
+				strcpy(buffer, temp);
+			}
+		}
 	}
 	else if (sscanf(query + pos, " %[A-Za-z_0-9-]%n", buffer, &chars_read)){}
 	else if (sscanf(query + pos, " %1[^A-Za-z_0-9- \n]%n", buffer, &chars_read)){}
@@ -57,15 +79,50 @@ string Scanner::lookAhead() {
 	char buffer[1000];
 	buffer[0] = '\0';
 
-	if (sscanf(query + pos, " \"%[^\"]\"", buffer)) {
-		char temp[10002];
-		strcat(strcat(strcpy(temp, "\""), buffer), "\"");
-		strcpy(buffer, temp);
+	if (pos >= strlen(query)) {
+		return "";
 	}
-	else if (sscanf(query + pos, " \'%[^\']\'", buffer)) {
-		char temp[10002];
-		strcat(strcat(strcpy(temp, "\'"), buffer), "\'");
-		strcpy(buffer, temp);
+
+	int chars_read = 0;
+	if (sscanf(query + pos, " %1[\"]%n", buffer, &chars_read)) {
+		int temp_pos = pos + chars_read;
+		if (query[temp_pos] == '\"') {
+			return "\"\"";
+		} else if (query[temp_pos] == '\0') {
+			return "\"";
+		}
+		else {
+			sscanf(query + temp_pos, "%[^\"]%n", buffer, &chars_read);
+			char temp[10002];
+			if (query[temp_pos + chars_read] == '\"') { 
+				strcat(strcat(strcpy(temp, "\""), buffer), "\"");
+				strcpy(buffer, temp);
+				chars_read++;
+			} else {
+				strcat(strcpy(temp, "\""), buffer);
+				strcpy(buffer, temp);
+			}
+		}
+	} 
+	else if (sscanf(query + pos, " %1[\']%n", buffer, &chars_read)) {
+		int temp_pos = pos + chars_read;
+		if (query[temp_pos] == '\'') {
+			return "\'\'";
+		} else if (query[temp_pos] == '\0') {
+			return "\'";
+		}
+		else {
+			sscanf(query + temp_pos, "%[^\']%n", buffer, &chars_read);
+			char temp[10002];
+			if (query[temp_pos + chars_read] == '\'') { 
+				strcat(strcat(strcpy(temp, "\'"), buffer), "\'");
+				strcpy(buffer, temp);
+				chars_read++;
+			} else {
+				strcat(strcpy(temp, "\'"), buffer);
+				strcpy(buffer, temp);
+			}
+		}
 	}
 	else if (sscanf(query + pos, " %[A-Za-z_0-9-]", buffer)){}
 	else if (sscanf(query + pos, " %1[^A-Za-z_0-9- \n]", buffer)){}
