@@ -6,7 +6,7 @@
 using namespace std;
 int main(int argc, char const *argv[])
 {
-	string query_str("The is a string.\nA_B_C,QQ123,(google.com)");
+	string query_str("The is a string.\nA_B_C,QQ123,(google.com), (-10), kkk-bb");
 	Scanner scanner(query_str);
 	string token;
 	while ((token = scanner.nextToken()) != "") {

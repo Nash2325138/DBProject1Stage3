@@ -14,8 +14,8 @@ string Scanner::nextToken() {
 	char buffer[1000];
 	buffer[0] = '\0';
 	int chars_read;
-	if (sscanf(query + pos, " %[A-Za-z_0-9]%n", buffer, &chars_read)){}
-	else if (sscanf(query + pos, " %1[^A-Za-z_0-9 \n]%n", buffer, &chars_read)){}
+	if (sscanf(query + pos, " %[A-Za-z_0-9-]%n", buffer, &chars_read)){}
+	else if (sscanf(query + pos, " %1[^A-Za-z_0-9- \n]%n", buffer, &chars_read)){}
 	else {
 		fprintf(stderr, "sscanf wrong at nextToken()\n");
 	}
@@ -28,8 +28,8 @@ string Scanner::nextToken() {
 string Scanner::lookAhead() {
 	char buffer[1000];
 	buffer[0] = '\0';
-	if (sscanf(query + pos, " %[A-Za-z_0-9]", buffer)){}
-	else if (sscanf(query + pos, " %1[^A-Za-z_0-9 \n]", buffer)){}
+	if (sscanf(query + pos, " %[A-Za-z_0-9-]", buffer)){}
+	else if (sscanf(query + pos, " %1[^A-Za-z_0-9- \n]", buffer)){}
 	else {
 		fprintf(stderr, "sscanf wrong at lookAhead()\n");
 	}
