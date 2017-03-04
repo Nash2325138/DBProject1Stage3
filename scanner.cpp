@@ -15,15 +15,28 @@ Scanner::~Scanner() {}
 string Scanner::nextToken() {
 	char buffer[10000];
 	buffer[0] = '\0';
-	int chars_read;
-	if (sscanf(query + pos, " \"%[^\"]\"%n", buffer, &chars_read)) {
+	int chars_read = 0;
+	if(pos >= strlen(query))
+		return "";
+	if (sscanf(query + pos, " \"%[^\"]%n", buffer, &chars_read)) {
+		// if(chars_read == 0){
+		// 	fprintf(stderr, "Syntax Error: expected '\"'\n");
+		// 	return "";
+		// }
 		char temp[10002];
-		strcat(strcat(strcpy(temp, "\""), buffer), "\"");
-		strcpy(buffer, temp);
-		// printf("%s\n", buffer);
-		// exit(EXIT_FAILURE);
+		if (*(query + pos + chars_read) == '\"') { 
+			strcat(strcat(strcpy(temp, "\""), buffer), "\"");
+			strcpy(buffer, temp);
+		} else {
+			strcat(strcpy(temp, "\""), buffer);
+			strcpy(buffer, temp);
+		}
 	}
 	else if (sscanf(query + pos, " \'%[^\']\'%n", buffer, &chars_read)) {
+		if(chars_read == 0){
+			fprintf(stderr, "Syntax Error: expected '\"'\n");
+			return "";
+		}
 		char temp[10002];
 		strcat(strcat(strcpy(temp, "\'"), buffer), "\'");
 		strcpy(buffer, temp);
@@ -37,22 +50,19 @@ string Scanner::nextToken() {
 
 	string ret(buffer);
 	std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
-	// if(ret[0] == '\"') {
-	// 	std::cout << ret << '\n';
-	// 	exit(EXIT_FAILURE);
-	// }
 	return ret;
 }
+
 string Scanner::lookAhead() {
 	char buffer[1000];
 	buffer[0] = '\0';
 
-	if (sscanf(query + pos, " \"%[^\"]\"%n", buffer)) {
+	if (sscanf(query + pos, " \"%[^\"]\"", buffer)) {
 		char temp[10002];
 		strcat(strcat(strcpy(temp, "\""), buffer), "\"");
 		strcpy(buffer, temp);
 	}
-	else if (sscanf(query + pos, " \'%[^\']\'%n", buffer)) {
+	else if (sscanf(query + pos, " \'%[^\']\'", buffer)) {
 		char temp[10002];
 		strcat(strcat(strcpy(temp, "\'"), buffer), "\'");
 		strcpy(buffer, temp);
