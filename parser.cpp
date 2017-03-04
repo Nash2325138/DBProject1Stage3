@@ -4,7 +4,9 @@
 #include <vector>
 
 using namespace std;
-Parser::Parser(string query_str): query_str(query_str), scanner(query_str) {}
+Parser::Parser(string query_str):   query_str(query_str), scanner(query_str), 
+                                    isCreateTableQuery(false), isInsertQuery(false),
+                                    orderSpecified(false) {}
 
 bool Parser::Parse(){
     string token;
@@ -95,8 +97,29 @@ bool Parser::Read_Attr_Def(Attribute& attr) {
 }
 
 
-bool Parser::Insert_Query(){
+bool Parser::Insert_Query() {
+    // "insert"
+    // "into"
+    // table name
+    // if there's diretly "(", call Read_Order_Specify()
+    // call Read_Value()
 
+    // examine whether order.size() == values.size()
+    return true;
+}
+bool Parser::Read_Order_Specify() {
+    // "("
+    // read attr_name1, attr_name2, attr_name3, ...
+    // and order.push_back(attr_name)
+    // until ")"
+    return true;
+}
+bool Parser::Read_Value() {
+    // "values"
+    // read value1, value2, value3, ...
+    // and values.push_back(value)
+    // until ")"
+    return true;
 }
 
 void Parser::Print(){
