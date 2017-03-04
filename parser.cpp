@@ -17,7 +17,7 @@ void Parser::Parse(){
 }
 
 bool Parser::Create_Table_Query(){
-    string token = scanner.nextToken(), table_name;
+    string token = scanner.nextToken();
     if(token != "table"){
         fprintf(stderr, "Syntax Error: CREATE TABLE\n");
         return false;
