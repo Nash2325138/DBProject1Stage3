@@ -24,35 +24,65 @@ bool Parser::Create_Table_Query(){
     }
     // Table name
     table_name = scanner.nextToken();
-    // Schema
+    // Check Schema
     token = scanner.nextToken();
     if(token != "("){
         fprintf(stderr, "Syntax Error: expected '('\n");
         return false;
     }
     schema.clear();
-    // Attribute attr = new Attribute();
-    // while(scanner.lookAhead() != ")"){
-    //     attr.name = scanner.nextToken();
-    //     attr.type = scanner.nextToken();
-    //     if(attr.type != "int" || attr.type != "varchar"){
-    //         fprintf(stderr, "Error: unknown type '%s'\n", attr.type);
-    //         return false;
-    //     }    
-    // }
-    Read_Schema();
-    
+
+    Read_Schema();    
 }
 
 bool Parser::Read_Schema() {
-    while(1) {
-        Attribute attr;
+    Attribute attr;
+    while(true) {
         Read_Attr_Def(attr);
         schema.push_back(attr);
+        if(scanner.lookAhead() == ")")
+            break;
+        if(scanner.lookAhead() == ",")
+            scanner.nextToken();
+        else{
+            fprintf(stderr, "Syntax Error: expected ','\n");
+            return false;
+        }
     }
 }
-bool Parser::Read_Attr_Def(Attribute& attr) {
 
+bool Parser::Read_Attr_Def(Attribute& attr) {
+    attr.name = scanner.nextToken();
+    attr.type = scanner.nextToken();
+    if(attr.type != "int" && attr.type != "varchar"){
+        fprintf(stderr, "Error: unknown type '%s'\n", attr.type.c_str());
+        return false;
+    }
+    // Read char length
+    if(attr.type == "varchar"){
+        if(scanner.nextToken() != "("){
+            fprintf(stderr, "Syntax Error: expected '('\n");
+            return false;
+        }
+        attr.char_len = stoi(scanner.nextToken());
+        if(attr.char_len <= 0){
+            fprintf(stderr, "char length should be greater than 0\n");
+            return false;
+        }
+        if(scanner.nextToken() != ")"){
+            fprintf(stderr, "Syntax Error: expected ')'\n");
+            return false;
+        }
+    }
+    // Check PRIMARY KEY
+    if(scanner.lookAhead() == "primary"){
+        scanner.nextToken();
+        if(scanner.nextToken() != "key"){
+            fprintf(stderr, "Syntax Error: do you mean 'PRIMARY KEY' ?\n");
+            return false;
+        }
+        attr.isPrimaryKey = true;
+    }
 }
 
 
@@ -60,5 +90,10 @@ bool Parser::Insert_Query(){
 
 }
 
-
-
+void Parser::Print(){
+    printf("SQL Statement: %s\n", query_str.c_str());
+    printf("Table name: %s\n", table_name.c_str());
+    for(auto &attr:schema) {
+        printf("name: %s, type: %s, isPrimaryKey: %d, char_len: %d\n", attr.name.c_str(), attr.type.c_str(), attr.isPrimaryKey, attr.char_len);
+    }
+}
