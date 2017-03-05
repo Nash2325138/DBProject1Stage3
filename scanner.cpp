@@ -22,20 +22,25 @@ string Scanner::nextToken() {
 	if (sscanf(query + pos, " %1[\"]%n", buffer, &chars_read)) {
 		pos += chars_read;
 		if (query[pos] == '\"') {
+			// deal with empty string ""
 			// printf("EMPTY_QUOTES\n");
 			pos ++;
 			return "\"\"";
 		} else if (query[pos] == '\0') {
+			// deal with a null charactor following the quotes ----> \"\0
 			return "\"";
 		}
 		else {
+			// deal with non-empty string
 			sscanf(query + pos, "%[^\"]%n", buffer, &chars_read);
 			char temp[10002];
 			if (query[pos + chars_read] == '\"') { 
+				// deal with string with close right quote
 				strcat(strcat(strcpy(temp, "\""), buffer), "\"");
 				strcpy(buffer, temp);
 				chars_read++;
 			} else {
+				// deal with string with NO close right quote (btw it's illegal)
 				strcat(strcpy(temp, "\""), buffer);
 				strcpy(buffer, temp);
 			}
@@ -63,8 +68,8 @@ string Scanner::nextToken() {
 			}
 		}
 	}
-	else if (sscanf(query + pos, " %[A-Za-z_0-9-]%n", buffer, &chars_read)){}
-	else if (sscanf(query + pos, " %1[^A-Za-z_0-9- \n]%n", buffer, &chars_read)){}
+	else if (sscanf(query + pos, " %[A-Za-z_0-9-]%n", buffer, &chars_read)){} // deal with strings with no special sign 
+	else if (sscanf(query + pos, " %1[^A-Za-z_0-9- \n]%n", buffer, &chars_read)){} // deal with strings with special sign (len == 1)
 	else {
 		fprintf(stderr, "sscanf wrong at nextToken()\n");
 	}
