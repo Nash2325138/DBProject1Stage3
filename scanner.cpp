@@ -69,7 +69,7 @@ string Scanner::nextToken() {
 		}
 	}
 	else if (sscanf(query + pos, " %[A-Za-z_0-9-]%n", buffer, &chars_read)){} // deal with strings with no special sign 
-	else if (sscanf(query + pos, " %1[^A-Za-z_0-9- \n]%n", buffer, &chars_read)){} // deal with strings with special sign (len == 1)
+	else if (sscanf(query + pos, " %1[^A-Za-z_0-9 \n-]%n", buffer, &chars_read)){} // deal with strings with special sign (len == 1)
 	else {
 		fprintf(stderr, "sscanf wrong at nextToken()\n");
 	}
@@ -81,7 +81,7 @@ string Scanner::nextToken() {
 }
 
 string Scanner::lookAhead() {
-	char buffer[1000];
+	char buffer[10000];
 	buffer[0] = '\0';
 
 	if (pos >= strlen(query)) {
@@ -130,7 +130,7 @@ string Scanner::lookAhead() {
 		}
 	}
 	else if (sscanf(query + pos, " %[A-Za-z_0-9-]", buffer)){}
-	else if (sscanf(query + pos, " %1[^A-Za-z_0-9- \n]", buffer)){}
+	else if (sscanf(query + pos, " %1[^A-Za-z_0-9 \n-]", buffer)){}
 	else {
 		fprintf(stderr, "sscanf wrong at lookAhead()\n");
 	}
