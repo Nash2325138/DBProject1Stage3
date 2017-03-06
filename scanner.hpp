@@ -8,6 +8,9 @@ class Scanner
 private:
 	char query[100000];
 	int pos;
+
+	bool aheadConsumed;
+	string aheadBuffer;
 public:
 	Scanner(const string& str);
 	~Scanner();

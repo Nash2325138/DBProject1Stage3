@@ -7,12 +7,17 @@
 #include <algorithm>
 
 using std::string;
-Scanner::Scanner(const string& str): pos(0) {
+Scanner::Scanner(const string& str): pos(0), aheadConsumed(true), aheadBuffer() {
 	strcpy(query, str.c_str());
 };
 Scanner::~Scanner() {}
 	
 string Scanner::nextToken() {
+	if (not aheadConsumed) {
+		aheadConsumed = true;
+		return aheadBuffer;
+	}
+
 	char buffer[10000];
 	buffer[0] = '\0';
 	int chars_read = 0;
@@ -81,6 +86,10 @@ string Scanner::nextToken() {
 }
 
 string Scanner::lookAhead() {
+	if (not aheadConsumed) {
+		return aheadBuffer;
+	}
+
 	char buffer[10000];
 	buffer[0] = '\0';
 
@@ -92,8 +101,10 @@ string Scanner::lookAhead() {
 	if (sscanf(query + pos, " %1[\"]%n", buffer, &chars_read)) {
 		int temp_pos = pos + chars_read;
 		if (query[temp_pos] == '\"') {
+			aheadBuffer = "\"\"";
 			return "\"\"";
 		} else if (query[temp_pos] == '\0') {
+			aheadBuffer = "\"";
 			return "\"";
 		}
 		else {
@@ -112,8 +123,10 @@ string Scanner::lookAhead() {
 	else if (sscanf(query + pos, " %1[\']%n", buffer, &chars_read)) {
 		int temp_pos = pos + chars_read;
 		if (query[temp_pos] == '\'') {
+			aheadBuffer = "\'\'";
 			return "\'\'";
 		} else if (query[temp_pos] == '\0') {
+			aheadBuffer = "\'";
 			return "\'";
 		}
 		else {
@@ -136,5 +149,6 @@ string Scanner::lookAhead() {
 	}
 	string ret(buffer);
 	std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
+	aheadBuffer = ret;
 	return ret;
 }
