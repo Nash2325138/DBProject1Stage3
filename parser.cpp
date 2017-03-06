@@ -98,11 +98,28 @@ bool Parser::Read_Attr_Def(Attribute& attr) {
 
 
 bool Parser::Insert_Query() {
-    // "insert"
+    // "insert" // this is already consumed in Parse()
+    
     // "into"
+    string token = scanner.nextToken();
+    if (token != "into") {
+        fprintf(stderr, "Missing 'INTO' after 'CREATE'\n");
+        return false;
+    }
+
     // table name
-    // if there's diretly "(", call Read_Order_Specify()
-    // call Read_Value()
+    table_name = scanner.nextToken();
+
+    if (scanner.lookAhead() == "(") {
+        // if there's diretly "(", call Read_Order_Specify()
+        if (not Read_Order_Specify()) return false;
+    } else if(scanner.lookAhead() == "values"){
+        // call Read_Value()
+        if (not Read_Value()) return false;
+    } else {
+        fprintf(stderr, "Expected '(' or 'VALUES', got %s\n", scanner.lookAhead());
+        return false;
+    }
 
     // examine whether order.size() == values.size()
     return true;

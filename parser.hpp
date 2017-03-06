@@ -27,8 +27,10 @@ private:
     bool isCreateTableQuery;
     bool isInsertQuery;
     
-    // member of CREATE TABLE query
+    // memver of both CREATE TABLE and INSERT query
     string table_name;
+
+    // member of CREATE TABLE query
     vector<Attribute> schema;
 
     // member of INSERT query
