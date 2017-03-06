@@ -9,7 +9,7 @@ private:
 	char query[100000];
 	int pos;
 public:
-	Scanner(string str);
+	Scanner(const string& str);
 	~Scanner();
 	
 	string nextToken();

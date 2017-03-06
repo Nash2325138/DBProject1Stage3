@@ -7,7 +7,7 @@
 #include <algorithm>
 
 using std::string;
-Scanner::Scanner(string str): pos(0) {
+Scanner::Scanner(const string& str): pos(0) {
 	strcpy(query, str.c_str());
 };
 Scanner::~Scanner() {}
