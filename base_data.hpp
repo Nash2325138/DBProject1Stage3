@@ -11,8 +11,9 @@ public:
 	Table(string& table_name, vector<Attribute>& schema);
 	Table();
 	~Table();
-	void insert(vector<string>& orders, vector<Value>& values);
-	void insert(vector<Value>& values);
+	bool insert(vector<string>& orders, vector<Value>& values);
+	bool insert(vector<Value>& values);
+	bool checkDataType(string attr_name, Value &value);
 
 	string table_name;
 	vector<Attribute> schema;

@@ -63,6 +63,9 @@ bool Parser::Read_Schema() {
             return false;
         }
     }
+
+    // check duplicated attribute name
+    
     return true;
 }
 
