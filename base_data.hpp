@@ -16,6 +16,7 @@ public:
 
 	string table_name;
 	vector<Attribute> schema;
+	vector<map<string, Value> > tuples; // map from attribute name to a Value
 };
 
 class BaseData{
