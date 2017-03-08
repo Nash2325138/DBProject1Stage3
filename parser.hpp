@@ -20,6 +20,7 @@ public:
         char_len = 0;
     }
 };
+
 class Value
 {
 public:
@@ -70,6 +71,8 @@ class Parser{
 private:
     string query_str;
     Scanner scanner;
+    
+public:
     bool isCreateTableQuery;
     bool isInsertQuery;
     
@@ -83,8 +86,7 @@ private:
     bool orderSpecified;
     vector<string> order;
     vector<Value> values;
-    
-public:
+
     Parser(string query_str);
     bool Parse();
 
