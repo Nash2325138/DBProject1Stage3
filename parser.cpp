@@ -13,7 +13,7 @@ bool Parser::Parse(){
     token = scanner.nextToken();
     if(token == "create") {
         isCreateTableQuery = true;
-        if (Create_Table_Query() == false) return false;
+        if (not Create_Table_Query()) return false;
     }
     else if(token == "insert") {
         isInsertQuery = true;
@@ -181,11 +181,11 @@ bool Parser::Read_Value() {
         	try {
         		value = Value(scanner.lookAhead());
         	} catch (const std::invalid_argument& ia) {
-        		fprintf(stderr, LIGHT_RED "Type Error: expected number or string, got %s\nDo you mean \'%s\' ? \n" WHITE, scanner.lookAhead().c_str(), scanner.lookAhead().c_str());
+        		fprintf(stderr, LIGHT_RED "Type Error: expected number or string, got '%s'\n" WHITE, scanner.lookAhead().c_str());
         		return false;
         	};
+            scanner.nextToken();
         }
-        scanner.nextToken();
 
         // and values.push_back(value)
         values.push_back(value);
