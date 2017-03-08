@@ -15,7 +15,9 @@ public:
 	bool insert(vector<string>& orders, vector<Value>& values);
 	bool insert(vector<Value>& values);
 	bool checkDataType(string attr_name, Value &value);
-
+	bool checkPrimaryKey(Value &value);
+	void Show();
+	
 	string table_name;
 	vector<Attribute> schema;
 

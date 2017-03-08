@@ -1,3 +1,4 @@
+#include <iostream>
 #include "base_data.hpp"
 #include "color.h"
 
@@ -13,6 +14,14 @@ Table::Table(string& table_name, vector<Attribute>& schema): table_name(table_na
 }
 Table::Table(){}
 Table::~Table(){}
+
+bool Table::checkPrimaryKey(Value &value){
+	if(!primary_key_columns.empty() && (primary_key_columns.find(value) != primary_key_columns.end())){
+		fprintf(stderr, LIGHT_RED "Duplicated primary key value\n" WHITE);
+		return false;
+	}
+	return true;
+}
 
 bool Table::checkDataType(string attr_name, Value &value){
 	for(auto &attr: schema){
@@ -34,12 +43,18 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 	map<string, Value> tuple;
 	for(int i=0; i<orders.size(); i++){
 		// check data type
-		if(checkDataType(orders[i], values[i])){
-			tuple[orders[i]] = values[i];
-		}
-		else {
+		if(not checkDataType(orders[i], values[i])){
 			return false;
 		}
+		if(hasPrimary){
+			if(orders[i] == primary_key_name){
+				if(not checkPrimaryKey(values[i])){
+					return false;
+				}
+				primary_key_columns.insert(values[i]);
+			}
+		}
+		tuple[orders[i]] = values[i];
 	}
 	tuples.push_back(tuple);
 	return true;
@@ -49,12 +64,18 @@ bool Table::insert(vector<Value>& values) {
 	map<string, Value> tuple;
 	for(int i=0; i<values.size(); i++){
 		// check data type
-		if(checkDataType(schema[i].name, values[i])){
-			tuple[schema[i].name] = values[i];
-		}
-		else {
+		if(not checkDataType(schema[i].name, values[i])){
 			return false;
 		}
+		if(hasPrimary){
+			if(schema[i].isPrimaryKey){
+				if(not checkPrimaryKey(values[i])){
+					return false;
+				}
+				primary_key_columns.insert(values[i]);
+			}
+		}	
+		tuple[schema[i].name] = values[i];
 	}
 	tuples.push_back(tuple);
 	return true;
@@ -95,4 +116,13 @@ bool BaseData::Query(string query_str){
 
 	delete parser;
 	return true;
+}
+
+void Table::Show(){
+	std::cout << "Table name: " << table_name << std::endl;
+	for(auto m : tuples){
+		for(auto p : m){
+			printf("%s, %s\n", p.first.c_str() , p.second.toString().c_str());
+		}
+	}
 }

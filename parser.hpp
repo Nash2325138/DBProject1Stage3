@@ -68,11 +68,12 @@ public:
             return "";
         }
     }
-    friend bool operator<(const Value& a, const Value& b) {
-        if (a.isInt) {
-            return (a.intData < b.intData);
-        } else if (a.isString) {
-            return (a.strData.compare(b.strData) < 0);
+
+    bool operator<(const Value& a) const {
+        if (this->isInt) {
+            return (this->intData < a.intData);
+        } else if (this->isString) {
+            return (this->strData.compare(a.strData) < 0);
         } else {
             fprintf(stderr, "WTF!?? at Value operator < \n");
             return false;
