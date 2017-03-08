@@ -6,13 +6,31 @@ bool BaseData::Query(string query_str){
 
 	if(parser->isCreateTableQuery){
 		// Create table
-		// Table = new Table
-		// tables.pushback(table)
+		Table table = new Table(parser->table_name, parser->schema);
+		if(tables.find(table.table_name) != tables.end()){ // Duplicated table name
+			fprintf(stderr, LIGHT_RED "Duplicated table name '%s'\n" WHITE, table.table_name.c_str());
+			return false;
+		}
+		else {
+			// Map table into tables
+			tables[table.table_name] = table;
+		}
 	}
 	else if(parser->isInsertQuery){
-		// tables.find()
-		// put schema into table
-		// tables[index].insert()
+		// find the table
+		if(tables.find(parser->table_name) == tables.end()){
+			fprintf(stderr, LIGHT_RED "No such table '%s'\n" WHITE, parser->table_name.c_str());
+			return false;
+		}
+		else {
+			// put schema into table
+			if(parser->orderSpecified){
+				tables[parser->table_name].insert(order, values);
+			}
+			else {
+				tables[parser->table_name].insert(values);
+			}
+		}
 	}
 
 	delete parser;

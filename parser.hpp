@@ -84,7 +84,7 @@ public:
 
     // member of INSERT query
     bool orderSpecified;
-    vector<string> order;
+    vector<string> orders;
     vector<Value> values;
 
     Parser(string query_str);
