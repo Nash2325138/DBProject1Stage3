@@ -1,3 +1,6 @@
+#ifndef SCANNER_HPP
+#define SCANNER_HPP
+
 #include <cstdio>
 #include <string>
 #include <cstring>
@@ -18,3 +21,6 @@ public:
 	string nextToken();
 	string lookAhead();
 };
+
+
+#endif

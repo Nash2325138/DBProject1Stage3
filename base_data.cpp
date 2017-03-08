@@ -1,5 +1,15 @@
 #include "base_data.hpp"
 
+Table::Table(string& table_name, vector<Attribute>& schema): table_name(table_name), schema(schema){}
+Table::Table(){}
+Table::~Table(){}
+void Table::insert(vector<string>& orders, vector<Value>& values) {
+
+}
+void Table::insert(vector<Value>& values) {
+
+}
+
 bool BaseData::Query(string query_str){
 	parser = new Parser(query_str);
 	parser->Parse();

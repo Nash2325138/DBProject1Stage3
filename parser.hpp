@@ -1,3 +1,6 @@
+#ifndef PARSER_HPP
+#define PARSER_HPP
+
 /* Parser.hpp */
 #include "scanner.hpp"
 #include <cstdlib>
@@ -101,3 +104,5 @@ public:
 };
 
 
+
+#endif
