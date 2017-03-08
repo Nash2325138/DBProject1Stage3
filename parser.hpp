@@ -1,5 +1,6 @@
 /* Parser.hpp */
 #include "scanner.hpp"
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -19,6 +20,51 @@ public:
         char_len = 0;
     }
 };
+class Value
+{
+public:
+    bool isNull;
+    bool isInt;
+    bool isString;
+    
+    int intData;
+    string strData;
+
+    Value() {
+        isNull = true;
+    }
+    Value (const string& str) {
+        isNull = false;
+        if ( (str.front() == '\"' && str.back()=='\"') ||
+             (str.front() == '\'' && str.back()=='\'')    ) {
+            isString = true;
+            isInt = false;
+            strData = string(str.begin()+1, str.end()-1);
+        } else {
+            // may throw const std::invalid_argument
+            // catch it outside
+            intData = stoi(str);
+            
+            isString = false;
+            isInt = true;
+        }
+    };
+    ~Value(){};
+
+    string toString() {
+        if (isNull) {
+            return "";
+        }
+        else if (isInt) {
+            return std::to_string(intData);
+        } else if (isString) {
+            return "'" + strData + "'";
+        } else {
+            fprintf(stderr, "Wrong with Value toString()\n");
+            return "";
+        }
+    }
+};
 
 class Parser{
 private:
@@ -36,7 +82,7 @@ private:
     // member of INSERT query
     bool orderSpecified;
     vector<string> order;
-    vector<string> values;
+    vector<Value> values;
     
 public:
     Parser(string query_str);

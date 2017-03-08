@@ -1,21 +1,29 @@
 #include "../parser.hpp"
 #include <cstdio>
 #include <string>
+#include <vector>
+#include <iostream>
+
+using std::vector;
+using std::cout;
 
 int main(int argc, char const *argv[])
 {
-	string query_str("creAte tAble aa(name varchar(30), time intt PRIMARY KEY)");
-	Parser *parser = new Parser(query_str);
-    if(parser->Parse()){
-    	parser->Print();
+	Parser *parser;
+    vector<string> queries;
+    
+    queries.push_back("creAte tAble aa(name varchar(30), time intt PRIMARY KEY)");
+    queries.push_back("INSERT INTO STUDENT (a, b, c, d, e)\nVALUES(1, 1, 3, 'eqweqwe', '123213eqwd')");
+    queries.push_back("INSERT INTO ^ (a, b, c, d, e)\nVALUES(1, 1, 3, eqweqwe, '123213eqwd')");
+    queries.push_back("INSERT INTO STUDENT VALUES(1, 1, , 'eqweqwe', '')");
+	
+    for (auto& s : queries) {
+        parser = new Parser(s);
+        if(parser->Parse()){
+            parser->Print();
+            puts("");
+        }
+        delete parser;     
     }
-    delete parser;
-
-    query_str = "INSERT INTO STUDENT (a, b, c, d, e)\nVALUES(1, 1, 3, 'eqweqwe', '123213eqwd')";
-	parser = new Parser(query_str);
-    if(parser->Parse()){
-    	parser->Print();
-    }
-    delete parser;
-	return 0;
+   return 0;
 }

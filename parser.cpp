@@ -126,7 +126,7 @@ bool Parser::Insert_Query() {
         scanner.nextToken();
         if (not Read_Value()) return false;
     } else {
-        fprintf(stderr, LIGHT_RED "Expected VALUES', got %s\n" WHITE, scanner.lookAhead().c_str());
+        fprintf(stderr, LIGHT_RED "Expected 'VALUES', got %s\n" WHITE, scanner.lookAhead().c_str());
         return false;
     }
 
@@ -165,7 +165,7 @@ bool Parser::Read_Order_Specify() {
 }
 
 bool Parser::Read_Value() {
-    string value_name;
+    Value value;
     values.clear();
     // "(" error detect
     if(scanner.lookAhead() != "("){
@@ -175,9 +175,20 @@ bool Parser::Read_Value() {
     scanner.nextToken();
     while(true) {
         // read value1, value2, value3, ...
-        value_name = scanner.nextToken();
+        if (scanner.lookAhead() == "," || scanner.lookAhead() == ")") {
+        	value = Value();
+        } else {
+        	try {
+        		value = Value(scanner.lookAhead());
+        	} catch (const std::invalid_argument& ia) {
+        		fprintf(stderr, LIGHT_RED "Type Error: expected number or string, got %s\nDo you mean \'%s\' ? \n" WHITE, scanner.lookAhead().c_str(), scanner.lookAhead().c_str());
+        		return false;
+        	};
+        }
+        scanner.nextToken();
+
         // and values.push_back(value)
-        values.push_back(value_name);
+        values.push_back(value);
         // until ")"
         if(scanner.lookAhead() == ")"){
             scanner.nextToken();
@@ -205,12 +216,12 @@ void Parser::Print(){
     else if(isInsertQuery){
         if(orderSpecified){
             for(int i=0; i<order.size(); i++){
-                printf("Insert %s: %s into TABLE(%s)\n", order[i].c_str(), values[i].c_str(), table_name.c_str());
+                printf("Insert %s: %s into TABLE(%s)\n", order[i].c_str(), values[i].toString().c_str(), table_name.c_str());
             }
         }
         else{
             for(int i=0; i<values.size(); i++){
-                printf("Insert %s into TABLE(%s)\n", values[i].c_str(), table_name.c_str());
+                printf("Insert %s into TABLE(%s)\n", values[i].toString().c_str(), table_name.c_str());
             }
         }
     }
