@@ -2,6 +2,7 @@
 #include "color.h"
 #include <cstdio>
 #include <vector>
+#include <map>
 
 using namespace std;
 Parser::Parser(string query_str):   query_str(query_str), scanner(query_str), 
@@ -65,7 +66,17 @@ bool Parser::Read_Schema() {
     }
 
     // check duplicated attribute name
-    
+    map<string, int> attr_name_times;
+    for (auto& attr : schema) {
+    	attr_name_times[attr.name]++;
+    }
+    for (auto& p : attr_name_times) {
+    	if (p.second > 1) {
+    		fprintf(stderr, LIGHT_RED "Error: Duplicated attribute name for \'%s\'\n" WHITE, p.first.c_str());
+    		return false;
+    	}
+    }
+
     return true;
 }
 

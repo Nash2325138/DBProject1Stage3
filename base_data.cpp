@@ -1,23 +1,32 @@
 #include "base_data.hpp"
 #include "color.h"
 
-Table::Table(string& table_name, vector<Attribute>& schema): table_name(table_name), schema(schema){}
+Table::Table(string& table_name, vector<Attribute>& schema): table_name(table_name), schema(schema)
+															, hasPrimary(false){
+	for (auto& attr : schema) {
+		if (attr.isPrimaryKey) {
+			hasPrimary = true;
+			primary_key_name = attr.name;
+			return;
+		}
+	}
+}
 Table::Table(){}
 Table::~Table(){}
 
 bool Table::checkDataType(string attr_name, Value &value){
 	for(auto &attr: schema){
-		if(attr.attr_name == attr_name){
-			if((attr.attr_type == "int" && value.isInt) || (attr.attr_type == "varchar" && value.isString)){ // correct type
+		if(attr.name == attr_name){
+			if((attr.type == "int" && value.isInt) || (attr.type == "varchar" && value.isString)){ // correct type
 				return true;
 			}
 			else { // incorrect type
-				fprintf(stderr, LIGHT_RED "Type error: attribute '%s' should have '%s' type\n" WHITE, attr.attr_name.c_str(), attr.attr_type.c_str());
+				fprintf(stderr, LIGHT_RED "Type error: attribute '%s' should have '%s' type\n" WHITE, attr.name.c_str(), attr.type.c_str());
 				return false;
 			}
 		}
 	}
-	fprintf(stderr, LIGHT_RED "No such attribute '%s'\n" WHITE, attr.attr_name.c_str());
+	fprintf(stderr, LIGHT_RED "No such attribute '%s'\n" WHITE, attr_name.c_str());
 	return false;
 }
 
@@ -53,7 +62,7 @@ bool Table::insert(vector<Value>& values) {
 
 bool BaseData::Query(string query_str){
 	parser = new Parser(query_str);
-	parser->Parse();
+	if(not parser->Parse()) return false;
 
 	if(parser->isCreateTableQuery){
 		// Create table

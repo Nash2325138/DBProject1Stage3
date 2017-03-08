@@ -68,6 +68,16 @@ public:
             return "";
         }
     }
+    friend bool operator<(const Value& a, const Value& b) {
+        if (a.isInt) {
+            return (a.intData < b.intData);
+        } else if (a.isString) {
+            return (a.strData.compare(b.strData) < 0);
+        } else {
+            fprintf(stderr, "WTF!?? at Value operator < \n");
+            return false;
+        }
+    }
 };
 
 class Parser{

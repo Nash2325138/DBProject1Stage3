@@ -4,6 +4,7 @@
 #include "parser.hpp"
 #include "scanner.hpp"
 #include <map>
+#include <set>
 
 using namespace std; 
 class Table{
@@ -17,7 +18,12 @@ public:
 
 	string table_name;
 	vector<Attribute> schema;
+
 	vector<map<string, Value> > tuples; // map from attribute name to a Value
+	
+	bool hasPrimary;
+	string primary_key_name;
+	set<Value> primary_key_columns;
 };
 
 class BaseData{
