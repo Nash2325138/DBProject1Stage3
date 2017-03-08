@@ -7,16 +7,15 @@
 
 using namespace std; 
 class Table{
-private:
-	string table_name;
-	vector<Attribute> schema;
-
 public:
 	Table(string& table_name, vector<Attribute>& schema);
 	Table();
 	~Table();
 	void insert(vector<string>& orders, vector<Value>& values);
 	void insert(vector<Value>& values);
+
+	string table_name;
+	vector<Attribute> schema;
 };
 
 class BaseData{

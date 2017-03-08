@@ -1,8 +1,10 @@
 #include "base_data.hpp"
+#include "color.h"
 
 Table::Table(string& table_name, vector<Attribute>& schema): table_name(table_name), schema(schema){}
 Table::Table(){}
 Table::~Table(){}
+
 void Table::insert(vector<string>& orders, vector<Value>& values) {
 
 }
@@ -16,7 +18,7 @@ bool BaseData::Query(string query_str){
 
 	if(parser->isCreateTableQuery){
 		// Create table
-		Table table = new Table(parser->table_name, parser->schema);
+		Table table(parser->table_name, parser->schema);
 		if(tables.find(table.table_name) != tables.end()){ // Duplicated table name
 			fprintf(stderr, LIGHT_RED "Duplicated table name '%s'\n" WHITE, table.table_name.c_str());
 			return false;
@@ -35,10 +37,10 @@ bool BaseData::Query(string query_str){
 		else {
 			// put schema into table
 			if(parser->orderSpecified){
-				tables[parser->table_name].insert(order, values);
+				tables[parser->table_name].insert(parser->orders, parser->values);
 			}
 			else {
-				tables[parser->table_name].insert(values);
+				tables[parser->table_name].insert(parser->values);
 			}
 		}
 	}
