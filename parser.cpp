@@ -130,8 +130,8 @@ bool Parser::Insert_Query() {
         return false;
     }
 
-    // examine whether order.size() == values.size()
-    if(orderSpecified && order.size() != values.size()){
+    // examine whether orders.size() == values.size()
+    if(orderSpecified && orders.size() != values.size()){
         fprintf(stderr, LIGHT_RED "Specified counts must be same as value counts\n" WHITE);
         return false;
     }
@@ -140,14 +140,14 @@ bool Parser::Insert_Query() {
 
 bool Parser::Read_Order_Specify() {
     string attr_name;
-    order.clear();
+    orders.clear();
     // "("
     scanner.nextToken();
     while(true) {
         // read attr_name1, attr_name2, attr_name3, ...
         attr_name = scanner.nextToken();
-        // and order.push_back(attr_name)
-        order.push_back(attr_name);
+        // and orders.push_back(attr_name)
+        orders.push_back(attr_name);
         // until ")"
         if(scanner.lookAhead() == ")"){
             scanner.nextToken();
@@ -215,8 +215,8 @@ void Parser::Print(){
     }
     else if(isInsertQuery){
         if(orderSpecified){
-            for(int i=0; i<order.size(); i++){
-                printf("Insert %s: %s into TABLE(%s)\n", order[i].c_str(), values[i].toString().c_str(), table_name.c_str());
+            for(int i=0; i<orders.size(); i++){
+                printf("Insert %s: %s into TABLE(%s)\n", orders[i].c_str(), values[i].toString().c_str(), table_name.c_str());
             }
         }
         else{
