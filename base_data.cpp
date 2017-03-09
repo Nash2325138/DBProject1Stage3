@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "base_data.hpp"
 #include "color.h"
 
@@ -16,6 +17,10 @@ Table::Table(){}
 Table::~Table(){}
 
 bool Table::checkPrimaryKey(Value &value){
+	if (value.isNull) {
+		printErr("Value of primary key can't be null\n");
+		return false;
+	}
 	if(!primary_key_columns.empty() && (primary_key_columns.find(value) != primary_key_columns.end())){
 		printErr("Duplicated primary key value\n");
 		return false;
@@ -23,7 +28,7 @@ bool Table::checkPrimaryKey(Value &value){
 	return true;
 }
 
-bool Table::checkDataType(string attr_name, Value &value){
+bool Table::checkDataType(string& attr_name, Value &value){
 	for(auto &attr: schema){
 		if(attr.name == attr_name){
 			if((attr.type == "int" && value.isInt) || (attr.type == "varchar" && value.isString)){ // correct type
@@ -74,7 +79,7 @@ bool Table::insert(vector<Value>& values) {
 				}
 				primary_key_columns.insert(values[i]);
 			}
-		}	
+		}
 		tuple[schema[i].name] = values[i];
 	}
 	tuples.push_back(tuple);
@@ -119,7 +124,6 @@ bool BaseData::Query(string query_str){
 }
 
 void Table::show(){
-	auto max = [](int x, int y) -> int {return (x > y) ? x : y;};
 	static const int OFFSET = 2;
 	int i=0;
 
@@ -130,16 +134,16 @@ void Table::show(){
 	}
 	for (auto& tuple : tuples){
 		i=0;
-		for (auto& pair : tuple){
-			column_widths[i] = max(column_widths[i], pair.second.toString().length());
+		for (auto& attr : schema){
+			column_widths[i] = std::max(column_widths[i], (int)tuple[attr.name].toString().length());
 			i++;
 		}
 	}
-	for (int& i:column_widths) {
-		i += OFFSET;
+	for (int& w:column_widths) {
+		w += OFFSET;
 	}
 
-	// ouput all 
+	// output all atrribute name
 	printf("Table: %s\n", table_name.c_str());
 	i=0;
 	for (auto& attr : schema) {
@@ -147,7 +151,11 @@ void Table::show(){
 		i++;
 	}
 	puts("|");
+	for (i=0; i<schema.size(); i++) {
+		// printf("")
+	}
 
+	// output all tuples
 	for (auto& tuple : tuples){
 		i=0;
 		for (auto& attr : schema){
@@ -158,10 +166,23 @@ void Table::show(){
 	}
 	puts("");
 }
+
+string Table::schemaToString() {
+	string ret;
+	for (auto& attr : schema) {
+		ret += attr.name;
+		ret += ": ";
+		ret += attr.type;
+		if (attr.isPrimaryKey) ret += "(primary)";
+		ret += ", ";
+	}
+	return ret;	
+}
 void BaseData::show() {
 	std::cout << "Base: " << std::endl;
 	for (auto& p: tables) {
 		auto& table = p.second;
+		std::cout << table.schemaToString();
 		table.show();
 	}
 	puts("");

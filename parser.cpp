@@ -83,6 +83,7 @@ bool Parser::Read_Schema() {
 bool Parser::Read_Attr_Def(Attribute& attr) {
     attr.name = scanner.nextToken();
     attr.type = scanner.nextToken();
+    attr.isPrimaryKey = false;
     if(attr.type != "int" && attr.type != "varchar"){
         printErr("Error: unknown type '%s'\n", attr.type.c_str());
         return false;

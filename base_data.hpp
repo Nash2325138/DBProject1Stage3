@@ -14,10 +14,12 @@ public:
 	~Table();
 	bool insert(vector<string>& orders, vector<Value>& values);
 	bool insert(vector<Value>& values);
-	bool checkDataType(string attr_name, Value &value);
+	bool checkDataType(string& attr_name, Value &value);
 	bool checkPrimaryKey(Value &value);
-	void show();
 	
+	void show();
+	string schemaToString();
+
 	string table_name;
 	vector<Attribute> schema;
 
