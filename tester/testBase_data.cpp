@@ -1,5 +1,6 @@
 #include "../base_data.hpp"
 #include "../parser.hpp"
+#include "../color.h"
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -15,15 +16,21 @@ int main(int argc, char const *argv[])
     // queries.push_back("INSERT INTO STUDENT (a, b, c, d, e)\nVALUES(1, 1, 3, 'eqweqwe', '123213eqwd')");
     // queries.push_back("INSERT INTO ^ (a, b, c, d, e)\nVALUES(1, 1, 3, eqweqwe, '123213eqwd')");
     // queries.push_back("INSERT INTO STUDENT VALUES(1, 1, , 'eqweqwe', '')");
-    // queries.push_back("CREATE TABLE BB(name varchar(30), name varchar(20), a int)");
+    queries.push_back("CREATE TABLE BB(name varchar(30), id varchar(20), a int)");
     //queries.push_back("CREATE TABLE aa(name varchar(30), a int)");
     queries.push_back("insert into aa Values('dandnas', 100)");
-    queries.push_back("insert into aa values('qdwqdwqd', 100)");
+    queries.push_back("insert into aa values('qdwqdwqd', 20)");
+    queries.push_back("insert into aa values('qdwqdwqd', 10)");
+    queries.push_back("insert into aa values('qdwqdwqd', 20)");
+    queries.push_back("insert into bb values('kk', 's10306XXXX', -30)");
+
     BaseData base;
     for (auto& s : queries) {
+    	printf(">> %s\n", s.c_str());
     	if (not base.Query(s)) {
-    		fprintf(stderr, "!!\n");
+    		fprintf(stderr, "-> Query not legal\n");
     	}
     }
+   	base.show();
    return 0;
 }

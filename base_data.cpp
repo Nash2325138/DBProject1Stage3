@@ -118,11 +118,51 @@ bool BaseData::Query(string query_str){
 	return true;
 }
 
-void Table::Show(){
-	std::cout << "Table name: " << table_name << std::endl;
-	for(auto m : tuples){
-		for(auto p : m){
-			printf("%s, %s\n", p.first.c_str() , p.second.toString().c_str());
+void Table::show(){
+	auto max = [](int x, int y) -> int {return (x > y) ? x : y;};
+	static const int OFFSET = 2;
+	int i=0;
+
+	// compute column widths to output
+	vector<int> column_widths(schema.size());
+	for (int i=0; i<schema.size(); i++) {
+		column_widths[i] = schema[i].name.length();
+	}
+	for (auto& tuple : tuples){
+		i=0;
+		for (auto& pair : tuple){
+			column_widths[i] = max(column_widths[i], pair.second.toString().length());
+			i++;
 		}
 	}
+	for (int& i:column_widths) {
+		i += OFFSET;
+	}
+
+	// ouput all 
+	printf("Table: %s\n", table_name.c_str());
+	i=0;
+	for (auto& attr : schema) {
+		printf("|%*s", column_widths[i], attr.name.c_str());
+		i++;
+	}
+	puts("|");
+
+	for (auto& tuple : tuples){
+		i=0;
+		for (auto& attr : schema){
+			printf("|%*s", column_widths[i], tuple[attr.name].toString().c_str());
+			i++;
+		}
+		puts("|");
+	}
+	puts("");
+}
+void BaseData::show() {
+	std::cout << "Base: " << std::endl;
+	for (auto& p: tables) {
+		auto& table = p.second;
+		table.show();
+	}
+	puts("");
 }

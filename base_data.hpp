@@ -16,7 +16,7 @@ public:
 	bool insert(vector<Value>& values);
 	bool checkDataType(string attr_name, Value &value);
 	bool checkPrimaryKey(Value &value);
-	void Show();
+	void show();
 	
 	string table_name;
 	vector<Attribute> schema;
@@ -37,6 +37,7 @@ public:
 	BaseData(){};
 	~BaseData(){};
 	bool Query(string query_str);
+	void show();
 };
 
 #endif
