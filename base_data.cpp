@@ -31,7 +31,18 @@ bool Table::checkPrimaryKey(Value &value){
 bool Table::checkDataType(string& attr_name, Value &value){
 	for(auto &attr: schema){
 		if(attr.name == attr_name){
-			if((attr.type == "int" && value.isInt) || (attr.type == "varchar" && value.isString)){ // correct type
+			if (value.isNull) {
+				// if it's primary key, it shouldn't be null, but the check is left for checkPrimayKey()
+				return true;
+			}
+			else if (attr.type == "int" && value.isInt) {
+				return true;
+			}
+			else if (attr.type == "varchar" && value.isString) {
+				if (value.strData.length() > attr.char_len) {
+					printErr("Varchar length of %s can not exceed %d", value.strData.c_str(), attr.char_len);
+					return false;
+				}
 				return true;
 			}
 			else { // incorrect type
