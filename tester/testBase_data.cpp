@@ -24,6 +24,8 @@ int main(int argc, char const *argv[])
 
     queries.push_back("CREATE TABLE BB(name varchar(30), id varchar(20), a int)"); // table with no primary key
     queries.push_back("insert into bb values('kk', 's10306XXXX', -30)"); 
+	queries.push_back("insert into bb values('kk', 's10306XXXX', -30)"); 
+    queries.push_back("insert into bb values()");
     queries.push_back("insert into bb values()");
 
     queries.push_back("cReate TAble qq(name varchar(10) PRIMARY KEY, a int, b int)");

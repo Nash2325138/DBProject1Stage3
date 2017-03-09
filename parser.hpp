@@ -70,14 +70,25 @@ public:
     }
 
     bool operator<(const Value& a) const {
-        if (this->isInt) {
-            return (this->intData < a.intData);
-        } else if (this->isString) {
-            return (this->strData.compare(a.strData) < 0);
+        if (isInt) {
+            return (intData < a.intData);
+        } else if (isString) {
+            return (strData.compare(a.strData) < 0);
         } else {
             fprintf(stderr, "WTF!?? at Value operator < \n");
             return false;
         }
+    }
+    bool operator==(const Value& a) const {
+        if (isNull && a.isNull) {
+            return true;
+        } else if (isInt) {
+            return (intData == a.intData);
+        } else if (isString) {
+            return (strData == a.strData);
+        }
+        fprintf(stderr, "WTF!?? at Value operator ==\n");
+        return false;
     }
 };
 

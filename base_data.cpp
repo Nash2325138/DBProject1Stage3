@@ -79,7 +79,12 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 		printErr("Value of primary key can't be null\n");
 		return false;
 	}
-	tuples.push_back(std::move(tuple));
+	if (not hasPrimary && std::find(tuples.begin(), tuples.end(), tuple) != tuples.end()) {
+		// this find requires O(m), m == # of tuples
+		// possible acceleration: use unordered_set<tuple> instead of vector<tuple>, tuple === map<string, Value>
+		printErr("You can't insert exact the same tuple to a table\n");
+	}
+	tuples.push_back(tuple);
 	return true;
 }
 
@@ -104,11 +109,16 @@ bool Table::insert(vector<Value>& values) {
 				printErr("Value of primary key can't be null\n");
 				return false;
 			}
-			// insert a value constructed by Value()
+			// insert a null value by using empty constructor Value()
 			tuple[schema[i].name];
 		}
 	}
-	tuples.push_back(std::move(tuple));
+	if (not hasPrimary && std::find(tuples.begin(), tuples.end(), tuple) != tuples.end()) {
+		// this find requires O(m), m == # of tuples
+		// possible acceleration: use unordered_set<tuple> instead of vector<tuple>, tuple === map<string, Value>
+		printErr("You can't insert exact the same tuple to a table\n");
+	}
+	tuples.push_back(tuple);
 	return true;
 }
 
