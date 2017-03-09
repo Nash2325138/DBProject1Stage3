@@ -148,9 +148,17 @@ bool BaseData::Query(string query_str){
 	delete parser;
 	return true;
 }
-
+const char* row_seperator(const vector<int>& column_widths) {
+	static char buffer[2000];
+	int pos = 0;
+	for (int width : column_widths) {
+		pos += sprintf(buffer + pos, "+%s", std::string(width, '-').c_str());
+	}
+	sprintf(buffer + pos, "+");
+	return buffer;
+}
 void Table::show(){
-	static const int OFFSET = 2;
+	static const int OFFSET = 3;
 	int i=0;
 
 	// compute column widths to output
@@ -169,17 +177,20 @@ void Table::show(){
 		w += OFFSET;
 	}
 
-	// output all atrribute name
+	
+
 	printf("Table: %s\n", table_name.c_str());
+	// Top '-' and '+'
+	puts(row_seperator(column_widths));
+
+	// output all atrribute name
 	i=0;
 	for (auto& attr : schema) {
 		printf("|%*s", column_widths[i], attr.name.c_str());
 		i++;
 	}
 	puts("|");
-	for (i=0; i<schema.size(); i++) {
-		// printf("")
-	}
+	puts(row_seperator(column_widths));
 
 	// output all tuples
 	for (auto& tuple : tuples){
@@ -190,7 +201,7 @@ void Table::show(){
 		}
 		puts("|");
 	}
-	puts("");
+	puts(row_seperator(column_widths));
 }
 
 string Table::schemaToString() {
