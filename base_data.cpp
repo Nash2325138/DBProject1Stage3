@@ -57,18 +57,27 @@ bool Table::checkDataType(string& attr_name, Value &value){
 
 bool Table::insert(vector<string>& orders, vector<Value>& values) {
 	map<string, Value> tuple;
+	bool getPrimary = false;
+	for (auto& attr : schema) {
+		tuple[attr.name];	// construct all values as null value (in case orders.size() < schema.size())
+	}
 	for(int i=0; i<orders.size(); i++){
 		// check data type
 		if(not checkDataType(orders[i], values[i])){
 			return false;
 		}
 		if(hasPrimary && orders[i] == primary_key_name){
+			getPrimary = true;
 			if(not checkPrimaryKey(values[i])){
 				return false;
 			}
 			primary_key_columns.insert(values[i]);
 		}
 		tuple[orders[i]] = values[i];
+	}
+	if (hasPrimary and not getPrimary) {
+		printErr("Value of primary key can't be null\n");
+		return false;
 	}
 	tuples.push_back(std::move(tuple));
 	return true;
