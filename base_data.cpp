@@ -40,7 +40,7 @@ bool Table::checkDataType(string& attr_name, Value &value){
 			}
 			else if (attr.type == "varchar" && value.isString) {
 				if (value.strData.length() > attr.char_len) {
-					printErr("Varchar length of %s can not exceed %d", value.strData.c_str(), attr.char_len);
+					printErr("String length of attribut '%s' can not exceed %d\n", attr.name.c_str(), attr.char_len);
 					return false;
 				}
 				return true;
@@ -78,22 +78,32 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 
 bool Table::insert(vector<Value>& values) {
 	map<string, Value> tuple;
-	for(int i=0; i<values.size(); i++){
-		// check data type
-		if(not checkDataType(schema[i].name, values[i])){
-			return false;
-		}
-		if(hasPrimary){
-			if(schema[i].isPrimaryKey){
-				if(not checkPrimaryKey(values[i])){
-					return false;
-				}
-				primary_key_columns.insert(values[i]);
+	for(int i=0; i<schema.size(); i++){
+		if (i < values.size()) {
+			// check data type
+			if(not checkDataType(schema[i].name, values[i])){
+				return false;
 			}
+			if(hasPrimary){
+				if(schema[i].isPrimaryKey){
+					if(not checkPrimaryKey(values[i])){
+						return false;
+					}
+					primary_key_columns.insert(values[i]);
+				}
+			}
+			tuple[schema[i].name] = values[i];
+		} else {
+			// if the insert SQL give values.size() < schema.size(), the rest values are null
+			if (schema[i].isPrimaryKey) {
+				printErr("Value of primary key can't be null\n");
+				return false;
+			}
+			// insert a value constructed by Value()
+			tuple[schema[i].name];
 		}
-		tuple[schema[i].name] = values[i];
 	}
-	tuples.push_back(tuple);
+	tuples.push_back(std::move(tuple));
 	return true;
 }
 

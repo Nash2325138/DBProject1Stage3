@@ -23,6 +23,7 @@ int main(int argc, char const *argv[])
     queries.push_back("insert into aa values('qdwqdwqd', 10)");
     queries.push_back("insert into aa values('diff', 20)");
     queries.push_back("insert into bb values('kk', 's10306XXXX', -30)");
+
     queries.push_back("cReate TAble qq(name varchar(10) PRIMARY KEY, a int, b int)");
     queries.push_back("insert Into qq values('1', '2')");
     queries.push_back("insert Into qq values('John', 2, 5)");
@@ -35,7 +36,14 @@ int main(int argc, char const *argv[])
     queries.push_back("insert iNtO Qq (name, b) values(,1)");
     queries.push_back("insert iNtO Qq (name, b) values('Jason',1)");
     queries.push_back("insert iNtO Qq (a, b) values(3,1)");
+    queries.push_back("insert iNtO qQ values(3,1)");
 
+
+    queries.push_back("cReate TAble gg(name varchar(10), a int, b int PRIMARY KeY)");
+    queries.push_back("insert iNtO gg values('ThisIsANameMoreThan10Chars',1)");	// varchar len exceed
+    queries.push_back("insert iNtO gg values('NoPrimary',1)"); // lack of primary key b
+    queries.push_back("insert iNtO gg (\na, name)values(10, \"App\")");
+    queries.push_back("insert iNtO gg (\nb, name)values(91, \"App\")");
 
     BaseData base;
     for (auto& s : queries) {
