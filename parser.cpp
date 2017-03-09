@@ -21,7 +21,7 @@ bool Parser::Parse(){
         if (not Insert_Query()) return false;
     }
     else {
-        fprintf(stderr, LIGHT_RED "Syntax Error: unknown operator '%s'\n" WHITE, token.c_str());
+        printErr("Syntax Error: unknown operator '%s'\n", token.c_str());
         return false;
     }
     return true;
@@ -30,7 +30,7 @@ bool Parser::Parse(){
 bool Parser::Create_Table_Query(){
     string token = scanner.nextToken();
     if(token != "table"){
-        fprintf(stderr, LIGHT_RED "Syntax Error: CREATE TABLE\n" WHITE);
+        printErr("Syntax Error: CREATE TABLE\n");
         return false;
     }
     // Table name
@@ -38,7 +38,7 @@ bool Parser::Create_Table_Query(){
     // Check Schema
     token = scanner.nextToken();
     if(token != "("){
-        fprintf(stderr, LIGHT_RED "Syntax Error: expected '('\n" WHITE);
+        printErr( "Syntax Error: expected '('\n");
         return false;
     }
     schema.clear();
@@ -60,7 +60,7 @@ bool Parser::Read_Schema() {
             scanner.nextToken();
         }
         else{
-            fprintf(stderr, LIGHT_RED "Syntax Error: expected ',' or ')'\n" WHITE);
+            printErr("Syntax Error: expected ',' or ')'\n");
             return false;
         }
     }
@@ -72,7 +72,7 @@ bool Parser::Read_Schema() {
     }
     for (auto& p : attr_name_times) {
     	if (p.second > 1) {
-    		fprintf(stderr, LIGHT_RED "Error: Duplicated attribute name for \'%s\'\n" WHITE, p.first.c_str());
+    		printErr("Error: Duplicated attribute name for \'%s\'\n", p.first.c_str());
     		return false;
     	}
     }
@@ -84,22 +84,22 @@ bool Parser::Read_Attr_Def(Attribute& attr) {
     attr.name = scanner.nextToken();
     attr.type = scanner.nextToken();
     if(attr.type != "int" && attr.type != "varchar"){
-        fprintf(stderr, LIGHT_RED "Error: unknown type '%s'\n" WHITE, attr.type.c_str());
+        printErr("Error: unknown type '%s'\n", attr.type.c_str());
         return false;
     }
     // Read char length
     if(attr.type == "varchar"){
         if(scanner.nextToken() != "("){
-            fprintf(stderr, LIGHT_RED "Syntax Error: expected '('\n" WHITE);
+            printErr("Syntax Error: expected '('\n");
             return false;
         }
         attr.char_len = stoi(scanner.nextToken());
         if(attr.char_len <= 0){
-            fprintf(stderr, LIGHT_RED "char length should be greater than 0\n" WHITE);
+            printErr("char length should be greater than 0\n");
             return false;
         }
         if(scanner.nextToken() != ")"){
-            fprintf(stderr, LIGHT_RED "Syntax Error: expected ')'\n" WHITE);
+            printErr("Syntax Error: expected ')'\n");
             return false;
         }
     }
@@ -107,7 +107,7 @@ bool Parser::Read_Attr_Def(Attribute& attr) {
     if(scanner.lookAhead() == "primary"){
         scanner.nextToken();
         if(scanner.nextToken() != "key"){
-            fprintf(stderr, LIGHT_RED "Syntax Error: do you mean 'PRIMARY KEY' ?\n" WHITE);
+            printErr("Syntax Error: do you mean 'PRIMARY KEY' ?\n");
             return false;
         }
         attr.isPrimaryKey = true;
@@ -122,7 +122,7 @@ bool Parser::Insert_Query() {
     // "into"
     string token = scanner.nextToken();
     if (token != "into") {
-        fprintf(stderr, LIGHT_RED "Missing 'INTO' after 'INSERT'\n" WHITE);
+        printErr("Missing 'INTO' after 'INSERT'\n");
         return false;
     }
 
@@ -140,13 +140,13 @@ bool Parser::Insert_Query() {
         scanner.nextToken();
         if (not Read_Value()) return false;
     } else {
-        fprintf(stderr, LIGHT_RED "Expected 'VALUES', got %s\n" WHITE, scanner.lookAhead().c_str());
+        printErr("Expected 'VALUES', got %s\n", scanner.lookAhead().c_str());
         return false;
     }
 
     // examine whether orders.size() == values.size()
     if(orderSpecified && orders.size() != values.size()){
-        fprintf(stderr, LIGHT_RED "Specified counts must be same as value counts\n" WHITE);
+        printErr("Specified counts must be same as value counts\n");
         return false;
     }
     return true;
@@ -171,7 +171,7 @@ bool Parser::Read_Order_Specify() {
             scanner.nextToken();
         }
         else{
-            fprintf(stderr, LIGHT_RED "Syntax Error: expected ',' or ')'\n" WHITE);
+            printErr("Syntax Error: expected ',' or ')'\n");
             return false;
         }
     }
@@ -183,7 +183,7 @@ bool Parser::Read_Value() {
     values.clear();
     // "(" error detect
     if(scanner.lookAhead() != "("){
-        fprintf(stderr, LIGHT_RED "Syntax Error: expected '(' after value\n" WHITE);
+        printErr("Syntax Error: expected '(' after value\n");
         return false;
     }
     scanner.nextToken();
@@ -195,7 +195,7 @@ bool Parser::Read_Value() {
         	try {
         		value = Value(scanner.lookAhead());
         	} catch (const std::invalid_argument& ia) {
-        		fprintf(stderr, LIGHT_RED "Type Error: expected number or string, got '%s'\n" WHITE, scanner.lookAhead().c_str());
+        		printErr("Type Error: expected number or string, got '%s'\n", scanner.lookAhead().c_str());
         		return false;
         	};
             scanner.nextToken();
@@ -212,7 +212,7 @@ bool Parser::Read_Value() {
             scanner.nextToken();
         }
         else{
-            fprintf(stderr, LIGHT_RED "Syntax Error: expected ',' or ')'\n" WHITE);
+            printErr("Syntax Error: expected ',' or ')'\n");
             return false;
         }
     }

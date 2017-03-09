@@ -17,7 +17,7 @@ Table::~Table(){}
 
 bool Table::checkPrimaryKey(Value &value){
 	if(!primary_key_columns.empty() && (primary_key_columns.find(value) != primary_key_columns.end())){
-		fprintf(stderr, LIGHT_RED "Duplicated primary key value\n" WHITE);
+		printErr("Duplicated primary key value\n");
 		return false;
 	}
 	return true;
@@ -30,12 +30,12 @@ bool Table::checkDataType(string attr_name, Value &value){
 				return true;
 			}
 			else { // incorrect type
-				fprintf(stderr, LIGHT_RED "Type error: attribute '%s' should have '%s' type\n" WHITE, attr.name.c_str(), attr.type.c_str());
+				printErr("Type error: attribute '%s' should have '%s' type\n", attr.name.c_str(), attr.type.c_str());
 				return false;
 			}
 		}
 	}
-	fprintf(stderr, LIGHT_RED "No such attribute '%s'\n" WHITE, attr_name.c_str());
+	printErr("No such attribute '%s'\n", attr_name.c_str());
 	return false;
 }
 
@@ -89,7 +89,7 @@ bool BaseData::Query(string query_str){
 		// Create table
 		Table table(parser->table_name, parser->schema);
 		if(tables.find(table.table_name) != tables.end()){ // Duplicated table name
-			fprintf(stderr, LIGHT_RED "Duplicated table name '%s'\n" WHITE, table.table_name.c_str());
+			printErr("Duplicated table name '%s'\n", table.table_name.c_str());
 			return false;
 		}
 		else {
@@ -100,7 +100,7 @@ bool BaseData::Query(string query_str){
 	else if(parser->isInsertQuery){
 		// find the table
 		if(tables.find(parser->table_name) == tables.end()){
-			fprintf(stderr, LIGHT_RED "No such table '%s'\n" WHITE, parser->table_name.c_str());
+			printErr("No such table '%s'\n", parser->table_name.c_str());
 			return false;
 		}
 		else {

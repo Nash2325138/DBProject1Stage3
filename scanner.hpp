@@ -22,5 +22,5 @@ public:
 	string lookAhead();
 };
 
-
+void printErr(const char *fmt, ...);
 #endif

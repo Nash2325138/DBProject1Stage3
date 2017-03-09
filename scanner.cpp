@@ -1,10 +1,12 @@
 #include "scanner.hpp"
+#include "color.h"
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
 #include <string>
 #include <cstring>
 #include <algorithm>
+#include <cstdarg>
 
 using std::string;
 Scanner::Scanner(const string& str): pos(0), aheadConsumed(true), aheadBuffer() {
@@ -151,4 +153,13 @@ string Scanner::lookAhead() {
 	std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
 	aheadBuffer = ret;
 	return ret;
+}
+
+void printErr(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    char * buffer = new char[strlen(fmt)+20];
+    strcat(strcat(strcat(buffer, LIGHT_RED), fmt), NONE);
+    vfprintf(stderr, buffer, args);
+    va_end(args);
 }
