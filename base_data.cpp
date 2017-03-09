@@ -62,17 +62,15 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 		if(not checkDataType(orders[i], values[i])){
 			return false;
 		}
-		if(hasPrimary){
-			if(orders[i] == primary_key_name){
-				if(not checkPrimaryKey(values[i])){
-					return false;
-				}
-				primary_key_columns.insert(values[i]);
+		if(hasPrimary && orders[i] == primary_key_name){
+			if(not checkPrimaryKey(values[i])){
+				return false;
 			}
+			primary_key_columns.insert(values[i]);
 		}
 		tuple[orders[i]] = values[i];
 	}
-	tuples.push_back(tuple);
+	tuples.push_back(std::move(tuple));
 	return true;
 }
 
@@ -84,13 +82,11 @@ bool Table::insert(vector<Value>& values) {
 			if(not checkDataType(schema[i].name, values[i])){
 				return false;
 			}
-			if(hasPrimary){
-				if(schema[i].isPrimaryKey){
-					if(not checkPrimaryKey(values[i])){
-						return false;
-					}
-					primary_key_columns.insert(values[i]);
+			if(hasPrimary && schema[i].isPrimaryKey){
+				if(not checkPrimaryKey(values[i])){
+					return false;
 				}
+				primary_key_columns.insert(values[i]);
 			}
 			tuple[schema[i].name] = values[i];
 		} else {

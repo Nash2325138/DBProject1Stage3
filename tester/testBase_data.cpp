@@ -22,7 +22,9 @@ int main(int argc, char const *argv[])
     queries.push_back("insert into aa values('qdwqdwqd', 20)");
     queries.push_back("insert into aa values('qdwqdwqd', 10)");
     queries.push_back("insert into aa values('diff', 20)");
+
     queries.push_back("insert into bb values('kk', 's10306XXXX', -30)");
+    queries.push_back("insert into bb values()");
 
     queries.push_back("cReate TAble qq(name varchar(10) PRIMARY KEY, a int, b int)");
     queries.push_back("insert Into qq values('1', '2')");
