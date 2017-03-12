@@ -24,6 +24,10 @@ bool Parser::Parse(){
         printErr("Syntax Error: unknown operator '%s'\n", token.c_str());
         return false;
     }
+    if (scanner.lookAhead() != "") {
+        printErr("Unexpected token '%s' after a complete SQL query\n", scanner.lookAhead().c_str());
+        return false;
+    }
     return true;
 }
 

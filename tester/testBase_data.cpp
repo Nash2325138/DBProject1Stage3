@@ -49,6 +49,9 @@ int main(int argc, char const *argv[])
     queries.push_back("insert iNtO gg (a, name)values(10, \"App\")"); // lack of primary key
     queries.push_back("insert iNtO gg (b, name)values(91, \"App\")");
 	queries.push_back("insert iNtO gg (b)        values (22)");
+    
+    queries.push_back("Create table hey(a int) Create table yo(b int)");
+    queries.push_back("Create table hey(a int)");
 
     BaseData base;
     for (auto& s : queries) {

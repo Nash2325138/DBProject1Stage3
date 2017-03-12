@@ -202,6 +202,7 @@ void Table::show(){
 	puts("|");
 	puts(row_seperator(column_widths));
 
+	if (tuples.size() == 0) return;
 	// output all tuples
 	for (auto& tuple : tuples){
 		i=0;
