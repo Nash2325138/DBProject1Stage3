@@ -83,6 +83,7 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 		// this find requires O(m), m == # of tuples
 		// possible acceleration: use unordered_set<tuple> instead of vector<tuple>, tuple === map<string, Value>
 		printErr("You can't insert exact the same tuple to a table\n");
+		return false;
 	}
 	tuples.push_back(tuple);
 	return true;
@@ -117,6 +118,7 @@ bool Table::insert(vector<Value>& values) {
 		// this find requires O(m), m == # of tuples
 		// possible acceleration: use unordered_set<tuple> instead of vector<tuple>, tuple === map<string, Value>
 		printErr("You can't insert exact the same tuple to a table\n");
+		return false;
 	}
 	tuples.push_back(tuple);
 	return true;
