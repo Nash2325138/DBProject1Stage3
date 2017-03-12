@@ -1,0 +1,13 @@
+cReate TAble qq(name varchar(10) PRIMARY KEY, a int, b int);
+insert Into qq values('1', '2');
+insert Into qq values('John', 2, 5);
+insert Into qq values('Susan', 20);
+insert Into qq values('Zoe', 2);
+insert Into qq values('Susan', 25);
+insert iNtO Qq (a, b, name) values(20, 30, 'Bob');
+insert iNtO Qq (a, name, b) values(,,1);
+insert iNtO Qq (name, b) values(,,1);
+insert iNtO Qq (name, b) values(,1);
+insert iNtO Qq (name, b) values('Jason',1);
+insert iNtO Qq (a, b) values(3,1);
+insert iNtO qQ values(3,1);

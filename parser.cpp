@@ -21,7 +21,10 @@ bool Parser::Parse(){
         if (not Insert_Query()) return false;
     }
     else {
+        // setbuf(stdout, NULL);
+        // printf("???\n");
         printErr("Syntax Error: unknown operator '%s'\n", token.c_str());
+        // printf("???\n");
         return false;
     }
     if (scanner.lookAhead() != "") {
