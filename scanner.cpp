@@ -158,7 +158,7 @@ string Scanner::lookAhead() {
 void printErr(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    char * buffer = new char[strlen(fmt)+20];
+    char * buffer = new char[strlen(fmt)+100];
     strcat(strcat(strcat(buffer, LIGHT_RED), fmt), NONE);
     vfprintf(stderr, buffer, args);
     va_end(args);

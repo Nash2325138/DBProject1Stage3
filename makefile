@@ -1,3 +1,6 @@
+all:
+	g++ -std=c++11 *.cpp *.hpp
+
 scanner_test:
 	g++ -Wall -std=c++11 scanner.hpp scanner.cpp tester/testScanner.cpp
 	./a.out
