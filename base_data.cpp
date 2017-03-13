@@ -56,6 +56,11 @@ bool Table::checkDataType(string& attr_name, Value &value){
 }
 
 bool Table::insert(vector<string>& orders, vector<Value>& values) {
+	if(orders.size() != schema.size() || 
+	   orders.size() != values.size() ) {
+		printErr("Wrong attribute number\n");
+		return false;
+	}
 	map<string, Value> tuple;
 	bool getPrimary = false;
 	for (auto& attr : schema) {
@@ -90,7 +95,12 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 }
 
 bool Table::insert(vector<Value>& values) {
+	if(values.size() != schema.size()){
+		printErr("Wrong attribute number\n");
+		return false;
+	}
 	map<string, Value> tuple;
+	Value primary_key_value;
 	for(int i=0; i<schema.size(); i++){
 		if (i < values.size()) {
 			// check data type
@@ -101,7 +111,7 @@ bool Table::insert(vector<Value>& values) {
 				if(not checkPrimaryKey(values[i])){
 					return false;
 				}
-				primary_key_columns.insert(values[i]);
+				primary_key_value = values[i];
 			}
 			tuple[schema[i].name] = values[i];
 		} else {
@@ -121,6 +131,7 @@ bool Table::insert(vector<Value>& values) {
 		return false;
 	}
 	tuples.push_back(tuple);
+	primary_key_columns.insert(primary_key_value);
 	return true;
 }
 
@@ -164,6 +175,7 @@ bool BaseData::Query(string query_str){
 	delete parser;
 	return true;
 }
+
 const char* row_seperator(const vector<int>& column_widths) {
 	static char buffer[2000];
 	int pos = 0;
@@ -173,6 +185,7 @@ const char* row_seperator(const vector<int>& column_widths) {
 	sprintf(buffer + pos, "+");
 	return buffer;
 }
+
 void Table::show(){
 	static const int OFFSET = 3;
 	int i=0;
