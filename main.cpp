@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
 				printf(">> %s\n", buffer);
 				base.Query(string(buffer));
 			}
-			// base.show();
+			base.show();
 		}
 	} else {
 		fprintf(stderr, "Invalid use. Please use the following format instead.\n ./<executable> [<filename1> <filename2> ...]");

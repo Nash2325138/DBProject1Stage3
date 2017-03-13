@@ -207,9 +207,7 @@ void Table::show(){
 		w += OFFSET;
 	}
 
-	
-
-	printf("Table: %s\n", table_name.c_str());
+	printf("Table %s: %s\n", table_name.c_str(), this->schemaToString().c_str());
 	// Top '-' and '+'
 	puts(row_seperator(column_widths));
 
@@ -236,21 +234,21 @@ void Table::show(){
 }
 
 string Table::schemaToString() {
-	string ret;
-	for (auto& attr : schema) {
-		ret += attr.name;
-		ret += ": ";
-		ret += attr.type;
-		if (attr.isPrimaryKey) ret += "(primary)";
-		ret += ", ";
+	char ret[2000];
+	int pos = 0;
+	pos += sprintf(ret+pos, NONE "(" YELLOW);
+	for (int i=0; i<schema.size(); i++) {
+		if (i) pos += sprintf(ret+pos, NONE ", " YELLOW);
+		auto& attr = schema[i];
+		pos += sprintf(ret+pos, "%s %s", attr.name.c_str(), attr.type.c_str());
+		if (attr.isPrimaryKey) pos += sprintf(ret+pos, CYAN " primary" YELLOW);
 	}
+	pos += sprintf(ret+pos, NONE ")");
 	return ret;	
 }
 void BaseData::show() {
-	std::cout << "Base: " << std::endl;
 	for (auto& p: tables) {
 		auto& table = p.second;
-		std::cout << table.schemaToString();
 		table.show();
 	}
 	puts("");
