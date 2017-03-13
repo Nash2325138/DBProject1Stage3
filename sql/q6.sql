@@ -1,0 +1,13 @@
+create table g(a int, b int, c varchar(30));
+insert into g values(1, 2, '');
+insert into g values('1', '2', '');
+insert into g values(1, 2, '');
+insert into g values(1, 2, 'insert into g');
+insert into g(c) values(1);
+insert into g(c) values('hello');
+insert into g(b, a) values(1, 2);
+insert into g(c, b) values(1, '2');
+insert into g(c, b) values('2', 1);
+insert into g(c, a) values('2', 1);
+insert into g(c, b, a) values(1, 2, '3');
+show;

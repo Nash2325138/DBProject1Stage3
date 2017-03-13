@@ -71,10 +71,17 @@ public:
     }
 
     bool operator<(const Value& a) const {
-        if (isNull) {
-            return true;
-        }
-        else if (isInt) {
+        if (isNull || a.isNull) {
+            if (isNull && a.isNull) {
+                // then *this == a, so !(*this < a) and !(a < *this)
+                return false;
+            } else if (isNull == true && a.isNull == false) {
+                return true;
+            } else {
+                // isNull == false && a.isNull == true
+                return false;
+            }
+        } else if (isInt) {
             return (intData < a.intData);
         } else if (isString) {
             return (strData.compare(a.strData) < 0);
@@ -84,14 +91,16 @@ public:
         }
     }
     bool operator==(const Value& a) const {
-        if (isNull && a.isNull) {
+        if (isNull != a.isNull) {
+            return false;
+        } else if (isNull && a.isNull) {
             return true;
         } else if (isInt) {
             return (intData == a.intData);
         } else if (isString) {
             return (strData == a.strData);
         }
-        fprintf(stderr, "WTF!?? at Value operator ==\n");
+        fprintf(stderr, "WTF!?? at Value operator == \n");
         return false;
     }
 };

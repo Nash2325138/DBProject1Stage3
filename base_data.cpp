@@ -56,9 +56,8 @@ bool Table::checkDataType(string& attr_name, Value &value){
 }
 
 bool Table::insert(vector<string>& orders, vector<Value>& values) {
-	if(orders.size() != schema.size() || 
-	   orders.size() != values.size() ) {
-		printErr("Wrong attribute number\n");
+	if (orders.size() > schema.size()) {
+		printErr("Number of values exceeds number of atrributes\n");
 		return false;
 	}
 	map<string, Value> tuple;
@@ -97,8 +96,8 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 }
 
 bool Table::insert(vector<Value>& values) {
-	if(values.size() != schema.size()){
-		printErr("Wrong attribute number\n");
+	if(values.size() > schema.size()){
+		printErr("Number of values exceeds number of atrributes \n");
 		return false;
 	}
 	map<string, Value> tuple;
