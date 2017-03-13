@@ -9,6 +9,10 @@ Parser::Parser(string query_str):   query_str(query_str), scanner(query_str),
                                     isCreateTableQuery(false), isInsertQuery(false),
                                     orderSpecified(false) {}
 
+bool Parser::validName(string& name) {
+    static const std::regex reg("[a-zA-Z_][a-zA-Z_0-9]*");
+    return std::regex_match (name, reg); 
+}
 bool Parser::Parse(){
     string token;
     token = scanner.nextToken();
@@ -44,6 +48,10 @@ bool Parser::Create_Table_Query(){
     }
     // Table name
     table_name = scanner.nextToken();
+    if (not validName(table_name)) {
+        printErr("Table name invalid\n");
+        return false;
+    }
     // Check Schema
     token = scanner.nextToken();
     if(token != "("){
@@ -91,6 +99,10 @@ bool Parser::Read_Schema() {
 
 bool Parser::Read_Attr_Def(Attribute& attr) {
     attr.name = scanner.nextToken();
+    if (not validName(attr.name)) {
+        printErr("Attribute name invalid\n");
+        return false;
+    }
     attr.type = scanner.nextToken();
     attr.isPrimaryKey = false;
     if(attr.type != "int" && attr.type != "varchar"){

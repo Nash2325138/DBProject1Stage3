@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <regex>
 
 using namespace std;
 
@@ -70,7 +71,10 @@ public:
     }
 
     bool operator<(const Value& a) const {
-        if (isInt) {
+        if (isNull) {
+            return true;
+        }
+        else if (isInt) {
             return (intData < a.intData);
         } else if (isString) {
             return (strData.compare(a.strData) < 0);
@@ -114,7 +118,6 @@ public:
 
     Parser(string query_str);
     bool Parse();
-
     bool Create_Table_Query();
     bool Read_Schema();
     bool Read_Attr_Def(Attribute& attr);
@@ -123,6 +126,8 @@ public:
     bool Insert_Query();
     bool Read_Order_Specify();
     bool Read_Value();
+
+    bool validName(string& name);
 };
 
 
