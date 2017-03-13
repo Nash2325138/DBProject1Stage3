@@ -125,6 +125,10 @@ bool Table::insert(vector<Value>& values) {
 }
 
 bool BaseData::Query(string query_str){
+	if (query_str == "show") {
+		this->show();
+		return true;
+	}
 	parser = new Parser(query_str);
 	if(not parser->Parse()) return false;
 
