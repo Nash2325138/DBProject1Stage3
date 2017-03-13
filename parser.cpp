@@ -27,7 +27,9 @@ bool Parser::Parse(){
         // printf("???\n");
         return false;
     }
-    if (scanner.lookAhead() != "") {
+    int num_chars = 0;
+    sscanf(scanner.lookAhead().c_str(), " %n", &num_chars);
+    if (num_chars > 0) {
         printErr("Unexpected token '%s' after a complete SQL query\n", scanner.lookAhead().c_str());
         return false;
     }
