@@ -62,6 +62,7 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 		return false;
 	}
 	map<string, Value> tuple;
+	Value primary_key_value;
 	bool getPrimary = false;
 	for (auto& attr : schema) {
 		tuple[attr.name];	// construct all values as null value (in case orders.size() < schema.size())
@@ -76,7 +77,7 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 			if(not checkPrimaryKey(values[i])){
 				return false;
 			}
-			primary_key_columns.insert(values[i]);
+			primary_key_value = values[i];
 		}
 		tuple[orders[i]] = values[i];
 	}
@@ -91,6 +92,7 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 		return false;
 	}
 	tuples.push_back(tuple);
+	primary_key_columns.insert(primary_key_value);
 	return true;
 }
 
