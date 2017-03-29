@@ -85,13 +85,13 @@ bool Parser::Read_Schema() {
     // check duplicated attribute name
     map<string, int> attr_name_times;
     for (auto& attr : schema) {
-    	attr_name_times[attr.name]++;
+        attr_name_times[attr.name]++;
     }
     for (auto& p : attr_name_times) {
-    	if (p.second > 1) {
-    		printErr("Error: Duplicated attribute name for \'%s\'\n", p.first.c_str());
-    		return false;
-    	}
+        if (p.second > 1) {
+            printErr("Error: Duplicated attribute name for \'%s\'\n", p.first.c_str());
+            return false;
+        }
     }
 
     return true;
@@ -212,14 +212,14 @@ bool Parser::Read_Value() {
     while(true) {
         // read value1, value2, value3, ...
         if (scanner.lookAhead() == "," || scanner.lookAhead() == ")") {
-        	value = Value();
+            value = Value();
         } else {
-        	try {
-        		value = Value(scanner.lookAhead());
-        	} catch (const std::invalid_argument& ia) {
-        		printErr("Type Error: expected number or string, got '%s'\n", scanner.lookAhead().c_str());
-        		return false;
-        	};
+            try {
+                value = Value(scanner.lookAhead());
+            } catch (const std::invalid_argument& ia) {
+                printErr("Type Error: expected number or string, got '%s'\n", scanner.lookAhead().c_str());
+                return false;
+            };
             scanner.nextToken();
         }
 
@@ -239,6 +239,35 @@ bool Parser::Read_Value() {
         }
     }
     return true;
+}
+
+
+
+bool Parser::Select_Query() {
+    return false;
+}
+bool Parser::read_Selected_Item_Sequence() {
+    return false;
+}
+bool Parser::read_Selected_Item() {
+    return false;
+}
+bool Parser::read_AttrID(AttributeID& attrID) {
+    return false;
+}
+
+bool Parser::read_FromTable_Sequence() {
+    return false;
+}
+bool Parser::read_FromTable() {
+    return false;
+}
+
+bool Parser::read_Where_Clause() {
+    return false;
+}
+bool Parser::read_ComparePair(ComparePair& cmpPair) {
+    return false;
 }
 
 void Parser::Print(){
