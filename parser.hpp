@@ -179,7 +179,7 @@ public:
         vector<SelectedItem> selected_items; 
         
         vector<ComparePair> comparePairs;
-        vector<LogicalOP> logicalOPs;
+        LogicalOP logicalOP;
 
         map<string, string> aliasToTableName;
         vector<string> fromTables;
