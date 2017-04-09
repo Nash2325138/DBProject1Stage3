@@ -244,26 +244,56 @@ bool Parser::Read_Value() {
 
 
 bool Parser::Select_Query() {
+    // read_Selected_Item_Sequence() to fill:
+    //      selectData->selectedItems
+    
+    // read_FromTable_Sequence() to fill
+    //      1. selectData->fromTables
+    //      2. selectData->aliasToTableName
+    
+    // if lookagead == "where":
+    // read_Where_Clause() to fill 
+    //      1. selectData->comparePairs 
+    //      2. selectData->logicalOP
+    
     return false;
 }
 bool Parser::read_Selected_Item_Sequence() {
+    // while (1) { read_Selected_Item() and read "," until lookahead == "" or "from" }
     return false;
 }
 bool Parser::read_Selected_Item() {
+    // A selected item can be either AggrFunc(attrID) or attrID
+    //      1. AggrFunc can either be "SUM" or "COUNT"
+    //      2. use read_AttrID(attrID_ref) to read and fill a attrID
     return false;
 }
 bool Parser::read_AttrID(AttributeID& attrID) {
+    // An attrID can be either an attrName or tableID.attrName
+    //      1. An attrName is a string
+    //      2. An tableID can be either alias or table name, but they are all string
     return false;
 }
 
 bool Parser::read_FromTable_Sequence() {
+    // while (1) {read_FromTable() and read "," until lookagead == "" or "where"}
     return false;
 }
 bool Parser::read_FromTable() {
+    // read "from"
+    // read "tableName" or "tableName as alias" 
+    //      1. push_back or emplace_back to selectData->fromTables
+    //      2. insert (alias, tableName) to selectData->aliasToTableName
     return false;
 }
 
 bool Parser::read_Where_Clause() {
+    // 1. read "where"
+    // 2. read_ComparePair()
+    // 3. if (lookahead == "or" or "and"):
+    //      read_ComparePair()
+
+    // we don't need to handle more than two conditions in the WHERE clause 
     return false;
 }
 bool Parser::read_ComparePair(ComparePair& cmpPair) {

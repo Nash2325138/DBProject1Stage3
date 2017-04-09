@@ -156,27 +156,27 @@ public:
     };
     struct ComparePair {
         CompareType compareType;
-        AttributeID attributeID1;
-        CompareOP compareOP;
-        AttributeID attributeID2;
-        int intConstant;
-        string strConstant;
-        ComparePair(const AttributeID& attributeID1, CompareOP compareOP, const AttributeID& attributeID2):
-                    attributeID1(attributeID1), compareOP(compareOP), attributeID2(attributeID2) {
-            compareType = CompareType::ATTRIBUTE;
-        }
-        ComparePair(const AttributeID& attributeID1, CompareOP compareOP, int i):
-                    attributeID1(attributeID1), compareOP(compareOP), intConstant(i) {
-            compareType = CompareType::INT;
-        }
-        ComparePair(const AttributeID& attributeID1, CompareOP compareOP, const string& str):
-                    attributeID1(attributeID1), compareOP(compareOP), strConstant(str) {
-            compareType = CompareType::STRING;
-        }
+        // AttributeID attributeID1;
+        // CompareOP compareOP;
+        // AttributeID attributeID2;
+        // int intConstant;
+        // string strConstant;
+        // ComparePair(const AttributeID& attributeID1, CompareOP compareOP, const AttributeID& attributeID2):
+        //             attributeID1(attributeID1), compareOP(compareOP), attributeID2(attributeID2) {
+        //     compareType = CompareType::ATTRIBUTE;
+        // }
+        // ComparePair(const AttributeID& attributeID1, CompareOP compareOP, int i):
+        //             attributeID1(attributeID1), compareOP(compareOP), intConstant(i) {
+        //     compareType = CompareType::INT;
+        // }
+        // ComparePair(const AttributeID& attributeID1, CompareOP compareOP, const string& str):
+        //             attributeID1(attributeID1), compareOP(compareOP), strConstant(str) {
+        //     compareType = CompareType::STRING;
+        // }
     };
     
     struct SelectQueryData {
-        vector<SelectedItem> selected_items; 
+        vector<SelectedItem> selectedItems; 
         
         vector<ComparePair> comparePairs;
         LogicalOP logicalOP;
