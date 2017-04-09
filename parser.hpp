@@ -164,60 +164,35 @@ public:
         AttributeID attrID1;
         CompareOP op;
         AttributeID attrID2;
-
+        inline void fillPartPair(const string& part, int &i, string& str, CompareType& type) {
+            if (Parser::isStrString(part)) {
+                type = CompareType::STRING_CONST;
+                i = std::stoi(part);
+            } else if (Parser::isIntString(part)) {
+                type = CompareType::INT_CONST;
+                str = part;
+            } else {
+                fprintf(stderr, "typeOfString wrong: no type for %s\n", part.c_str());
+                exit(EXIT_FAILURE);
+            }
+        }
         ComparePair(const AttributeID& attrID1, CompareOP op, const AttributeID& attrID2):
                     attrID1(attrID1), op(op), attrID2(attrID2) {
             type1 = type2 = CompareType::ATTRIBUTE;
         }
-        ComparePair(const AttributeID& attrID1, CompareOP op, const string& pair2):
+        ComparePair(const AttributeID& attrID1, CompareOP op, const string& part2):
                     attrID1(attrID1), op(op){
             type1 = CompareType::ATTRIBUTE;
-            if (Parser::isStrString(pair2)) {
-                type2 = CompareType::STRING_CONST;
-                int2 = std::stoi(pair2);
-            } else if (Parser::isIntString(pair2)) {
-                type2 = CompareType::INT_CONST;
-                str2 = pair2;
-            } else {
-                fprintf(stderr, "typeOfString wrong: no type for %s\n", pair2.c_str());
-                exit(EXIT_FAILURE);
-            }
+            this->fillPartPair(part2, int2, str2, type2);
         }
-        ComparePair(const string& pair1, CompareOP op,const AttributeID& attrID2):
+        ComparePair(const string& part1, CompareOP op,const AttributeID& attrID2):
                     op(op), attrID2(attrID2) {
             type2 = CompareType::ATTRIBUTE;
-            if (Parser::isStrString(pair1)) {
-                type1 = CompareType::STRING_CONST;
-                int1 = std::stoi(pair1);
-            } else if (Parser::isIntString(pair1)) {
-                type1 = CompareType::INT_CONST;
-                str1 = pair1;
-            } else {
-                fprintf(stderr, "typeOfString wrong: no type for %s\n", pair1.c_str());
-                exit(EXIT_FAILURE);
-            }
+            this->fillPartPair(part1, int1, str1, type1);
         }
-        ComparePair(const string& pair1, CompareOP op, const string& pair2): op(op) {
-            if (Parser::isStrString(pair2)) {
-                type2 = CompareType::STRING_CONST;
-                int2 = std::stoi(pair2);
-            } else if (Parser::isIntString(pair2)) {
-                type2 = CompareType::INT_CONST;
-                str2 = pair2;
-            } else {
-                fprintf(stderr, "typeOfString wrong: no type for %s\n", pair2.c_str());
-                exit(EXIT_FAILURE);
-            }
-            if (Parser::isStrString(pair1)) {
-                type1 = CompareType::STRING_CONST;
-                int1 = std::stoi(pair1);
-            } else if (Parser::isIntString(pair1)) {
-                type1 = CompareType::INT_CONST;
-                str1 = pair1;
-            } else {
-                fprintf(stderr, "typeOfString wrong: no type for %s\n", pair1.c_str());
-                exit(EXIT_FAILURE);
-            }
+        ComparePair(const string& part1, CompareOP op, const string& part2): op(op) {
+            this->fillPartPair(part1, int1, str1, type1);
+            this->fillPartPair(part2, int2, str2, type2);
         }
     };
     
