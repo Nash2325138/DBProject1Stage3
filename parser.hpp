@@ -116,7 +116,7 @@ struct AttributeID {
 enum class CompareOP {BIGGER, SMALLER, EQUAL, NOT_EQUAL};
 enum class LogicalOP {AND, OR};
 enum class AggreFunc {SUM, COUNT};
-enum class CompareType {ATTRIBUTE, INT, STRING};
+enum class CompareType {ATTRIBUTE, INT_CONST, STRING_CONST};
 class Parser{
 private:
     string query_str;
@@ -155,24 +155,70 @@ public:
         SelectedItem(const AttributeID& attributeID): isAggregation(false),  attributeID(attributeID){}
     };
     struct ComparePair {
-        CompareType compareType;
-        // AttributeID attributeID1;
-        // CompareOP compareOP;
-        // AttributeID attributeID2;
-        // int intConstant;
-        // string strConstant;
-        // ComparePair(const AttributeID& attributeID1, CompareOP compareOP, const AttributeID& attributeID2):
-        //             attributeID1(attributeID1), compareOP(compareOP), attributeID2(attributeID2) {
-        //     compareType = CompareType::ATTRIBUTE;
-        // }
-        // ComparePair(const AttributeID& attributeID1, CompareOP compareOP, int i):
-        //             attributeID1(attributeID1), compareOP(compareOP), intConstant(i) {
-        //     compareType = CompareType::INT;
-        // }
-        // ComparePair(const AttributeID& attributeID1, CompareOP compareOP, const string& str):
-        //             attributeID1(attributeID1), compareOP(compareOP), strConstant(str) {
-        //     compareType = CompareType::STRING;
-        // }
+        CompareType type1;
+        CompareType type2;
+        
+        string str1, str2;
+        int int1, int2;
+
+        AttributeID attrID1;
+        CompareOP op;
+        AttributeID attrID2;
+
+        ComparePair(const AttributeID& attrID1, CompareOP op, const AttributeID& attrID2):
+                    attrID1(attrID1), op(op), attrID2(attrID2) {
+            type1 = type2 = CompareType::ATTRIBUTE;
+        }
+        ComparePair(const AttributeID& attrID1, CompareOP op, const string& pair2):
+                    attrID1(attrID1), op(op){
+            type1 = CompareType::ATTRIBUTE;
+            if (Parser::isStrString(pair2)) {
+                type2 = CompareType::STRING_CONST;
+                int2 = std::stoi(pair2);
+            } else if (Parser::isIntString(pair2)) {
+                type2 = CompareType::INT_CONST;
+                str2 = pair2;
+            } else {
+                fprintf(stderr, "typeOfString wrong: no type for %s\n", pair2.c_str());
+                exit(EXIT_FAILURE);
+            }
+        }
+        ComparePair(const string& pair1, CompareOP op,const AttributeID& attrID2):
+                    op(op), attrID2(attrID2) {
+            type2 = CompareType::ATTRIBUTE;
+            if (Parser::isStrString(pair1)) {
+                type1 = CompareType::STRING_CONST;
+                int1 = std::stoi(pair1);
+            } else if (Parser::isIntString(pair1)) {
+                type1 = CompareType::INT_CONST;
+                str1 = pair1;
+            } else {
+                fprintf(stderr, "typeOfString wrong: no type for %s\n", pair1.c_str());
+                exit(EXIT_FAILURE);
+            }
+        }
+        ComparePair(const string& pair1, CompareOP op, const string& pair2): op(op) {
+            if (Parser::isStrString(pair2)) {
+                type2 = CompareType::STRING_CONST;
+                int2 = std::stoi(pair2);
+            } else if (Parser::isIntString(pair2)) {
+                type2 = CompareType::INT_CONST;
+                str2 = pair2;
+            } else {
+                fprintf(stderr, "typeOfString wrong: no type for %s\n", pair2.c_str());
+                exit(EXIT_FAILURE);
+            }
+            if (Parser::isStrString(pair1)) {
+                type1 = CompareType::STRING_CONST;
+                int1 = std::stoi(pair1);
+            } else if (Parser::isIntString(pair1)) {
+                type1 = CompareType::INT_CONST;
+                str1 = pair1;
+            } else {
+                fprintf(stderr, "typeOfString wrong: no type for %s\n", pair1.c_str());
+                exit(EXIT_FAILURE);
+            }
+        }
     };
     
     struct SelectQueryData {
@@ -209,8 +255,8 @@ public:
     bool read_ComparePair(ComparePair& cmpPair);
 
     static bool validName(string& name);
-    static bool isIntString(string& str);
-    static bool isStrString(string& str);
+    static bool isIntString(const string& str);
+    static bool isStrString(const string& str);
 };
 
 
