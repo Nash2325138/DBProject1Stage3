@@ -112,8 +112,15 @@ struct AttributeID {
     bool tableSpecified;
     string tableID; // table name or table alias
     string attr_name;
+    string toString() {
+        if (tableSpecified) {
+            return tableID + "." + attr_name;
+        } else {
+            return attr_name;
+        }
+    }
 };
-enum class CompareOP {BIGGER, SMALLER, EQUAL, NOT_EQUAL};
+enum class CompareOP {BIGGER=0, SMALLER=1, EQUAL=2, NOT_EQUAL=3};
 enum class LogicalOP {AND, OR};
 enum class AggreFunc {SUM, COUNT};
 enum class CompareType {ATTRIBUTE, INT_CONST, STRING_CONST};
@@ -153,6 +160,21 @@ public:
             }
         }
         SelectedItem(const AttributeID& attributeID): isAggregation(false),  attributeID(attributeID){}
+        string toString() {
+            char buffer[1000];
+            if (isAggregation) {
+                if (aggreFunc == AggreFunc::SUM) {
+                    strcpy(buffer, "SUM(");
+                } else if (aggreFunc == AggreFunc::COUNT) {
+                    strcpy(buffer, "COUNT(");
+                }
+                strcat(buffer, attributeID.toString().c_str());
+                strcat(buffer, ")");
+            } else {
+                strcpy(buffer, attributeID.toString().c_str());
+            }
+            return buffer;
+        }
     };
     struct ComparePair {
         CompareType type1;
@@ -195,6 +217,28 @@ public:
             this->fillPartPair(part1, int1, str1, type1);
             this->fillPartPair(part2, int2, str2, type2);
         }
+        string partToString(CompareType type, string str, int i, AttributeID attrID) {
+            char buffer[1000];
+            if (type == CompareType::INT_CONST) {
+                sprintf(buffer, "Type::INT_CONST, data: %d", i);
+            } else if (type == CompareType::STRING_CONST) {
+                sprintf(buffer, "Type::STRING_CONST, data: %s", str.c_str());
+            } else if (type == CompareType::ATTRIBUTE) {
+                sprintf(buffer, "Type::ATTRIBUTE, data: %s", attrID.toString().c_str());
+            } else {
+                fprintf(stderr, "illegal type of part of comparePair\n");
+                exit(EXIT_FAILURE);
+                return "";
+            }
+            return buffer;
+        }
+        string toString() {
+            char buffer[2000];
+            strcpy(buffer, partToString(type1, str1, int1, attrID1).c_str());
+            sprintf(buffer+strlen(buffer), "\t, opcode: %d, ", op);
+            strcat(buffer, partToString(type2, str2, int2, attrID2).c_str());
+            return buffer;
+        }
     };
     
     struct SelectQueryData {
@@ -205,6 +249,31 @@ public:
 
         map<string, string> aliasToTableName;
         vector<string> fromTables;
+        string toString() {
+            char buffer[40000];
+            strcpy(buffer, "selectedItems:\n");
+            for (auto& item: selectedItems) {
+                strcat(strcat(buffer, item.toString().c_str()), "\n");
+            }
+            strcat(buffer, "\nfromTables:\n");
+            for (auto& table: fromTables) {
+                strcat(strcat(buffer, table.c_str()), "\n");
+            }
+            strcat(buffer, "\naliasToTableName:\n");
+            for (auto& aliasPair: aliasToTableName) {
+                strcat(strcat(strcat(buffer, aliasPair.first.c_str()), " -> "), aliasPair.second.c_str());
+            }
+
+            if (comparePairs.size() > 0) {
+                strcat(strcat(buffer, "\ncomparePair1:\n"), comparePairs[0].toString().c_str()); 
+                if (comparePairs.size() > 1) {
+                    strcat(strcat(buffer, "\ncomparePair1:\n"), comparePairs[0].toString().c_str()); 
+                }
+            }
+            strcat(buffer, "\n");
+            return buffer;
+
+        }
     };
     SelectQueryData* selectData;
 

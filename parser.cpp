@@ -404,12 +404,12 @@ bool Parser::read_Where_Clause() {
     Parser::ComparePair pair;
     if(not read_ComparePair(pair))
         return false;
-    comparePairs.push_back(pair);
+    selectData->comparePairs.push_back(pair);
 
     if(scanner.lookAhead() == "or" || scanner.lookAhead() == "and"){
         if(not read_ComparePair(pair))
             return false;
-        comparePairs.push_back(pair);
+        selectData->comparePairs.push_back(pair);
     }
     // we don't need to handle more than two conditions in the WHERE clause 
     return true;
@@ -433,14 +433,28 @@ bool Parser::read_ComparePair(ComparePair& cmpPair) {
     if(isStrString(attr2.attr_name) || isIntString(attr2.attr_name))
         isBackAttr = false;
 
+    CompareOP cop;
+    if (op == ">") {
+        cop = CompareOP::BIGGER;
+    } else if (op == "<") {
+        cop = CompareOP::SMALLER;
+    } else if (op == "<>") {
+        cop = CompareOP::NOT_EQUAL;
+    } else if (op == "=") {
+        cop = CompareOP::EQUAL;
+    } else {
+        fprintf(stderr, "No such CompareOP: %s\n", op.c_str());
+        exit(EXIT_FAILURE);
+    }
+
     if(isFrontAttr && isBackAttr)
-        cmpPair = ComparePair(attr1, op, attr2);
+        cmpPair = Parser::ComparePair(attr1, cop, attr2);
     else if(isFrontAttr && !isBackAttr)
-        cmpPair = ComparePair(attr1, op, attr2.attr_name);
+        cmpPair = Parser::ComparePair(attr1, cop, attr2.attr_name);
     else if(!isFrontAttr && isBackAttr)
-        cmpPair = ComparePair(attr1.attr_name, op, attr2);
+        cmpPair = Parser::ComparePair(attr1.attr_name, cop, attr2);
     else if(!isFrontAttr && !isBackAttr)
-        cmpPair = ComparePair(attr1.attr_name, op, attr2.attr_name);
+        cmpPair = Parser::ComparePair(attr1.attr_name, cop, attr2.attr_name);
 
     return true;
 }
