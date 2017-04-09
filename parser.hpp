@@ -190,10 +190,10 @@ public:
         inline void fillPartPair(const string& part, int &i, string& str, CompareType& type) {
             if (Parser::isStrString(part)) {
                 type = CompareType::STRING_CONST;
-                i = std::stoi(part);
+                str = part;
             } else if (Parser::isIntString(part)) {
                 type = CompareType::INT_CONST;
-                str = part;
+                i = std::stoi(part);
             } else {
                 fprintf(stderr, "typeOfString wrong: no type for %s\n", part.c_str());
                 exit(EXIT_FAILURE);
@@ -278,7 +278,7 @@ public:
             if (comparePairs.size() > 0) {
                 strcat(strcat(buffer, "\ncomparePair1:\n"), comparePairs[0].toString().c_str()); 
                 if (comparePairs.size() > 1) {
-                    strcat(strcat(buffer, "\ncomparePair1:\n"), comparePairs[0].toString().c_str()); 
+                    strcat(strcat(buffer, "\ncomparePair2:\n"), comparePairs[1].toString().c_str()); 
                 }
             }
             strcat(buffer, "\n");

@@ -12,7 +12,7 @@ SELECT Fname FROM names WHERE ID > 10
 SELECT Fname FROM names WHERE ID <> 10
 SELECT Fname FROM names WHERE ID<>10
 SELECT Fname FROM names WHERE ID = 10
-SELECT Fname FROM names WHERE Fname = 'DBMS' AND        Lname = 'DBMSSSSSS' 
+SELECT Fname FROM names WHERE Fname = 'DBMS' AND        Lname = 'DBMSSSSSS'
 SELECT Fname FROM names WHERE Fname = 'DBMS' OR        Lname = 'DBMSSSSSS' 
 SELECT N1.Lname, N2.M FROM names AS N1, names AS N2 WHERE N1.Fname = N2.Fname
 SELECT N1.Lname, N2.M FROM names AS N1, names AS N2 WHERE N1.Fname = N2.Fname OR 1 = 1

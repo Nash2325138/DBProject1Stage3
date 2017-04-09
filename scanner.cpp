@@ -7,6 +7,7 @@
 #include <cstring>
 #include <algorithm>
 #include <cstdarg>
+#include <regex>
 
 using std::string;
 Scanner::Scanner(const string& str): pos(0), aheadConsumed(true), aheadBuffer() {
@@ -23,14 +24,15 @@ string Scanner::nextToken() {
 	char buffer[10000];
 	buffer[0] = '\0';
 	int chars_read = 0;
+
+	while (query[pos] == ' ') pos++;
 	if (pos >= strlen(query)) {
 		return "";
 	}
-	if (sscanf(query + pos, " %1[\"]%n", buffer, &chars_read)) {
+	if (sscanf(query + pos, " %1[\"]%n", buffer, &chars_read) > 0) {
 		pos += chars_read;
 		if (query[pos] == '\"') {
 			// deal with empty string ""
-			// printf("EMPTY_QUOTES\n");
 			pos ++;
 			return "\"\"";
 		} else if (query[pos] == '\0') {
@@ -53,10 +55,9 @@ string Scanner::nextToken() {
 			}
 		}
 	} 
-	else if (sscanf(query + pos, " %1[\']%n", buffer, &chars_read)) {
+	else if (sscanf(query + pos, " %1[\']%n", buffer, &chars_read) > 0) {
 		pos += chars_read;
 		if (query[pos] == '\'') {
-			// printf("EMPTY_QUOTES\n");
 			pos ++;
 			return "\'\'";
 		} else if (query[pos] == '\0') {
@@ -75,8 +76,12 @@ string Scanner::nextToken() {
 			}
 		}
 	}
-	else if (sscanf(query + pos, " %[A-Za-z_0-9-]%n", buffer, &chars_read)){} // deal with strings with no special sign 
-	else if (sscanf(query + pos, " %1[^A-Za-z_0-9 \n-]%n", buffer, &chars_read)){} // deal with strings with special sign (len == 1)
+	else if (sscanf(query + pos, " %[A-Za-z_0-9-]%n", buffer, &chars_read) > 0){
+
+	} // deal with strings with no special sign 
+	else if (sscanf(query + pos, " %1[^A-Za-z_0-9 \n-]%n", buffer, &chars_read) > 0){
+
+	} // deal with strings with special sign (len == 1)
 	else {
 		fprintf(stderr, "sscanf wrong at nextToken()\n");
 	}
@@ -95,12 +100,13 @@ string Scanner::lookAhead() {
 	char buffer[10000];
 	buffer[0] = '\0';
 
+	while (query[pos] == ' ') pos++;
 	if (pos >= strlen(query)) {
 		return "";
 	}
-
+	
 	int chars_read = 0;
-	if (sscanf(query + pos, " %1[\"]%n", buffer, &chars_read)) {
+	if (sscanf(query + pos, " %1[\"]%n", buffer, &chars_read) > 0) {
 		int temp_pos = pos + chars_read;
 		if (query[temp_pos] == '\"') {
 			aheadBuffer = "\"\"";
@@ -122,7 +128,7 @@ string Scanner::lookAhead() {
 			}
 		}
 	} 
-	else if (sscanf(query + pos, " %1[\']%n", buffer, &chars_read)) {
+	else if (sscanf(query + pos, " %1[\']%n", buffer, &chars_read) > 0) {
 		int temp_pos = pos + chars_read;
 		if (query[temp_pos] == '\'') {
 			aheadBuffer = "\'\'";
@@ -144,8 +150,8 @@ string Scanner::lookAhead() {
 			}
 		}
 	}
-	else if (sscanf(query + pos, " %[A-Za-z_0-9-]", buffer)){}
-	else if (sscanf(query + pos, " %1[^A-Za-z_0-9 \n-]", buffer)){}
+	else if (sscanf(query + pos, " %[A-Za-z_0-9-]", buffer) > 0){}
+	else if (sscanf(query + pos, " %1[^A-Za-z_0-9 \n-]", buffer) > 0){}
 	else {
 		fprintf(stderr, "sscanf wrong at lookAhead()\n");
 	}

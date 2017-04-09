@@ -280,6 +280,10 @@ bool Parser::Select_Query() {
     }
     if (scanner.lookAhead() != "" && scanner.lookAhead() != ";") {
         printErr("Unexpected %s after complete select sql\n", scanner.lookAhead().c_str());
+        // while (scanner.lookAhead() != "" && scanner.lookAhead() != ";") {
+        //     printErr("next: %s\n", scanner.nextToken().c_str());
+        // }
+        this->Print();
         return false;
     }
     return true;
@@ -427,6 +431,7 @@ bool Parser::read_Where_Clause() {
     selectData->comparePairs.push_back(pair);
 
     if(scanner.lookAhead() == "or" || scanner.lookAhead() == "and"){
+        scanner.nextToken();
         if(not read_ComparePair(pair))
             return false;
         selectData->comparePairs.push_back(pair);
@@ -448,10 +453,18 @@ bool Parser::read_ComparePair(ComparePair& cmpPair) {
 
     read_AttrID(attr2);
 
-    if(isStrString(attr1.attr_name) || isIntString(attr1.attr_name))
+    if(isStrString(attr1.attr_name) || isIntString(attr1.attr_name)){
         isFrontAttr = false;
-    if(isStrString(attr2.attr_name) || isIntString(attr2.attr_name))
+    }
+    else{
+        isFrontAttr = true;
+    }
+    if(isStrString(attr2.attr_name) || isIntString(attr2.attr_name)){
         isBackAttr = false;
+    }
+    else{
+        isBackAttr = true;
+    }
 
     CompareOP cop;
     if (op == ">") {
