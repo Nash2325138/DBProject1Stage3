@@ -343,16 +343,54 @@ bool Parser::read_AttrID(AttributeID& attrID) {
 }
 
 bool Parser::read_FromTable_Sequence() {
+    // read "from"
+    if (scanner.nextToken() != "from") {
+        printErr("Syntax error: expected 'FROM'\n");
+        return false;
+    }
     // while (1) {read_FromTable() and read "," until lookagead == "" or "where"}
-    return false;
+    while (read_FromTable()){
+        const string& ahead = scanner.lookAhead();
+        if (ahead == "") { // if there can be other string behind, append condition (or ahead == "something")
+            return true;
+        }
+        else if (ahead == ","){
+            scanner.nextToken();
+            continue;
+        } else {
+            printErr("Syntax error: unexpected '%s'", ahead.c_str());
+            return false;
+        }
+    }
+    return true;
 }
 
 bool Parser::read_FromTable() {
-    // read "from"
     // read "tableName" or "tableName as alias" 
     //      1. push_back or emplace_back to selectData->fromTables
     //      2. insert (alias, tableName) to selectData->aliasToTableName
-    return false;
+    string tableName = scanner.nextToken();
+    if (not Parser::validName(tableName)) {
+        printErr("Syntax error: unexpected '%s' (won't be valid name of table)\n", tableName.c_str());
+        return false;
+    }
+    selectData->fromTables.push_back(tableName);
+    if (scanner.lookAhead() == "as") {
+        scanner.nextToken();
+        string alias = scanner.nextToken();
+        if (not Parser::validName(alias)) {
+            printErr("Syntax error: invalid alias '%s'\n", alias.c_str());
+            return false;
+        }
+        if (selectData->aliasToTableName.find(alias) != selectData->aliasToTableName.end()) {
+            printErr("Alias '%s' has been used\n", alias.c_str());
+            return false;
+        } else {
+            selectData->aliasToTableName[alias] = tableName;
+            return true;
+        }
+    }
+    return true;
 }
 
 bool Parser::read_Where_Clause() {
