@@ -291,9 +291,10 @@ bool Parser::read_Selected_Item() {
     //      1. AggrFunc can either be "SUM" or "COUNT"
     //      2. use read_AttrID(attrID_ref) to read and fill a attrID
     if(scanner.lookAhead() == "" || scanner.lookAhead() == "from"){
-        printErr("Syntax Error: expected attribute names\n");
+        printErr("Syntax Error: expected attribute names or aggregate function\n");
         return false;
     }
+
     if(scanner.lookAhead() == "sum" || scanner.lookAhead() == "count"){
         string aggreName = scanner.nextToken();
         
@@ -313,15 +314,15 @@ bool Parser::read_Selected_Item() {
         }
         scanner.nextToken(); // read ')'
 
-        Parser::SelectedItem item(aggreName, id);
-        selectData->selectedItems.push_back(item);
+        // Parser::SelectedItem item(aggreName, id);
+        selectData->selectedItems.emplace_back(aggreName, id);
     }
     else{
         AttributeID id;
         if(not read_AttrID(id)) 
             return false;
-        Parser::SelectedItem item(id);
-        selectData->selectedItems.push_back(item);
+        // Parser::SelectedItem item(id);
+        selectData->selectedItems.emplace_back(id);
     }
     return false;
 }
