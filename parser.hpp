@@ -176,6 +176,7 @@ public:
                 exit(EXIT_FAILURE);
             }
         }
+        ComparePair(){};
         ComparePair(const AttributeID& attrID1, CompareOP op, const AttributeID& attrID2):
                     attrID1(attrID1), op(op), attrID2(attrID2) {
             type1 = type2 = CompareType::ATTRIBUTE;

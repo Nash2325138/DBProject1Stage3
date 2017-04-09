@@ -18,8 +18,9 @@ bool Parser::isIntString(const string& str) {
     return std::regex_match (str, reg); 
 }
 bool Parser::isStrString(const string& str) {
-    static const std::regex reg("\"[^\"]*\"");
-    return std::regex_match (str, reg); 
+    static const std::regex reg1("\"[^\"]*\"");
+    static const std::regex reg2("\'[^\']*\'");
+    return std::regex_match (str, reg1) || std::regex_match(str, reg2); 
 }
 bool Parser::Parse(){
     string token;
@@ -360,13 +361,50 @@ bool Parser::read_Where_Clause() {
     // 2. read_ComparePair()
     // 3. if (lookahead == "or" or "and"):
     //      read_ComparePair()
+    scanner.nextToken(); // read "where"
 
+    Parser::ComparePair pair;
+    if(not read_ComparePair(pair))
+        return false;
+    comparePairs.push_back(pair);
+
+    if(scanner.lookAhead() == "or" || scanner.lookAhead() == "and"){
+        if(not read_ComparePair(pair))
+            return false;
+        comparePairs.push_back(pair);
+    }
     // we don't need to handle more than two conditions in the WHERE clause 
-    return false;
+    return true;
 }
 
 bool Parser::read_ComparePair(ComparePair& cmpPair) {
-    return false;
+    bool isFrontAttr = false, isBackAttr = false;
+    AttributeID attr1, attr2;
+    string op;
+
+    read_AttrID(attr1);
+
+    op = scanner.nextToken();
+    if(op == "<" && scanner.lookAhead() == ">")
+        op += scanner.nextToken();
+
+    read_AttrID(attr2);
+
+    if(isStrString(attr1.attr_name) || isIntString(attr1.attr_name))
+        isFrontAttr = false;
+    if(isStrString(attr2.attr_name) || isIntString(attr2.attr_name))
+        isBackAttr = false;
+
+    if(isFrontAttr && isBackAttr)
+        cmpPair = ComparePair(attr1, op, attr2);
+    else if(isFrontAttr && !isBackAttr)
+        cmpPair = ComparePair(attr1, op, attr2.attr_name);
+    else if(!isFrontAttr && isBackAttr)
+        cmpPair = ComparePair(attr1.attr_name, op, attr2);
+    else if(!isFrontAttr && !isBackAttr)
+        cmpPair = ComparePair(attr1.attr_name, op, attr2.attr_name);
+
+    return true;
 }
 
 void Parser::Print(){
