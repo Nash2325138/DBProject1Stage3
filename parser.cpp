@@ -145,7 +145,6 @@ bool Parser::Read_Attr_Def(Attribute& attr) {
     return true;
 }
 
-
 bool Parser::Insert_Query() {
     // "insert" // this is already consumed in Parse()
     
@@ -249,12 +248,13 @@ bool Parser::Read_Value() {
     return true;
 }
 
-
-
 bool Parser::Select_Query() {
     // read_Selected_Item_Sequence() to fill:
     //      selectData->selectedItems
-    
+    selectData = new Parser::SelectQueryData();
+    if(not read_Selected_Item_Sequence()) 
+        return false;
+
     // read_FromTable_Sequence() to fill
     //      1. selectData->fromTables
     //      2. selectData->aliasToTableName
@@ -264,18 +264,58 @@ bool Parser::Select_Query() {
     //      1. selectData->comparePairs 
     //      2. selectData->logicalOP
     
-    return false;
+    return true;
 }
+
 bool Parser::read_Selected_Item_Sequence() {
     // while (1) { read_Selected_Item() and read "," until lookahead == "" or "from" }
+    string dot;
+    while(read_Selected_Item()){
+        if(scanner.lookAhead() == "from")
+            return true;
+        else if(scanner.lookAhead() == ""){
+            printErr("Syntax Error: expected 'FROM'\n");
+            return false;
+        }
+        else if(scanner.lookAhead() != ","){
+            printErr("Syntax Error: expected ','\n");
+            return false;
+        }
+        dot = scanner.nextToken();
+    }
     return false;
 }
+
 bool Parser::read_Selected_Item() {
     // A selected item can be either AggrFunc(attrID) or attrID
     //      1. AggrFunc can either be "SUM" or "COUNT"
     //      2. use read_AttrID(attrID_ref) to read and fill a attrID
+    if(scanner.lookAhead() == "" || scanner.lookAhead() == "from"){
+        printErr("Syntax Error: expected attribute names\n");
+        return false;
+    }
+    if(scanner.lookAhead() == "sum" || scanner.lookAhead() == "count"){
+        string aggreName = scanner.nextToken();
+        if(scanner.lookAhead() != "("){
+            printErr("Syntax Error: expected '(' after %s\n", aggreName.c_str());
+            return false;
+        }
+        AttributeID id;
+        if(not read_AttrID(id))
+            return false;
+        Parser::SelectedItem item(aggreName, id);
+        selectData->selectedItems.push_back(item);
+    }
+    else{
+        AttributeID id;
+        if(not read_AttrID(id)) 
+            return false;
+        Parser::SelectedItem item(id);
+        selectData->selectedItems.push_back(item);
+    }
     return false;
 }
+
 bool Parser::read_AttrID(AttributeID& attrID) {
     // An attrID can be either an attrName or tableID.attrName
     //      1. An attrName is a string
@@ -287,6 +327,7 @@ bool Parser::read_FromTable_Sequence() {
     // while (1) {read_FromTable() and read "," until lookagead == "" or "where"}
     return false;
 }
+
 bool Parser::read_FromTable() {
     // read "from"
     // read "tableName" or "tableName as alias" 
@@ -304,6 +345,7 @@ bool Parser::read_Where_Clause() {
     // we don't need to handle more than two conditions in the WHERE clause 
     return false;
 }
+
 bool Parser::read_ComparePair(ComparePair& cmpPair) {
     return false;
 }
