@@ -21,10 +21,10 @@ int main(int argc, char const *argv[])
     }
     // printf("!\n");
     char buffer[1000];
-    while (fgets(buffer, 1000, fp)) {
+    while( fscanf(fp, " %[^;];", buffer) > 0 ) {
         // printf("?\n");
         buffer[strlen(buffer)-1] = '\0';
-        // queries.emplace_back(buffer);
+        queries.emplace_back(buffer);
     }
     // printf("!\n");
     // queries.push_back("creAte tAble aa(name varchar(30), time intt PRIMARY KEY)");
@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
     // queries.push_back("INSERT INTO STUDENT VALUES(1, 1, , 'eqweqwe', '')");
     // queries.push_back("CREATE TABLE BB(name varchar(30), name varchar(20), a int)");
     // queries.push_back("CREATE TABLE aa(name varchar(30), a int)");
-    queries.push_back("SELECT Fname FROM names WHERE Fname = 'DBMS' OR        Lname = 'DBMSSSSSS' ");
+    // queries.push_back("SELECT Fname FROM names WHERE Fname = 'DBMS' OR        Lname = 'DBMSSSSSS' ");
 
     for (auto& s : queries) {
         parser = new Parser(s);
