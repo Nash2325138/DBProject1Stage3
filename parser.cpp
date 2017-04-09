@@ -296,13 +296,23 @@ bool Parser::read_Selected_Item() {
     }
     if(scanner.lookAhead() == "sum" || scanner.lookAhead() == "count"){
         string aggreName = scanner.nextToken();
+        
         if(scanner.lookAhead() != "("){
             printErr("Syntax Error: expected '(' after %s\n", aggreName.c_str());
             return false;
         }
+        scanner.nextToken(); // read '('
+        
         AttributeID id;
         if(not read_AttrID(id))
             return false;
+        
+        if(scanner.lookAhead() != ")"){
+            printErr("Syntax Error: expected ')' after %s\n", aggreName.c_str());
+            return false;
+        }
+        scanner.nextToken(); // read ')'
+
         Parser::SelectedItem item(aggreName, id);
         selectData->selectedItems.push_back(item);
     }
@@ -320,7 +330,15 @@ bool Parser::read_AttrID(AttributeID& attrID) {
     // An attrID can be either an attrName or tableID.attrName
     //      1. An attrName is a string
     //      2. An tableID can be either alias or table name, but they are all string
-    return false;
+    string attrName = scanner.nextToken();
+    if(scanner.lookAhead() == "."){
+        scanner.nextToken();
+        attrID = AttributeID(attrName, scanner.nextToken());
+    }
+    else{
+        attrID = AttributeID(attrName);
+    }
+    return true;
 }
 
 bool Parser::read_FromTable_Sequence() {
