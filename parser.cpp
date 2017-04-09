@@ -33,6 +33,10 @@ bool Parser::Parse(){
         isInsertQuery = true;
         if (not Insert_Query()) return false;
     }
+    else if(token == "select"){
+        isSelectQuery = true;
+        if(not Select_Query()) return false;
+    }
     else {
         // setbuf(stdout, NULL);
         // printf("???\n");
