@@ -14,6 +14,14 @@ bool Parser::validName(string& name) {
     return std::regex_match (name, reg); 
 }
 
+bool Parser::isIntString(string& str) {
+    static const std::regex reg("-?[0-9]+");
+    return std::regex_match (str, reg); 
+}
+bool Parser::isStrString(string& str) {
+    static const std::regex reg("\"[^\"]*\"");
+    return std::regex_match (str, reg); 
+}
 bool Parser::Parse(){
     string token;
     token = scanner.nextToken();
