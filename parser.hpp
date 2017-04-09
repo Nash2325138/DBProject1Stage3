@@ -208,9 +208,9 @@ public:
     bool read_Where_Clause();
     bool read_ComparePair(ComparePair& cmpPair);
 
-
-
-    bool validName(string& name);
+    static bool validName(string& name);
+    static bool isIntString(string& str);
+    static bool isStrString(string& str);
 };
 
 
