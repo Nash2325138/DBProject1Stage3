@@ -172,6 +172,9 @@ bool BaseData::Query(string query_str){
 			}
 		}
 	}
+	else if(parser->isSelectQuery){
+		
+	}
 
 	delete parser;
 	return true;
