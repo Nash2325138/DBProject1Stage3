@@ -257,25 +257,41 @@ bool Parser::Select_Query() {
     // read_Selected_Item_Sequence() to fill:
     //      selectData->selectedItems
     selectData = new Parser::SelectQueryData();
-    if(not read_Selected_Item_Sequence()) 
+    if (not read_Selected_Item_Sequence()) {
         return false;
+    }
 
     // read_FromTable_Sequence() to fill
     //      1. selectData->fromTables
     //      2. selectData->aliasToTableName
-    
-    // if lookagead == "where":
+    if (not read_FromTable_Sequence()) {
+        return false;
+    }
+
+    // if lookAhead == "where":
     // read_Where_Clause() to fill 
     //      1. selectData->comparePairs 
     //      2. selectData->logicalOP
-    
+    if (scanner.lookAhead() == "where") {
+        printf("Reading where\n");
+        if (not read_Where_Clause()) {
+            return false;
+        }
+    }
+    if (scanner.lookAhead() != "" && scanner.lookAhead() != ";") {
+        printErr("Unexpected %s after complete select sql\n", scanner.lookAhead().c_str());
+        return false;
+    }
     return true;
 }
 
 bool Parser::read_Selected_Item_Sequence() {
     // while (1) { read_Selected_Item() and read "," until lookahead == "" or "from" }
     string dot;
-    while(read_Selected_Item()){
+    while(1){
+        if (not read_Selected_Item()) {
+            return false;
+        }
         if(scanner.lookAhead() == "from")
             return true;
         else if(scanner.lookAhead() == ""){
@@ -288,7 +304,7 @@ bool Parser::read_Selected_Item_Sequence() {
         }
         dot = scanner.nextToken();
     }
-    return false;
+    return true;
 }
 
 bool Parser::read_Selected_Item() {
@@ -329,7 +345,7 @@ bool Parser::read_Selected_Item() {
         // Parser::SelectedItem item(id);
         selectData->selectedItems.emplace_back(id);
     }
-    return false;
+    return true;
 }
 
 bool Parser::read_AttrID(AttributeID& attrID) {
@@ -353,18 +369,18 @@ bool Parser::read_FromTable_Sequence() {
         printErr("Syntax error: expected 'FROM'\n");
         return false;
     }
-    // while (1) {read_FromTable() and read "," until lookagead == "" or "where"}
-    while (read_FromTable()){
-        const string& ahead = scanner.lookAhead();
-        if (ahead == "") { // if there can be other string behind, append condition (or ahead == "something")
-            return true;
+    // while (1) {read_FromTable() and read "," until lookahead == "" or "where"}
+    while (1){
+        if (not read_FromTable()) {
+            return false;
         }
-        else if (ahead == ","){
+
+        const string& ahead = scanner.lookAhead();
+        if (ahead == ","){
             scanner.nextToken();
             continue;
         } else {
-            printErr("Syntax error: unexpected '%s'", ahead.c_str());
-            return false;
+            return true;
         }
     }
     return true;
@@ -465,13 +481,14 @@ bool Parser::read_ComparePair(ComparePair& cmpPair) {
 
 void Parser::Print(){
     printf("SQL Statement:\n%s\n", query_str.c_str());
-    printf("Table name: %s\n", table_name.c_str());
     if(isCreateTableQuery){
+        printf("Table name: %s\n", table_name.c_str());
         for(auto &attr:schema) {
             printf("name: %s, type: %s, isPrimaryKey: %d, char_len: %d\n", attr.name.c_str(), attr.type.c_str(), attr.isPrimaryKey, attr.char_len);
         }
     }
     else if(isInsertQuery){
+        printf("Table name: %s\n", table_name.c_str());    
         if(orderSpecified){
             for(int i=0; i<orders.size(); i++){
                 printf("Insert %s: %s into TABLE(%s)\n", orders[i].c_str(), values[i].toString().c_str(), table_name.c_str());
@@ -482,5 +499,9 @@ void Parser::Print(){
                 printf("Insert %s into TABLE(%s)\n", values[i].toString().c_str(), table_name.c_str());
             }
         }
+    }
+    else if (isSelectQuery) {
+        printf("Selected query toString:\n%s", selectData->toString().c_str());
+
     }
 }

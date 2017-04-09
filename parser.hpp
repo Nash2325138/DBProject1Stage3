@@ -3,6 +3,7 @@
 
 /* Parser.hpp */
 #include "scanner.hpp"
+#include "color.h"
 #include <cstdlib>
 #include <string>
 #include <map>
@@ -251,17 +252,27 @@ public:
         vector<string> fromTables;
         string toString() {
             char buffer[40000];
-            strcpy(buffer, "selectedItems:\n");
+            
+            strcpy(buffer, YELLOW);
+            strcat(buffer, "selectedItems:\n");
+            strcat(buffer, NONE);
             for (auto& item: selectedItems) {
                 strcat(strcat(buffer, item.toString().c_str()), "\n");
             }
+
+            strcat(buffer, YELLOW);
             strcat(buffer, "\nfromTables:\n");
+            strcat(buffer, NONE);
             for (auto& table: fromTables) {
                 strcat(strcat(buffer, table.c_str()), "\n");
             }
+
+            strcat(buffer, YELLOW);
             strcat(buffer, "\naliasToTableName:\n");
+            strcat(buffer, NONE);
             for (auto& aliasPair: aliasToTableName) {
                 strcat(strcat(strcat(buffer, aliasPair.first.c_str()), " -> "), aliasPair.second.c_str());
+                strcat(buffer, "\n");
             }
 
             if (comparePairs.size() > 0) {
