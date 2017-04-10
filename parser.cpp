@@ -322,7 +322,7 @@ bool Parser::read_Selected_Item() {
         string aggreName = scanner.nextToken();
         
         if(scanner.lookAhead() != "("){
-            printErr("Syntax Error: expected '(' after %s\n", aggreName.c_str());
+            printErr("Syntax Error: expected '(' after %s, got '%s'\n", aggreName.c_str(), scanner.lookAhead().c_str());
             return false;
         }
         scanner.nextToken(); // read '('
@@ -332,7 +332,7 @@ bool Parser::read_Selected_Item() {
             return false;
         
         if(scanner.lookAhead() != ")"){
-            printErr("Syntax Error: expected ')' after %s\n", aggreName.c_str());
+            printErr("Syntax Error: expected ')' after %s, got '%s'\n", aggreName.c_str(), scanner.lookAhead().c_str());
             return false;
         }
         scanner.nextToken(); // read ')'

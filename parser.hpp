@@ -123,7 +123,7 @@ struct AttributeID {
 };
 enum class CompareOP {BIGGER=0, SMALLER=1, EQUAL=2, NOT_EQUAL=3};
 enum class LogicalOP {AND, OR};
-enum class AggreFunc {SUM, COUNT};
+// enum class AggreFunc {SUM, COUNT};
 enum class CompareType {ATTRIBUTE, INT_CONST, STRING_CONST};
 class Parser{
 private:
@@ -148,27 +148,20 @@ public:
 
     struct SelectedItem {
         bool isAggregation;
-        AggreFunc aggreFunc;
+        string aggreFuncStr;
         AttributeID attributeID;
-        SelectedItem(const string& aggreFuncStr, const AttributeID& attributeID): attributeID(attributeID) {
+        SelectedItem(const string& aggreFuncStr, const AttributeID& attributeID): aggreFuncStr(aggreFuncStr), attributeID(attributeID) {
             isAggregation = true;
-            if (aggreFuncStr == "SUM") {
-                aggreFunc = AggreFunc::SUM;
-            } else if (aggreFuncStr == "COUNT") {
-                aggreFunc = AggreFunc::COUNT;
-            } else {
+            if (aggreFuncStr != "sum" and aggreFuncStr != "count") {
                 fprintf(stderr, "WTF? aggreFuncStr %s doesn't make sence\n", aggreFuncStr.c_str());
+                exit(EXIT_FAILURE);
             }
         }
         SelectedItem(const AttributeID& attributeID): isAggregation(false),  attributeID(attributeID){}
         string toString() {
-            char buffer[1000];
+            static char buffer[1000];
             if (isAggregation) {
-                if (aggreFunc == AggreFunc::SUM) {
-                    strcpy(buffer, "SUM(");
-                } else if (aggreFunc == AggreFunc::COUNT) {
-                    strcpy(buffer, "COUNT(");
-                }
+                strcpy(buffer, (aggreFuncStr + "(").c_str());
                 strcat(buffer, attributeID.toString().c_str());
                 strcat(buffer, ")");
             } else {

@@ -163,17 +163,15 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 }
 
 void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData) {
-	// for (auto& item: sData.selectedItems) {
-	// 	if (item.isAggregation) {
-	// 		outputTable.schema.push_back()
-	// 	}
-	// 	for (Attribute& attribute : )
-	// }
+	for (auto& item: sData.selectedItems) {
+		outputTable.schema.push_back(item.toString());
+		// for (Attribute& attribute : )
+	}
 }
 bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
-	// 1. check if all tables in sData is also in Base
+	// 1. check if all fromTables in sData are also in Base
 	
-	// 2. check if attributes which is
+	// 2. check if attributeID (of selected item or WHERE comparepair)  which is
 	//		a. table specified: is in the specified table
 	//		b. not table specified: is not ambiguous amoung tables
 	

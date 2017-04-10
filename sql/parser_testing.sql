@@ -23,3 +23,8 @@ SELECT N1.Lname, N2.M FROM names AS N1, names AS N2 WHERE N1.Fname = N2.Fname OR
 SELECT N1.Lname, N2.M FROM names AS N1, names AS N2 WHERE L1.name = N2.Fname OR 12 <> 29239;
 SELECT name;
 SELECT name WHERE 1=1;
+
+SELECT SUM(num) FROM E;
+SELECT SUM(a.num) FROM E;
+SELECT SUM(1.num) FROM E;
+SELECT SUM(a.num.b) FROM E;
