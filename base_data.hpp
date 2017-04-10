@@ -16,7 +16,8 @@ public:
 	bool insert(vector<Value>& values);
 	bool checkDataType(string& attr_name, Value &value);
 	bool checkPrimaryKey(Value &value);
-	
+	const vector<int>& matchedAttributes(const string& str);
+
 	void show();
 	string schemaToString();
 
@@ -48,9 +49,13 @@ public:
 	BaseData(){};
 	~BaseData(){};
 	bool Query(string query_str);
+
 	bool select(Parser::SelectQueryData& sData);
 	bool checkSelectQueryData(Parser::SelectQueryData& sData);
-	void fillOutputTableSchema(Parser::SelectQueryData& sData);
+	void fillOutputTableSchema(Parser::SelectQueryData& sData, 
+							   vector<pair<string, int>>& selectedAttributes);
+	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
+
 	void show();
 };
 

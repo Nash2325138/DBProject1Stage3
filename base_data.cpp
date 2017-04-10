@@ -1,5 +1,7 @@
 #include <iostream>
 #include <algorithm>
+#include <regex>
+#include <utility>
 #include "base_data.hpp"
 #include "color.h"
 
@@ -16,6 +18,19 @@ Table::Table(string& table_name, vector<Attribute>& schema): table_name(table_na
 }
 Table::Table(){}
 Table::~Table(){}
+
+// our attribute chosen support regular expreesion 
+const vector<int>& Table::matchedAttributes(const string& str) {
+	static vector<int> matched;
+	matched.clear();
+	std::regex reg(str);
+	for (int i=0; i<schema.size(); i++) {
+		if (std::regex_match (schema[i].name, reg)) {
+			matched.push_back(i);
+		}
+	}
+	return matched;
+}
 
 bool Table::checkPrimaryKey(Value &value){
 	if (value.isNull) {
@@ -147,8 +162,11 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 		return false;
 	}
 
+	// map from table to selected attributes;
+	vector<pair<string, int>> selectedAttributes;
+
 	// create an outputTable with schema concatenation of all selectedItems
-	fillOutputTableSchema(sData);
+	fillOutputTableSchema(sData, selectedAttributes);
 
 	// for (tuple1 in table1):
 	//   for (tuple2 in table2):
@@ -161,23 +179,58 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	// outputTable.show();
 	return true;
 }
-
-void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData) {
+string BaseData::getTrueTableName(Parser::SelectQueryData& sData, string tableID) {
+	auto it = sData.aliasToTableName.find(tableID);
+	if ( it == sData.aliasToTableName.end()) {
+		return tableID;
+	} else {
+		return it->second; 
+	}
+}
+void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
+						vector<pair<string, int>>& selectedAttributes) {
 	for (auto& item: sData.selectedItems) {
-		outputTable.schema.push_back(item.toString());
-		// for (Attribute& attribute : )
+		if (not item.isAggregation) {
+			AttributeID attrID = item.attributeID;
+			if (attrID.tableSpecified) {
+				// get the table specified
+				string trueName = getTrueTableName(sData, attrID.tableID);
+				Table& specifiedTable = tables[trueName];
+
+				// find those matched attribute name
+				auto matched = specifiedTable.matchedAttributes(attrID.attr_name);
+				for (auto& i: matched) {
+					outputTable.schema.push_back(attrID.tableID+"."+specifiedTable.schema[i].name);
+					selectedAttributes.push_back(make_pair(trueName, i));
+				}
+			} else {
+				for (auto& fromTableStr: sData.fromTables) {
+					Table& fromTable = tables[fromTableStr];
+					auto matched = fromTable.matchedAttributes(attrID.attr_name);
+					for (int i:matched) {
+						outputTable.schema.push_back(fromTable.schema[i].name);
+						selectedAttributes.push_back(make_pair(fromTableStr, i));
+					}
+				}
+			}
+		} else {
+			outputTable.schema.push_back(item.toString());
+		}
 	}
 }
 bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
 	// 1. check if all fromTables in sData are also in Base
-	
-	// 2. check if attributeID (of selected item or WHERE comparepair)  which is
-	//		a. table specified: is in the specified table
-	//		b. not table specified: is not ambiguous amoung tables
-	
-	// 3. check if both side of compare pairs is the same type
 
-	// 4. since we don't handle GROUP BY, if any aggregation function and normal attributes
+	// 2. check if all attributeID (in selected items or comparePairs) which is
+	//		a. table specified: is in the specified table
+	//		b. not table specified: exist in any fromTable and not ambiguous amoung fromTables
+	// note: be careful of wildcard charactor: * (use matchedAttributes() to decide)
+
+	// 3. all attributeID in comparePairs can't match two or more attributes 
+
+	// 4. check if both side of compare pairs is the same type
+
+	// 5. since we don't handle GROUP BY, if any aggregation function and normal attributes
 	//    are in selected item together, it's a error
 
 	return true;
