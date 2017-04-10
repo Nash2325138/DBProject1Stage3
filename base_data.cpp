@@ -143,8 +143,12 @@ bool Table::insert(vector<Value>& values) {
 
 bool BaseData::select(Parser::SelectQueryData& sData) {
 	// checkSelectQueryData(sData)
-	
-	// create a outputTable with schema concatenation of all selectedItems
+	if (not checkSelectQueryData(sData)) {
+		return false;
+	}
+
+	// create an outputTable with schema concatenation of all selectedItems
+	fillOutputTableSchema(sData);
 
 	// for (tuple1 in table1):
 	//   for (tuple2 in table2):
@@ -157,6 +161,15 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	// outputTable.show();
 	return true;
 }
+
+void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData) {
+	// for (auto& item: sData.selectedItems) {
+	// 	if (item.isAggregation) {
+	// 		outputTable.schema.push_back()
+	// 	}
+	// 	for (Attribute& attribute : )
+	// }
+}
 bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
 	// 1. check if all tables in sData is also in Base
 	
@@ -165,6 +178,9 @@ bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
 	//		b. not table specified: is not ambiguous amoung tables
 	
 	// 3. check if both side of compare pairs is the same type
+
+	// 4. since we don't handle GROUP BY, if any aggregation function and normal attributes
+	//    are in selected item together, it's a error
 
 	return true;
 }
@@ -235,7 +251,7 @@ void Table::show(){
 	for (auto& tuple : tuples){
 		// i=0;
 		// for (auto& attr : schema){
-		// 	column_widths[i] = std::max(column_widths[i], (int)tuple[attr.name].toString().length());
+		//	 column_widths[i] = std::max(column_widths[i], (int)tuple[name_to_i[attr.name]].toString().length());
 		// 	i++;
 		// }
 		for (int i=0; i<schema.size(); i++) {
@@ -262,14 +278,14 @@ void Table::show(){
 	if (tuples.size() == 0) return;
 	// output all tuples
 	for (auto& tuple : tuples){
-		i=0;
-		for (auto& attr : schema){
-			printf("|%*s", column_widths[i], tuple[name_to_i[attr.name]].toString().c_str());
-			i++;
-		}
-		// for (int i = 0; i < schema.size(); ++i) {
-		// 	printf("|%*s", column_widths[i], tuple[i].toString().c_str());
+		// i=0;
+		// for (auto& attr : schema){
+		// 	printf("|%*s", column_widths[i], tuple[name_to_i[attr.name]].toString().c_str());
+		// 	i++;
 		// }
+		for (int i = 0; i < schema.size(); ++i) {
+			printf("|%*s", column_widths[i], tuple[i].toString().c_str());
+		}
 		puts("|");
 	}
 	puts(row_seperator(column_widths));
@@ -281,13 +297,11 @@ void OutputTable::show() {
 	// compute column widths to output
 	vector<int> column_widths(schema.size());
 	for (int i=0; i<schema.size(); i++) {
-		column_widths[i] = schema[i].name.length();
+		column_widths[i] = schema[i].length();
 	}
 	for (auto& tuple : tuples){
-		i=0;
-		for (auto& attr : schema){
-			column_widths[i] = std::max(column_widths[i], (int)tuple[attr.name].toString().length());
-			i++;
+		for (int i=0; i<schema.size(); i++) {
+			column_widths[i] = std::max(column_widths[i], (int)tuple[i].toString().length());
 		}
 	}
 	for (int& w:column_widths) {
@@ -300,7 +314,7 @@ void OutputTable::show() {
 	// output all atrribute name
 	i=0;
 	for (auto& attr : schema) {
-		printf("|%*s", column_widths[i], attr.name.c_str());
+		printf("|%*s", column_widths[i], attr.c_str());
 		i++;
 	}
 	puts("|");
@@ -309,10 +323,8 @@ void OutputTable::show() {
 	if (tuples.size() == 0) return;
 	// output all tuples
 	for (auto& tuple : tuples){
-		i=0;
-		for (auto& attr : schema){
-			printf("|%*s", column_widths[i], tuple[attr.name].toString().c_str());
-			i++;
+		for (int i = 0; i < schema.size(); ++i) {
+			printf("|%*s", column_widths[i], tuple[i].toString().c_str());
 		}
 		puts("|");
 	}

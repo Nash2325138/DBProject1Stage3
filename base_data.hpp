@@ -33,8 +33,9 @@ public:
 
 class OutputTable {
 public:
-	vector<Attribute> schema;
-	vector<map<string, Value> > tuples;
+	vector<string> schema;
+	map<string, int> name_to_i;
+	vector<vector<Value> > tuples;
 	void show();
 };
 
@@ -49,6 +50,7 @@ public:
 	bool Query(string query_str);
 	bool select(Parser::SelectQueryData& sData);
 	bool checkSelectQueryData(Parser::SelectQueryData& sData);
+	void fillOutputTableSchema(Parser::SelectQueryData& sData);
 	void show();
 };
 
