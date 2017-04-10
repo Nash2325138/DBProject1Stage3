@@ -73,7 +73,7 @@ bool Parser::Create_Table_Query(){
     }
     schema.clear();
 
-    if(not Read_Schema()) return false;   
+    if(not Read_Schema()) return false;
     return true; 
 }
 
@@ -356,13 +356,22 @@ bool Parser::read_AttrID(AttributeID& attrID) {
     // An attrID can be either an attrName or tableID.attrName
     //      1. An attrName is a string
     //      2. An tableID can be either alias or table name, but they are all string
-    string attrName = scanner.nextToken();
+    string part1 = scanner.nextToken();
+    if (not Parser::validName(part1)) {
+        printErr("Error: %s is not a valid attribute/table name\n", part1.c_str());
+        return false;
+    }
     if(scanner.lookAhead() == "."){
         scanner.nextToken();
-        attrID = AttributeID(attrName, scanner.nextToken());
+        string part2 = scanner.nextToken();
+        if (not Parser::validName(part2)) {
+            printErr("Error: %s is not a valid attribute/table name\n", part2.c_str());
+            return false;
+        }
+        attrID = AttributeID(part1, part2);
     }
     else{
-        attrID = AttributeID(attrName);
+        attrID = AttributeID(part1);
     }
     return true;
 }
@@ -441,31 +450,23 @@ bool Parser::read_Where_Clause() {
 }
 
 bool Parser::read_ComparePair(ComparePair& cmpPair) {
-    bool isFrontAttr = false, isBackAttr = false;
+    bool isFrontAttr, isBackAttr;
+    string str1, str2;
     AttributeID attr1, attr2;
     string op;
 
-    read_AttrID(attr1);
+    // read comparePair part 1;
+    if (isStrString(scanner.lookAhead()) || isIntString(scanner.lookAhead())) {
+        isFrontAttr = false;
+        str1 = scanner.nextToken();
+    } else {
+        isFrontAttr = true;
+        read_AttrID(attr1);
+    }
 
     op = scanner.nextToken();
     if(op == "<" && scanner.lookAhead() == ">")
         op += scanner.nextToken();
-
-    read_AttrID(attr2);
-
-    if(isStrString(attr1.attr_name) || isIntString(attr1.attr_name)){
-        isFrontAttr = false;
-    }
-    else{
-        isFrontAttr = true;
-    }
-    if(isStrString(attr2.attr_name) || isIntString(attr2.attr_name)){
-        isBackAttr = false;
-    }
-    else{
-        isBackAttr = true;
-    }
-
     CompareOP cop;
     if (op == ">") {
         cop = CompareOP::BIGGER;
@@ -476,18 +477,26 @@ bool Parser::read_ComparePair(ComparePair& cmpPair) {
     } else if (op == "=") {
         cop = CompareOP::EQUAL;
     } else {
-        fprintf(stderr, "No such CompareOP: %s\n", op.c_str());
-        exit(EXIT_FAILURE);
+        printErr("No such CompareOP: %s\n", op.c_str());
+        return false;
+    }
+
+    if (isStrString(scanner.lookAhead()) || isIntString(scanner.lookAhead())) {
+        isBackAttr = false;
+        str2 = scanner.nextToken();
+    } else {
+        isBackAttr = true;
+        read_AttrID(attr2);
     }
 
     if(isFrontAttr && isBackAttr)
         cmpPair = Parser::ComparePair(attr1, cop, attr2);
     else if(isFrontAttr && !isBackAttr)
-        cmpPair = Parser::ComparePair(attr1, cop, attr2.attr_name);
+        cmpPair = Parser::ComparePair(attr1, cop, str2);
     else if(!isFrontAttr && isBackAttr)
-        cmpPair = Parser::ComparePair(attr1.attr_name, cop, attr2);
+        cmpPair = Parser::ComparePair(str1, cop, attr2);
     else if(!isFrontAttr && !isBackAttr)
-        cmpPair = Parser::ComparePair(attr1.attr_name, cop, attr2.attr_name);
+        cmpPair = Parser::ComparePair(str1, cop, str2);
 
     return true;
 }

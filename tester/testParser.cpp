@@ -13,20 +13,15 @@ int main(int argc, char const *argv[])
 	Parser *parser;
     vector<string> queries;
     setbuf(stdin, NULL);
-    // printf("!\n");
     FILE* fp;
     if ((fp = fopen("sql/parser_testing.sql", "r")) == NULL) {
         perror("file read error");
         exit(1);
     }
-    // printf("!\n");
     char buffer[1000];
     while( fscanf(fp, " %[^;];", buffer) > 0 ) {
-        // printf("?\n");
-        buffer[strlen(buffer)-1] = '\0';
         queries.emplace_back(buffer);
     }
-    // printf("!\n");
     // queries.push_back("creAte tAble aa(name varchar(30), time intt PRIMARY KEY)");
     // queries.push_back("INSERT INTO STUDENT (a, b, c, d, e)\nVALUES(1, 1, 3, 'eqweqwe', '123213eqwd')");
     // queries.push_back("INSERT INTO ^ (a, b, c, d, e)\nVALUES(1, 1, 3, eqweqwe, '123213eqwd')");
