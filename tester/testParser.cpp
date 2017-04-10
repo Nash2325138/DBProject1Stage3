@@ -36,8 +36,6 @@ int main(int argc, char const *argv[])
         if(parser->Parse()){
             parser->Print();
             puts("");
-        } else {
-            exit(1);
         }
         delete parser;     
     }

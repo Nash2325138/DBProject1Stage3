@@ -136,6 +136,34 @@ bool Table::insert(vector<Value>& values) {
 	return true;
 }
 
+bool BaseData::select(Parser::SelectQueryData& sData) {
+	// checkSelectQueryData(sData)
+	
+	// create a outputTable with schema concatenation of all selectedItems
+
+	// for (tuple1 in table1):
+	//   for (tuple2 in table2):
+	//     if ( fullfill conditions of WHERE):
+	//       1. if is aggregation function:
+	//             do what aggregation want
+	//       2. else:
+	//             push_back one tuple with selectedItems to outputTable
+
+	// outputTable.show();
+	return true;
+}
+bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
+	// 1. check if all tables in sData is also in Base
+	
+	// 2. check if attributes which is
+	//		a. table specified: is in the specified table
+	//		b. not table specified: is not ambiguous amoung tables
+	
+	// 3. check if both side of compare pairs is the same type
+
+	return true;
+}
+
 bool BaseData::Query(string query_str){
 	if (query_str == "show") {
 		this->show();
@@ -153,7 +181,7 @@ bool BaseData::Query(string query_str){
 		}
 		else {
 			// Map table into tables
-			tables[table.table_name] = table;
+			tables[table.table_name] = table;	// std::move(table) ?
 		}
 	}
 	else if(parser->isInsertQuery){
@@ -235,7 +263,50 @@ void Table::show(){
 	}
 	puts(row_seperator(column_widths));
 }
+void OutputTable::show() {
+	static const int OFFSET = 3;
+	int i=0;
 
+	// compute column widths to output
+	vector<int> column_widths(schema.size());
+	for (int i=0; i<schema.size(); i++) {
+		column_widths[i] = schema[i].name.length();
+	}
+	for (auto& tuple : tuples){
+		i=0;
+		for (auto& attr : schema){
+			column_widths[i] = std::max(column_widths[i], (int)tuple[attr.name].toString().length());
+			i++;
+		}
+	}
+	for (int& w:column_widths) {
+		w += OFFSET;
+	}
+
+	// Top '-' and '+'
+	puts(row_seperator(column_widths));
+
+	// output all atrribute name
+	i=0;
+	for (auto& attr : schema) {
+		printf("|%*s", column_widths[i], attr.name.c_str());
+		i++;
+	}
+	puts("|");
+	puts(row_seperator(column_widths));
+
+	if (tuples.size() == 0) return;
+	// output all tuples
+	for (auto& tuple : tuples){
+		i=0;
+		for (auto& attr : schema){
+			printf("|%*s", column_widths[i], tuple[attr.name].toString().c_str());
+			i++;
+		}
+		puts("|");
+	}
+	puts(row_seperator(column_widths));
+}
 string Table::schemaToString() {
 	char ret[2000];
 	int pos = 0;

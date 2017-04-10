@@ -265,7 +265,7 @@ bool Parser::Select_Query() {
     //      1. selectData->fromTables
     //      2. selectData->aliasToTableName
     if (scanner.lookAhead() != "from") {
-        printErr("Syntax error: expected 'FROM', got %s", scanner.lookAhead().c_str());
+        printErr("Syntax error: expected 'FROM', got %s\n", scanner.lookAhead().c_str());
         return false;
     }
     if (not read_FromTable_Sequence()) {

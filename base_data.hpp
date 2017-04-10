@@ -30,15 +30,24 @@ public:
 	set<Value> primary_key_columns;
 };
 
+class OutputTable {
+public:
+	vector<Attribute> schema;
+	vector<map<string, Value> > tuples;
+	void show();
+};
+
 class BaseData{
 private:
 	map<string, Table> tables;
 	Parser *parser;
-
+	OutputTable outputTable;
 public:
 	BaseData(){};
 	~BaseData(){};
 	bool Query(string query_str);
+	bool select(Parser::SelectQueryData& sData);
+	bool checkSelectQueryData(Parser::SelectQueryData& sData);
 	void show();
 };
 
