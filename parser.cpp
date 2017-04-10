@@ -264,6 +264,10 @@ bool Parser::Select_Query() {
     // read_FromTable_Sequence() to fill
     //      1. selectData->fromTables
     //      2. selectData->aliasToTableName
+    if (scanner.lookAhead() != "from") {
+        printErr("Syntax error: expected 'FROM', got %s", scanner.lookAhead().c_str());
+        return false;
+    }
     if (not read_FromTable_Sequence()) {
         return false;
     }
@@ -291,22 +295,16 @@ bool Parser::Select_Query() {
 
 bool Parser::read_Selected_Item_Sequence() {
     // while (1) { read_Selected_Item() and read "," until lookahead == "" or "from" }
-    string dot;
     while(1){
         if (not read_Selected_Item()) {
             return false;
         }
-        if(scanner.lookAhead() == "from")
-            return true;
-        else if(scanner.lookAhead() == ""){
-            printErr("Syntax Error: expected 'FROM'\n");
-            return false;
+        if(scanner.lookAhead() == ","){
+            scanner.nextToken();
+            continue;
+        } else {
+            break;
         }
-        else if(scanner.lookAhead() != ","){
-            printErr("Syntax Error: expected ','\n");
-            return false;
-        }
-        dot = scanner.nextToken();
     }
     return true;
 }
