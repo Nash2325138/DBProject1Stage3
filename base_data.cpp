@@ -5,12 +5,13 @@
 
 Table::Table(string& table_name, vector<Attribute>& schema): table_name(table_name), schema(schema)
 															, hasPrimary(false){
+	int i=0;
 	for (auto& attr : schema) {
 		if (attr.isPrimaryKey) {
 			hasPrimary = true;
 			primary_key_name = attr.name;
-			return;
 		}
+		name_to_i[attr.name] = i++;
 	}
 }
 Table::Table(){}
@@ -60,12 +61,14 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 		printErr("Number of values exceeds number of atrributes\n");
 		return false;
 	}
-	map<string, Value> tuple;
-	Value primary_key_value;
+	// construct all values as null value (in case orders.size() < schema.size())
+	vector<Value> tuple(schema.size(), Value());
+	// for (auto& attr : schema) {
+	// 	tuple[attr.name];	// construct all values as null value (in case orders.size() < schema.size())
+	// }
+
 	bool getPrimary = false;
-	for (auto& attr : schema) {
-		tuple[attr.name];	// construct all values as null value (in case orders.size() < schema.size())
-	}
+	Value primary_key_value;
 	for(int i=0; i<orders.size(); i++){
 		// check data type
 		if(not checkDataType(orders[i], values[i])){
@@ -78,7 +81,7 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 			}
 			primary_key_value = values[i];
 		}
-		tuple[orders[i]] = values[i];
+		tuple[name_to_i[orders[i]]] = values[i];
 	}
 	if (hasPrimary and not getPrimary) {
 		printErr("Value of primary key can't be null\n");
@@ -100,7 +103,7 @@ bool Table::insert(vector<Value>& values) {
 		printErr("Number of values exceeds number of atrributes \n");
 		return false;
 	}
-	map<string, Value> tuple;
+	vector<Value> tuple(schema.size(), Value());
 	Value primary_key_value;
 	for(int i=0; i<schema.size(); i++){
 		if (i < values.size()) {
@@ -114,7 +117,7 @@ bool Table::insert(vector<Value>& values) {
 				}
 				primary_key_value = values[i];
 			}
-			tuple[schema[i].name] = values[i];
+			tuple[ name_to_i[schema[i].name] ]= values[i];
 		} else {
 			// if the insert SQL give values.size() < schema.size(), the rest values are null
 			if (schema[i].isPrimaryKey) {
@@ -122,7 +125,9 @@ bool Table::insert(vector<Value>& values) {
 				return false;
 			}
 			// insert a null value by using empty constructor Value()
-			tuple[schema[i].name];
+			//***   we don't need the line below because declaration of tuple has 
+			//      constructed it using empty constructor   ***// 
+			// tuple[schema[i].name];
 		}
 	}
 	if (not hasPrimary && std::find(tuples.begin(), tuples.end(), tuple) != tuples.end()) {
@@ -228,10 +233,13 @@ void Table::show(){
 		column_widths[i] = schema[i].name.length();
 	}
 	for (auto& tuple : tuples){
-		i=0;
-		for (auto& attr : schema){
-			column_widths[i] = std::max(column_widths[i], (int)tuple[attr.name].toString().length());
-			i++;
+		// i=0;
+		// for (auto& attr : schema){
+		// 	column_widths[i] = std::max(column_widths[i], (int)tuple[attr.name].toString().length());
+		// 	i++;
+		// }
+		for (int i=0; i<schema.size(); i++) {
+			column_widths[i] = std::max(column_widths[i], (int)tuple[i].toString().length());
 		}
 	}
 	for (int& w:column_widths) {
@@ -256,9 +264,12 @@ void Table::show(){
 	for (auto& tuple : tuples){
 		i=0;
 		for (auto& attr : schema){
-			printf("|%*s", column_widths[i], tuple[attr.name].toString().c_str());
+			printf("|%*s", column_widths[i], tuple[name_to_i[attr.name]].toString().c_str());
 			i++;
 		}
+		// for (int i = 0; i < schema.size(); ++i) {
+		// 	printf("|%*s", column_widths[i], tuple[i].toString().c_str());
+		// }
 		puts("|");
 	}
 	puts(row_seperator(column_widths));

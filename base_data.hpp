@@ -23,7 +23,8 @@ public:
 	string table_name;
 	vector<Attribute> schema;
 
-	vector<map<string, Value> > tuples; // map from attribute name to a Value
+	map<string, int> name_to_i;
+	vector<vector<Value> > tuples; // map from attribute name to a Value
 	
 	bool hasPrimary;
 	string primary_key_name;
