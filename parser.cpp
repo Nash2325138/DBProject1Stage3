@@ -460,6 +460,10 @@ bool Parser::read_ComparePair(ComparePair& cmpPair) {
     } else {
         isFrontAttr = true;
         read_AttrID(attr1);
+        if(attr1.attr_name == "*"){
+            printErr("'*' attribute cannot be compared\n");
+            return false;
+        }
     }
 
     op = scanner.nextToken();
@@ -485,6 +489,10 @@ bool Parser::read_ComparePair(ComparePair& cmpPair) {
     } else {
         isBackAttr = true;
         read_AttrID(attr2);
+        if(attr2.attr_name == "*"){
+            printErr("'*' attribute cannot be compared\n");
+            return false;
+        }
     }
 
     if(isFrontAttr && isBackAttr)

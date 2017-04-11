@@ -55,13 +55,16 @@ public:
 	bool checkSelectQueryData(Parser::SelectQueryData& sData);
 	void fillOutputTableSchema(Parser::SelectQueryData& sData, 
 							   vector<pair<Table*, int> >& selectedAttributes);
-	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
+	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);<<<<<<< HEAD
 	bool judgeComparePair(Value& v);
 	bool judgeComparePair(Value& v1, CompareOP op, Value& v2);
 	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row);
 	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row, pair<Table*, int> t2_row);
 	void push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row);
 	void push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row, pair<Table*, int> t2_row);
+	bool checkTableExistence(vector<string>& fromTables);
+	bool checkAttributeStatus(Parser::SelectQueryData& selectedData);
+
 	void show();
 };
 
