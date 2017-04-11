@@ -70,7 +70,7 @@ public:
 	bool checkAttributeStatus(Parser::SelectQueryData& selectedData);
 	bool checkPairTypes(Parser::SelectQueryData& selectedData);
 	string getTypeString(CompareType CT);
-	string getAttributeType(AttributeID attrID, Parser::SelectQueryData& selectedData);
+	string getAttributeType(AttributeID attrID);
 	Table* getSourceTable(AttributeID& attrID);
 	vector<pair<Table_col, Table_col> > comparePairs_table_col;
 	void show();
