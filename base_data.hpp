@@ -57,6 +57,9 @@ public:
 	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
 	bool checkTableExistence(vector<string>& fromTables);
 	bool checkAttributeStatus(Parser::SelectQueryData& selectedData);
+	bool checkPairTypes(Parser::SelectQueryData& selectedData);
+	string getTypeString(CompareType CT);
+	string getAttributeType(AttributeID attrID, Parser::SelectQueryData& selectedData);
 
 	void show();
 };

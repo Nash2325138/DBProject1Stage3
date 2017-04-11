@@ -237,6 +237,7 @@ bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
 	if(not checkTableExistence(sData.fromTables)){
 		return false;
 	}
+	
 	// 2. check if all attributeID (in selected items or comparePairs) which is
 	//		a. table specified: is in the specified table
 	//		b. not table specified: exist in any fromTable and not ambiguous amoung fromTables
@@ -244,13 +245,24 @@ bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
 	if(not checkAttributeStatus(sData)){
 		return false;
 	}
-	// 3. all attributeID in comparePairs can't match two or more attributes 
 
-	// 4. check if both side of compare pairs is the same type
-
-	// 5. since we don't handle GROUP BY, if any aggregation function and normal attributes
+	// 3. check if both side of compare pairs is the same type
+	if(not checkPairTypes(sData)){
+		return false;
+	}
+	
+	// 4. since we don't handle GROUP BY, if any aggregation function and normal attributes
 	//    are in selected item together, it's a error
-
+	bool has_aggregation = false;
+	for(auto &item : sData.selectedItems){
+		if(item.isAggregation){
+			has_aggregation = true;
+		}
+	}
+	if(has_aggregation && sData.selectedItems.size() > 1){
+		printErr("The attributes without aggregation function should be grouped by\n");
+		return false;
+	}
 
 	return true;
 }
@@ -265,49 +277,10 @@ bool BaseData::checkTableExistence(vector<string> &fromTables){
 	return true;
 }
 
-    /*struct SelectQueryData {
-        vector<SelectedItem> selectedItems; 
-        
-        vector<ComparePair> comparePairs;
-        LogicalOP logicalOP;
-
-        map<string, string> aliasToTableName;
-        vector<string> fromTables;
-    };
-	struct SelectedItem {
-        bool isAggregation;
-        string aggreFuncStr;
-        AttributeID attributeID;
-        SelectedItem(const string& aggreFuncStr, const AttributeID& attributeID): aggreFuncStr(aggreFuncStr), attributeID(attributeID) {
-            isAggregation = true;
-            if (aggreFuncStr != "sum" and aggreFuncStr != "count") {
-                fprintf(stderr, "WTF? aggreFuncStr %s doesn't make sence\n", aggreFuncStr.c_str());
-                exit(EXIT_FAILURE);
-            }
-        }
-        SelectedItem(const AttributeID& attributeID): isAggregation(false),  attributeID(attributeID){}
-    };
-    struct AttributeID {
-    AttributeID(){};
-    AttributeID(const string& attr_name): tableSpecified(false), attr_name(attr_name){};
-    AttributeID(const string& tableID, const string& attr_name): tableSpecified(true), tableID(tableID), attr_name(attr_name){};
-    bool tableSpecified;
-    string tableID; // table name or table alias
-    string attr_name;
-    string toString() {
-        if (tableSpecified) {
-            return tableID + "." + attr_name;
-        } else {
-            return attr_name;
-        }
-    }
-	};
-    */
-
 bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 	vector<AttributeID> attrIDs;
 	attrIDs.clear();
-	// get select items & compairpairs
+	// get select items & comparepairs
 	for(auto &item : selectedData.selectedItems){
 		attrIDs.push_back(item.attributeID);
 	}
@@ -342,6 +315,60 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 		}
 	}
 	return true;
+}
+
+bool BaseData::checkPairTypes(Parser::SelectQueryData& selectedData){
+	for(auto &pair : selectedData.comparePairs){
+		string type1, type2;
+		// Attr & Attr
+		if(pair.type1 == CompareType::ATTRIBUTE && pair.type2 == CompareType::ATTRIBUTE){
+			type1 = getAttributeType(pair.attrID1, selectedData);
+			type2 = getAttributeType(pair.attrID2, selectedData);
+		}
+		// Attr & !Attr
+		else if(pair.type1 == CompareType::ATTRIBUTE && pair.type2 != CompareType::ATTRIBUTE){
+			type1 = getAttributeType(pair.attrID1, selectedData);
+			type2 = getTypeString(pair.type2);
+		}
+		// !Attr & Attr
+		else if(pair.type1 != CompareType::ATTRIBUTE && pair.type2 == CompareType::ATTRIBUTE){
+			type1 = getTypeString(pair.type1);
+			type2 = getAttributeType(pair.attrID2, selectedData);
+		}
+		// !Attr & !Attr
+		else {
+			type1 = getTypeString(pair.type1);
+			type2 = getTypeString(pair.type2);
+		}
+		if(type1 != type2){
+			printErr("Cannot compare '%s' with '%s'\n", type1.c_str(), type2.c_str());
+			return false;
+		}
+	}
+	return true;
+}
+
+string BaseData::getTypeString(CompareType CT){
+	if(CT == CompareType::INT_CONST){ return "int"; }
+	return "varchar";
+}
+
+string BaseData::getAttributeType(AttributeID attrID, Parser::SelectQueryData& selectedData){
+	if(attrID.tableSpecified){
+		Table &table = tables[getTrueTableName(selectedData, attrID.tableID)];
+		vector<int> pos = table.matchedAttributes(attrID.attr_name);
+		return table.schema[pos[0]].type;
+	}
+	else{
+		for(auto &table_name : selectedData.fromTables){
+			Table &table = tables[table_name];
+			vector<int> pos;
+			if((pos = table.matchedAttributes(attrID.attr_name)).size() > 0){
+				return table.schema[pos[0]].type;
+			}
+		}
+	}
+	return "";
 }
 
 bool BaseData::Query(string query_str){
