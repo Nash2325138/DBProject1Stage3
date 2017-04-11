@@ -55,7 +55,7 @@ public:
 	bool checkSelectQueryData(Parser::SelectQueryData& sData);
 	void fillOutputTableSchema(Parser::SelectQueryData& sData, 
 							   vector<pair<Table*, int> >& selectedAttributes);
-	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);<<<<<<< HEAD
+	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
 	bool judgeComparePair(Value& v);
 	bool judgeComparePair(Value& v1, CompareOP op, Value& v2);
 	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row);

@@ -344,6 +344,7 @@ public:
     bool read_ComparePair(ComparePair& cmpPair);
 
     static bool validName(string& name);
+    static bool validSelectName(string& name);
     static bool isIntString(const string& str);
     static bool isStrString(const string& str);
 };
