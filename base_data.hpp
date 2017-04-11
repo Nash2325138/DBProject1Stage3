@@ -55,6 +55,8 @@ public:
 	void fillOutputTableSchema(Parser::SelectQueryData& sData, 
 							   vector<pair<string, int>>& selectedAttributes);
 	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
+	bool checkTableExistence(vector<string>& fromTables);
+	bool checkAttributeStatus(Parser::SelectQueryData& selectedData);
 
 	void show();
 };

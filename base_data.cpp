@@ -231,6 +231,40 @@ void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
 		}
 	}
 }
+
+bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
+	// 1. check if all fromTables in sData are also in Base
+	if(not checkTableExistence(sData.fromTables)){
+		return false;
+	}
+	// 2. check if all attributeID (in selected items or comparePairs) which is
+	//		a. table specified: is in the specified table
+	//		b. not table specified: exist in any fromTable and not ambiguous amoung fromTables
+	// note: be careful of wildcard charactor: * (use matchedAttributes() to decide)
+	if(not checkAttributeStatus(sData)){
+		return false;
+	}
+	// 3. all attributeID in comparePairs can't match two or more attributes 
+
+	// 4. check if both side of compare pairs is the same type
+
+	// 5. since we don't handle GROUP BY, if any aggregation function and normal attributes
+	//    are in selected item together, it's a error
+
+
+	return true;
+}
+
+bool BaseData::checkTableExistence(vector<string> &fromTables){
+	for(auto &name : fromTables){
+		if(tables.find(name) == tables.end()){
+			printErr("No such table '%s'\n", name.c_str());
+			return false;
+		}
+	}
+	return true;
+}
+
     /*struct SelectQueryData {
         vector<SelectedItem> selectedItems; 
         
@@ -253,23 +287,50 @@ void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
         }
         SelectedItem(const AttributeID& attributeID): isAggregation(false),  attributeID(attributeID){}
     };
+    struct AttributeID {
+    AttributeID(){};
+    AttributeID(const string& attr_name): tableSpecified(false), attr_name(attr_name){};
+    AttributeID(const string& tableID, const string& attr_name): tableSpecified(true), tableID(tableID), attr_name(attr_name){};
+    bool tableSpecified;
+    string tableID; // table name or table alias
+    string attr_name;
+    string toString() {
+        if (tableSpecified) {
+            return tableID + "." + attr_name;
+        } else {
+            return attr_name;
+        }
+    }
+	};
     */
-bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
-	// 1. check if all fromTables in sData are also in Base
 
-	// 2. check if all attributeID (in selected items or comparePairs) which is
-	//		a. table specified: is in the specified table
-	//		b. not table specified: exist in any fromTable and not ambiguous amoung fromTables
-	// note: be careful of wildcard charactor: * (use matchedAttributes() to decide)
-
-	// 3. all attributeID in comparePairs can't match two or more attributes 
-
-	// 4. check if both side of compare pairs is the same type
-
-	// 5. since we don't handle GROUP BY, if any aggregation function and normal attributes
-	//    are in selected item together, it's a error
-
-	return true;
+bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
+	// check selected items
+	for(auto &item : selectedData.selectedItems){
+		// table specified
+		if(item.atrributeID.tableSpecified){
+			string table_name = getTrueTableName(selectedData, item.atrributeID.tableID);
+			if(tables[table_name].matchedAttributes(item.attributeID.attr_name).size() == 0){
+				printErr("No such attribute '%s' in table '%s'\n", item.atrributeID.attr_name.c_str(), table_name.c_str());
+				return false;
+			}
+		}
+		else{	// not table specified
+			int numOfThisAttr = 0;
+			for(auto &table_name : selectedData.fromTables){
+				Table &table = tables[table_name];
+				numOfThisAttr += table.matchedAttributes(item.atrributeID.attr_name).size();
+			}
+			if(numOfThisAttr == 0){
+				printErr("No such attribute '%s'\n", item.atrributeID.attr_name.c_str());
+				return false;
+			}
+			else if(numOfThisAttr > 1){
+				printErr("Ambiguous attribute name '%s'\n", item.atrributeID.attr_name.c_str());
+				return false;
+			}
+		}
+	}
 }
 
 bool BaseData::Query(string query_str){
