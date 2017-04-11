@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 
+typedef vector<Value> Tuple;
 using namespace std; 
 class Table{
 public:
@@ -53,8 +54,14 @@ public:
 	bool select(Parser::SelectQueryData& sData);
 	bool checkSelectQueryData(Parser::SelectQueryData& sData);
 	void fillOutputTableSchema(Parser::SelectQueryData& sData, 
-							   vector<pair<string, int>>& selectedAttributes);
+							   vector<pair<Table*, int> >& selectedAttributes);
 	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
+	bool judgeComparePair(Value& v);
+	bool judgeComparePair(Value& v1, CompareOP op, Value& v2);
+	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row);
+	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row, pair<Table*, int> t2_row);
+	void push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row);
+	void push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row, pair<Table*, int> t2_row);
 	bool checkTableExistence(vector<string>& fromTables);
 	bool checkAttributeStatus(Parser::SelectQueryData& selectedData);
 	bool checkPairTypes(Parser::SelectQueryData& selectedData);

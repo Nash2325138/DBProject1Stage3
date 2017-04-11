@@ -169,6 +169,53 @@ bool Table::insert(vector<Value>& values) {
 	return true;
 }
 
+bool BaseData::judgeComparePair(Value& v) {
+	return v.isTrue();
+}
+bool BaseData::judgeComparePair(Value& v1, CompareOP op, Value& v2) {
+	if (op == CompareOP::BIGGER) {
+		return v1.bigger(v2);
+	} else if (op == CompareOP::SMALLER) {
+		return v1.smaller(v2);
+	} else if (op == CompareOP::EQUAL) {
+		return v1.equal(v2);
+	} else if (op == CompareOP::NOT_EQUAL) {
+		return !v1.equal(v2);
+	} else {
+		return false;
+	}
+}
+bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row) {
+	return true;
+}
+bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row, pair<Table*, int> t2_row) {
+	return true;
+}
+void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row) {
+	Tuple tuple;
+	for (auto& p: selectedAttributes) {
+		if (p.first != t1_row.first) {
+			printErr("selectedAttribute not in from tables!!!??");
+			exit(EXIT_FAILURE);
+		}
+		tuple.push_back(t1_row.first->tuples.at(t1_row.second).at(p.second));
+	}
+	outputTable.tuples.push_back(tuple);
+}
+void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row, pair<Table*, int> t2_row) {
+	Tuple tuple;
+	for (auto& p: selectedAttributes) {
+		if (p.first == t1_row.first) {
+			tuple.push_back(t1_row.first->tuples.at(t1_row.second).at(p.second));
+		} else if (p.first == t2_row.first) {
+			tuple.push_back(t2_row.first->tuples.at(t2_row.second).at(p.second));
+		} else {
+			printErr("selectedAttribute not in from tables!!!??");
+			exit(EXIT_FAILURE);
+		}
+	}
+	outputTable.tuples.push_back(tuple);
+}
 bool BaseData::select(Parser::SelectQueryData& sData) {
 	// checkSelectQueryData(sData)
 	if (not checkSelectQueryData(sData)) {
@@ -176,11 +223,30 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	}
 
 	// map from table to selected attributes;
-	vector<pair<string, int>> selectedAttributes;
+	vector<pair<Table*, int> > selectedAttributes;
 
 	// create an outputTable with schema concatenation of all selectedItems
 	fillOutputTableSchema(sData, selectedAttributes);
 
+	bool conditional = (sData.comparePairs.size() > 0);
+	// one table
+	if (sData.fromTables.size() == 1) {
+		Table& t = tables[sData.fromTables[0]]; // fromTable must be true name
+		for (int i=0 ; i<t.tuples.size(); i++) {
+			pair<Table*, int> table_row = make_pair(&t, i);
+			if (conditional) {
+				if (judgeWhere(sData, table_row) == false) continue;
+				push_back_output(selectedAttributes, table_row);
+			} else {
+				push_back_output(selectedAttributes, table_row);
+			}
+		}
+	}
+
+	// two tables
+	else if (sData.fromTables.size() == 2) {
+
+	}
 	// for (tuple1 in table1):
 	//   for (tuple2 in table2):
 	//     if ( fullfill conditions of WHERE):
@@ -189,7 +255,7 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	//       2. else:
 	//             push_back one tuple with selectedItems to outputTable
 
-	// outputTable.show();
+	outputTable.show();
 	return true;
 }
 string BaseData::getTrueTableName(Parser::SelectQueryData& sData, string tableID) {
@@ -201,7 +267,7 @@ string BaseData::getTrueTableName(Parser::SelectQueryData& sData, string tableID
 	}
 }
 void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
-						vector<pair<string, int>>& selectedAttributes) {
+						vector<pair<Table*, int> >& selectedAttributes) {
 	for (auto& item: sData.selectedItems) {
 		if (not item.isAggregation) {
 			AttributeID attrID = item.attributeID;
@@ -214,7 +280,7 @@ void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
 				auto matched = specifiedTable.matchedAttributes(attrID.attr_name);
 				for (auto& i: matched) {
 					outputTable.schema.push_back(attrID.tableID+"."+specifiedTable.schema[i].name);
-					selectedAttributes.push_back(make_pair(trueName, i));
+					selectedAttributes.push_back(make_pair(&specifiedTable, i));
 				}
 			} else {
 				for (auto& fromTableStr: sData.fromTables) {
@@ -222,7 +288,7 @@ void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
 					auto matched = fromTable.matchedAttributes(attrID.attr_name);
 					for (int i:matched) {
 						outputTable.schema.push_back(fromTable.schema[i].name);
-						selectedAttributes.push_back(make_pair(fromTableStr, i));
+						selectedAttributes.push_back(make_pair(&fromTable, i));
 					}
 				}
 			}

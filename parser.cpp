@@ -13,6 +13,10 @@ bool Parser::validName(string& name) {
     static const std::regex reg("[a-zA-Z_][a-zA-Z_0-9]*");
     return std::regex_match (name, reg); 
 }
+bool Parser::validSelectName(string& name) {
+    static const std::regex reg("[a-zA-Z_*][a-zA-Z_0-9*]*");
+    return std::regex_match (name, reg); 
+}
 bool Parser::isIntString(const string& str) {
     static const std::regex reg("-?[0-9]+");
     return std::regex_match (str, reg); 
@@ -355,14 +359,14 @@ bool Parser::read_AttrID(AttributeID& attrID) {
     //      1. An attrName is a string
     //      2. An tableID can be either alias or table name, but they are all string
     string part1 = scanner.nextToken();
-    if (not Parser::validName(part1)) {
+    if (not Parser::validSelectName(part1)) {
         printErr("Error: %s is not a valid attribute/table name\n", part1.c_str());
         return false;
     }
     if(scanner.lookAhead() == "."){
         scanner.nextToken();
         string part2 = scanner.nextToken();
-        if (not Parser::validName(part2)) {
+        if (not Parser::validSelectName(part2)) {
             printErr("Error: %s is not a valid attribute/table name\n", part2.c_str());
             return false;
         }
