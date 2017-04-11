@@ -105,6 +105,46 @@ public:
         fprintf(stderr, "WTF!?? at Value operator == \n");
         return false;
     }
+    bool smaller(const Value& a) {
+        // if (isNull) {};
+        if (isInt) {
+            return (intData < a.intData);
+        } else if (isString) {
+            return (strData < a.strData);
+        } else {
+            fprintf(stderr, "Not int or string(SMALLER)\n");
+            exit(EXIT_FAILURE);
+            return false;
+        }
+    }
+    bool bigger(const Value& a) {
+        if (isInt) {
+            return (intData > a.intData);
+        } else if (isString) {
+            return (strData > a.strData);
+        } else {
+            fprintf(stderr, "Not int or string(BIGGER)\n");
+            exit(EXIT_FAILURE);
+            return false;
+        }
+    }
+    bool equal(const Value& a) {
+        if (isInt) {
+            return (intData == a.intData);
+        } else if (isString) {
+            return (strData == a.strData);
+        } else {
+            fprintf(stderr, "Not int or string(EQUAL)\n");
+            exit(EXIT_FAILURE);
+            return false;
+        }
+    }
+    bool isTrue() {
+        if (isNull) return false;
+        if (isInt) return (intData != 0);
+        if (isString) return (!strData.empty());
+        return false;
+    }
 };
 struct AttributeID {
     AttributeID(){};
