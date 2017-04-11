@@ -414,6 +414,7 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 bool BaseData::checkPairTypes(Parser::SelectQueryData& selectedData){
 	for(auto &pair : selectedData.comparePairs){
 		string type1, type2;
+		if(pair.op == CompareOP::OP_EMPTY){ continue; }
 		// Attr & Attr
 		if(pair.type1 == CompareType::ATTRIBUTE && pair.type2 == CompareType::ATTRIBUTE){
 			type1 = getAttributeType(pair.attrID1, selectedData);

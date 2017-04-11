@@ -161,7 +161,7 @@ struct AttributeID {
         }
     }
 };
-enum class CompareOP {BIGGER=0, SMALLER=1, EQUAL=2, NOT_EQUAL=3};
+enum class CompareOP {BIGGER=0, SMALLER=1, EQUAL=2, NOT_EQUAL=3, OP_EMPTY=4};
 enum class LogicalOP {AND, OR};
 // enum class AggreFunc {SUM, COUNT};
 enum class CompareType {ATTRIBUTE, INT_CONST, STRING_CONST};
@@ -250,6 +250,12 @@ public:
         ComparePair(const string& part1, CompareOP op, const string& part2): op(op) {
             this->fillPartPair(part1, int1, str1, type1);
             this->fillPartPair(part2, int2, str2, type2);
+        }
+        ComparePair(const string& part1): op(CompareOP::OP_EMPTY) {
+            this->fillPartPair(part1, int1, str1, type1);
+        }
+        ComparePair(const AttributeID& attrID1): attrID1(attrID1), op(CompareOP::OP_EMPTY) {
+            type1 = CompareType::ATTRIBUTE;
         }
         string partToString(CompareType type, string str, int i, AttributeID attrID) {
             char buffer[1000];

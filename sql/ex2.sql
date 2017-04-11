@@ -44,4 +44,6 @@ select CID, Name, Salary, o.Order_No from Customersss, Ordessrs AS o;
 select o.CID, Name, COUNT(Salary), o.Order_No from Customers, Orders AS o;
 select COUNT(Salary) from Customers, Orders AS o;
 select COUNT(Salary), SUM(Salary) from Customers, Orders AS o;
+select c.CID, c.Name, c.Salary, o.Order_No from Customers AS c, Orders AS o WHERE c.CID <> o.CID AND c.Salary < 40000;
+select c.CID, c.Name, c.Salary, o.Order_No from Customers AS c, Orders AS o WHERE c.CID <> o.CID AND 40000 = c.Salary;
 
