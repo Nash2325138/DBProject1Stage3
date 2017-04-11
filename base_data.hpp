@@ -16,7 +16,7 @@ public:
 	bool insert(vector<Value>& values);
 	bool checkDataType(string& attr_name, Value &value);
 	bool checkPrimaryKey(Value &value);
-	const vector<int>& matchedAttributes(const string& str);
+	const vector<int>& matchedAttributes(const string str);
 
 	void show();
 	string schemaToString();

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <regex>
 #include <utility>
+#include <string>
 #include "base_data.hpp"
 #include "color.h"
 
@@ -20,7 +21,19 @@ Table::Table(){}
 Table::~Table(){}
 
 // our attribute chosen support regular expreesion 
-const vector<int>& Table::matchedAttributes(const string& str) {
+const vector<int>& Table::matchedAttributes(string str) {
+	size_t index = 0;
+	while (true) {
+	     /* Locate the '*' to replace. */
+	     index = str.find('*', index);
+	     if (index == std::string::npos) break;
+
+	     /* Make the replacement. */
+	     str.replace(index, 1, ".*");
+
+	     /* Advance index forward so the next iteration doesn't pick it up as well. */
+	     index += 2;
+	}
 	static vector<int> matched;
 	matched.clear();
 	std::regex reg(str);
