@@ -26,3 +26,22 @@ insert into OrderInfo values(7375, 7000);
 insert into OrderInfo values(7520, 3200);
 insert into OrderInfo values(7840, 2500);
 insert into OrderInfo values(8254, 20000);
+
+
+select CID, Name, Salary, o.Order_No from Customers, Orders AS o;
+select c.CID, c.Name, c.Salary from Customers AS c;
+select * from Orders AS o;
+select o.* from Orders AS o;
+select c.*, o.* from Customers AS c, Orders AS o;
+select c.CID, c.Name, c.Salary, o.Order_No from Customers AS c, Orders AS o;
+select c.CID, c.Name, c.Salary, o.Order_No from Customers AS c, Orders AS o WHERE c.CID > 3 AND c.Salary > 40000;
+select c.CID, c.Name, c.Salary, o.Order_No from Customers AS c, Orders AS o WHERE c.CID > 3 OR c.Salary > 40000;
+select c.CID, c.Name, c.Salary, o.Order_No from Customers AS c, Orders AS o WHERE c.* > 3 AND c.Salary > 40000;
+select Order_No from OrderInfo AS c, Orders AS o;
+select c.Order_No, o.Order_No from OrderInfo AS c, Orders AS o;
+select c.CID, c.Name, c.Salary, o.Order_No from Customers AS c, Orders AS o WHERE c.CID > 3 AND c.Salary > 40000;
+select CID, Name, Salary, o.Order_No from Customersss, Ordessrs AS o;
+select o.CID, Name, COUNT(Salary), o.Order_No from Customers, Orders AS o;
+select COUNT(Salary) from Customers, Orders AS o;
+select COUNT(Salary), SUM(Salary) from Customers, Orders AS o;
+

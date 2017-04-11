@@ -281,7 +281,6 @@ bool Parser::Select_Query() {
     //      1. selectData->comparePairs 
     //      2. selectData->logicalOP
     if (scanner.lookAhead() == "where") {
-        printf("Reading where\n");
         if (not read_Where_Clause()) {
             return false;
         }
