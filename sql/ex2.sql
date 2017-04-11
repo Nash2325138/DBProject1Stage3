@@ -40,3 +40,8 @@ select c.CID, c.Name, c.Salary, o.Order_No from Customers AS c, Orders AS o WHER
 select Order_No from OrderInfo AS c, Orders AS o;
 select c.Order_No, o.Order_No from OrderInfo AS c, Orders AS o;
 select c.CID, c.Name, c.Salary, o.Order_No from Customers AS c, Orders AS o WHERE c.CID > 3 AND c.Salary > 40000;
+select CID, Name, Salary, o.Order_No from Customersss, Ordessrs AS o;
+select o.CID, Name, COUNT(Salary), o.Order_No from Customers, Orders AS o;
+select COUNT(Salary) from Customers, Orders AS o;
+select COUNT(Salary), SUM(Salary) from Customers, Orders AS o;
+

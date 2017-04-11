@@ -321,12 +321,14 @@ bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
 	// 4. since we don't handle GROUP BY, if any aggregation function and normal attributes
 	//    are in selected item together, it's a error
 	bool has_aggregation = false;
+	int aggregation_count = 0;
 	for(auto &item : sData.selectedItems){
 		if(item.isAggregation){
 			has_aggregation = true;
+			aggregation_count++;
 		}
 	}
-	if(has_aggregation && sData.selectedItems.size() > 1){
+	if(has_aggregation && sData.selectedItems.size() > aggregation_count){
 		printErr("The attributes without aggregation function should be grouped by\n");
 		return false;
 	}
