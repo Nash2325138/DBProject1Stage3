@@ -474,7 +474,7 @@ bool BaseData::Query(string query_str){
 		}
 	}
 	else if(parser->isSelectQuery){
-		
+		select(*parser->selectData);
 	}
 
 	delete parser;
