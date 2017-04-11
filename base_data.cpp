@@ -305,13 +305,23 @@ bool BaseData::checkTableExistence(vector<string> &fromTables){
     */
 
 bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
-	// check selected items
+	vector<Parser::AttributeID> attrIDs;
+	attrIDs.clear();
+	// get select items & compairpairs
 	for(auto &item : selectedData.selectedItems){
+		attrIDs.push_back(item.attributeID);
+	}
+	for(auto &pair : selectedData.comparePairs){
+		attrIDs.push_back(pair.attrID1);
+		attrIDs.push_back(pair.attrID2);
+	}
+
+	for(auto &attrID : attrIDs){
 		// table specified
-		if(item.atrributeID.tableSpecified){
-			string table_name = getTrueTableName(selectedData, item.atrributeID.tableID);
-			if(tables[table_name].matchedAttributes(item.attributeID.attr_name).size() == 0){
-				printErr("No such attribute '%s' in table '%s'\n", item.atrributeID.attr_name.c_str(), table_name.c_str());
+		if(attrID.tableSpecified){
+			string table_name = getTrueTableName(selectedData, item.attrID.tableID);
+			if(tables[table_name].matchedAttributes(item.attrID.attr_name).size() == 0){
+				printErr("No such attribute '%s' in table '%s'\n", attrID.attr_name.c_str(), table_name.c_str());
 				return false;
 			}
 		}
@@ -319,14 +329,14 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 			int numOfThisAttr = 0;
 			for(auto &table_name : selectedData.fromTables){
 				Table &table = tables[table_name];
-				numOfThisAttr += table.matchedAttributes(item.atrributeID.attr_name).size();
+				numOfThisAttr += table.matchedAttributes(attrID.attr_name).size();
 			}
 			if(numOfThisAttr == 0){
-				printErr("No such attribute '%s'\n", item.atrributeID.attr_name.c_str());
+				printErr("No such attribute '%s'\n", attrID.attr_name.c_str());
 				return false;
 			}
 			else if(numOfThisAttr > 1){
-				printErr("Ambiguous attribute name '%s'\n", item.atrributeID.attr_name.c_str());
+				printErr("Ambiguous attribute name '%s'\n", attrID.attr_name.c_str());
 				return false;
 			}
 		}
