@@ -374,7 +374,7 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 				printErr("No such attribute '%s'\n", attrID.attr_name.c_str());
 				return false;
 			}
-			else if(numOfThisAttr > 1){
+			else if(numOfThisAttr > 1 and attrID.attr_name.find('*') == string::npos){
 				printErr("Ambiguous attribute name '%s'\n", attrID.attr_name.c_str());
 				return false;
 			}
