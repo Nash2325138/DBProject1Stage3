@@ -352,8 +352,12 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 		attrIDs.push_back(item.attributeID);
 	}
 	for(auto &pair : selectedData.comparePairs){
-		attrIDs.push_back(pair.attrID1);
-		attrIDs.push_back(pair.attrID2);
+		if(pair.type1 == CompareType::ATTRIBUTE){
+			attrIDs.push_back(pair.attrID1);
+		}
+		if(pair.type2 == CompareType::ATTRIBUTE){
+			attrIDs.push_back(pair.attrID2);
+		}
 	}
 
 	for(auto &attrID : attrIDs){
