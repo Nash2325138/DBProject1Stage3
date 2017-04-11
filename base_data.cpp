@@ -305,7 +305,7 @@ bool BaseData::checkTableExistence(vector<string> &fromTables){
     */
 
 bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
-	vector<Parser::AttributeID> attrIDs;
+	vector<AttributeID> attrIDs;
 	attrIDs.clear();
 	// get select items & compairpairs
 	for(auto &item : selectedData.selectedItems){
@@ -319,8 +319,8 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 	for(auto &attrID : attrIDs){
 		// table specified
 		if(attrID.tableSpecified){
-			string table_name = getTrueTableName(selectedData, item.attrID.tableID);
-			if(tables[table_name].matchedAttributes(item.attrID.attr_name).size() == 0){
+			string table_name = getTrueTableName(selectedData, attrID.tableID);
+			if(tables[table_name].matchedAttributes(attrID.attr_name).size() == 0){
 				printErr("No such attribute '%s' in table '%s'\n", attrID.attr_name.c_str(), table_name.c_str());
 				return false;
 			}
@@ -341,6 +341,7 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 			}
 		}
 	}
+	return true;
 }
 
 bool BaseData::Query(string query_str){
