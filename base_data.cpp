@@ -231,6 +231,29 @@ void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
 		}
 	}
 }
+    /*struct SelectQueryData {
+        vector<SelectedItem> selectedItems; 
+        
+        vector<ComparePair> comparePairs;
+        LogicalOP logicalOP;
+
+        map<string, string> aliasToTableName;
+        vector<string> fromTables;
+    };
+	struct SelectedItem {
+        bool isAggregation;
+        string aggreFuncStr;
+        AttributeID attributeID;
+        SelectedItem(const string& aggreFuncStr, const AttributeID& attributeID): aggreFuncStr(aggreFuncStr), attributeID(attributeID) {
+            isAggregation = true;
+            if (aggreFuncStr != "sum" and aggreFuncStr != "count") {
+                fprintf(stderr, "WTF? aggreFuncStr %s doesn't make sence\n", aggreFuncStr.c_str());
+                exit(EXIT_FAILURE);
+            }
+        }
+        SelectedItem(const AttributeID& attributeID): isAggregation(false),  attributeID(attributeID){}
+    };
+    */
 bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
 	// 1. check if all fromTables in sData are also in Base
 
