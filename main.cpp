@@ -21,7 +21,8 @@ int main(int argc, char const *argv[])
 	 	while ( fgets(buffer, MAXSIZE*2, stdin) != NULL ) {
 	 		num_chars = 0;
 	 		pos = 0;
-	 		while( sscanf(buffer+pos, "%[^;]%n", temp, &num_chars) ) {
+
+	 		while( sscanf(buffer+pos, "%[^;]%n", temp, &num_chars) > 0) {
 	 			// printf("!\n");
 	 			pos += num_chars;
 	 			strcat(oneQuery,temp);
@@ -59,7 +60,7 @@ int main(int argc, char const *argv[])
 				printf(">> %s\n", buffer);
 				base.Query(string(buffer));
 			}
-			base.show();
+			// base.show();
 		}
 	} else {
 		fprintf(stderr, "Invalid use. Please use the following format instead.\n ./<executable> [<filename1> <filename2> ...]");

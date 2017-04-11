@@ -204,7 +204,6 @@ bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_
 		} else {
 			v2 = &sData.comparePairs[i].v2;
 		}
-
 		bool pairResult = judgeComparePair(v1, op ,v2);
 		if (i == 0) {
 			ans |= pairResult;
@@ -244,8 +243,10 @@ bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_
 		} else {
 			v2 = &sData.comparePairs[i].v2;
 		}
-
+		// printf("Comparing v1: %s with v2: %s, op = %d\n", v1->toString().c_str(), v2->toString().c_str(), op);
 		bool pairResult = judgeComparePair(v1, op ,v2);
+		// printf("result == %d\n", pairResult);
+		// printf("sData.comparePairs.size(): %d\n", sData.comparePairs.size());
 		if (i == 0) {
 			ans |= pairResult;
 		} else {
@@ -259,7 +260,7 @@ bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_
 			}
 		}
 	}
-	return true;
+	return ans;
 }
 void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row) {
 	Tuple tuple;
@@ -340,6 +341,10 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	fillOutputTableSchema(sData, selectedAttributes);
 
 	bool isAggregation = (selectedAttributes.size() == 0);
+	if (isAggregation) {
+		// Tulpe tuple(sData.selectedItems.size(), Value("0"));
+		outputTable.tuples.emplace_back(sData.selectedItems.size(), Value("0"));
+	}
 	// one table
 	if (sData.fromTables.size() == 1) {
 		Table& t = tables[sData.fromTables[0]]; // fromTable must be true name
@@ -349,7 +354,32 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 			if (not isAggregation) {
 				push_back_output(selectedAttributes, table_row);
 			} else {
-				// handle aggregation
+				// is aggregation
+				for (int j=0; j<sData.selectedItems.size(); j++) {
+					auto& item = sData.selectedItems[j];
+					if (item.aggreFuncStr == "sum") {
+						Table& table = *getSourceTable(item.attributeID);
+						auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
+						if (indexes.size() > 1) {
+							printErr("We can't sum up multiple attributes\n");
+							return false;
+						}
+						if ( table.schema[indexes[0]].type != "int") {
+							printErr("Type error: type %s can't be aggregated\n", table.schema[indexes[0]].type.c_str());
+							return false;
+						}
+						outputTable.tuples[0][j].intData += table.tuples[i][indexes[0]].intData;
+					} else if (item.aggreFuncStr == "count") {
+						Table& table = *getSourceTable(item.attributeID);
+						auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
+						for (int index: indexes) {
+							if (not table.tuples[i][index].isNull) {
+								outputTable.tuples[0][j].intData++;
+								break;
+							}
+						}
+					}
+				} 
 			}
 		}
 	}
@@ -368,7 +398,32 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 				if (not isAggregation) {
 					push_back_output(selectedAttributes, t1_row, t2_row);
 				} else {
-					// handle aggregation
+					// is aggregation
+					for (int k=0; k<sData.selectedItems.size(); k++) {
+						auto& item = sData.selectedItems[k];
+						if (item.aggreFuncStr == "sum") {
+							Table& table = *getSourceTable(item.attributeID);
+							auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
+							if (indexes.size() > 1) {
+								printErr("We can't sum up multiple attributes\n");
+								return false;
+							}
+							if ( table.schema[indexes[0]].type != "int") {
+								printErr("Type error: type %s can't be aggregated\n", table.schema[indexes[0]].type.c_str());
+								return false;
+							}
+							outputTable.tuples[0][k].intData += table.tuples[i][indexes[0]].intData;
+						} else if (item.aggreFuncStr == "count") {
+							Table& table = *getSourceTable(item.attributeID);
+							auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
+							for (int index: indexes) {
+								if (not table.tuples[i][index].isNull) {
+									outputTable.tuples[0][k].intData++;
+									break;
+								}
+							}
+						}
+					} 
 				}
 			}
 		}
@@ -571,8 +626,23 @@ string BaseData::getAttributeType(AttributeID attrID){
 }
 
 bool BaseData::Query(string query_str){
-	if (query_str == "show") {
+	if (regex_match(query_str, regex("[ ]*show[ ]*"))) {
 		this->show();
+		return true;
+	} else if (regex_match(query_str, regex("[ ]*load[ \n\t]*[^ \n\t]*[ \n\t]*"))) {
+		char fileName[100];
+		char buffer[1000];
+		sscanf(query_str.c_str()," %*s %s", fileName);
+		FILE * fp = fopen(fileName, "r");
+		if (fp == NULL) {
+			perror("Error when reading file");
+			return false;
+		}
+		printf(LIGHT_GREEN "\nLoading file: %s... \n" NONE, fileName);
+		while( fscanf(fp, " %[^;];", buffer) > 0 ) {
+			this->Query(string(buffer));
+		}
+		printf("Done\n");
 		return true;
 	}
 	parser = new Parser(query_str);
@@ -607,7 +677,7 @@ bool BaseData::Query(string query_str){
 		}
 	}
 	else if(parser->isSelectQuery){
-		select(*parser->selectData);
+		if (not select(*parser->selectData)) return false;
 	}
 
 	delete parser;

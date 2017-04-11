@@ -441,6 +441,11 @@ bool Parser::read_Where_Clause() {
     selectData->comparePairs.push_back(pair);
 
     if(scanner.lookAhead() == "or" || scanner.lookAhead() == "and"){
+        if (scanner.lookAhead() == "or") {
+            selectData->logicalOP = LogicalOP::OR;
+        } else {
+            selectData->logicalOP = LogicalOP::AND;
+        }
         scanner.nextToken();
         if(not read_ComparePair(pair))
             return false;

@@ -1,4 +1,4 @@
-CREATE TABLE Author(i INT PRIMARY KEY, name varchar(50), nation varchar(50));
+CREATE TABLE Author(id INT PRIMARY KEY, name varchar(50), nation varchar(50));
 
 INSERT INTO Author
 VALUES (1, 'Jim Chen', 'Taiwan');
@@ -39,5 +39,7 @@ VALUES (9, 'xk', 867, 572, 'vu lwsyagzevwdtdo xce');
 INSERT INTO Book (bookId, title, pages, authorId, editorial) 
 VALUES (0, 'b', 472, 35, 'fclnhbmjmzeqrxlwytxvjozam');
 
-SELECT A.i, A.nation FROM Author as A;
-SELECT Author.*, Book.bookId FROM Author, Book;
+select * from Book where bookId > 5 or pages < 500;
+select * from Book where bookId > 5 and pages < 500;
+
+select * from Book, Author where Author.id > 5;
