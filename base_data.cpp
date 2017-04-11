@@ -217,6 +217,7 @@ void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, 
 	outputTable.tuples.push_back(tuple);
 }
 bool BaseData::select(Parser::SelectQueryData& sData) {
+	outputTable.clear();
 	// checkSelectQueryData(sData)
 	if (not checkSelectQueryData(sData)) {
 		return false;

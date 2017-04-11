@@ -36,9 +36,13 @@ public:
 class OutputTable {
 public:
 	vector<string> schema;
-	map<string, int> name_to_i;
 	vector<vector<Value> > tuples;
 	void show();
+	void clear() {
+		schema.clear();
+		tuples.clear();
+	}
+
 };
 
 class BaseData{
