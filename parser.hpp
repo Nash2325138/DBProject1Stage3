@@ -214,19 +214,20 @@ public:
         CompareType type1;
         CompareType type2;
         
-        string str1, str2;
-        int int1, int2;
+        // string str1, str2;
+        // int int1, int2;
+        Value v1, v2;
 
         AttributeID attrID1;
         CompareOP op;
         AttributeID attrID2;
-        inline void fillPartPair(const string& part, int &i, string& str, CompareType& type) {
+        inline void fillPartPair(const string& part, Value& v, CompareType& type) {
             if (Parser::isStrString(part)) {
                 type = CompareType::STRING_CONST;
-                str = part;
+                v = Value(part);
             } else if (Parser::isIntString(part)) {
                 type = CompareType::INT_CONST;
-                i = std::stoi(part);
+                v = Value(part);
             } else {
                 fprintf(stderr, "typeOfString wrong: no type for %s\n", part.c_str());
                 exit(EXIT_FAILURE);
@@ -240,29 +241,29 @@ public:
         ComparePair(const AttributeID& attrID1, CompareOP op, const string& part2):
                     attrID1(attrID1), op(op){
             type1 = CompareType::ATTRIBUTE;
-            this->fillPartPair(part2, int2, str2, type2);
+            this->fillPartPair(part2, v2, type2);
         }
         ComparePair(const string& part1, CompareOP op,const AttributeID& attrID2):
                     op(op), attrID2(attrID2) {
             type2 = CompareType::ATTRIBUTE;
-            this->fillPartPair(part1, int1, str1, type1);
+            this->fillPartPair(part1, v1, type1);
         }
         ComparePair(const string& part1, CompareOP op, const string& part2): op(op) {
-            this->fillPartPair(part1, int1, str1, type1);
-            this->fillPartPair(part2, int2, str2, type2);
+            this->fillPartPair(part1, v1, type1);
+            this->fillPartPair(part2, v2, type2);
         }
         ComparePair(const string& part1): op(CompareOP::OP_EMPTY) {
-            this->fillPartPair(part1, int1, str1, type1);
+            this->fillPartPair(part1, v1, type1);
         }
         ComparePair(const AttributeID& attrID1): attrID1(attrID1), op(CompareOP::OP_EMPTY) {
             type1 = CompareType::ATTRIBUTE;
         }
-        string partToString(CompareType type, string str, int i, AttributeID attrID) {
+        string partToString(CompareType type, Value& v, AttributeID attrID) {
             char buffer[1000];
             if (type == CompareType::INT_CONST) {
-                sprintf(buffer, "Type::INT_CONST, data: %d", i);
+                sprintf(buffer, "Type::INT_CONST, data: %d", v.intData);
             } else if (type == CompareType::STRING_CONST) {
-                sprintf(buffer, "Type::STRING_CONST, data: %s", str.c_str());
+                sprintf(buffer, "Type::STRING_CONST, data: %s", v.strData.c_str());
             } else if (type == CompareType::ATTRIBUTE) {
                 sprintf(buffer, "Type::ATTRIBUTE, data: %s", attrID.toString().c_str());
             } else {
@@ -274,9 +275,9 @@ public:
         }
         string toString() {
             char buffer[2000];
-            strcpy(buffer, partToString(type1, str1, int1, attrID1).c_str());
+            strcpy(buffer, partToString(type1, v1, attrID1).c_str());
             sprintf(buffer+strlen(buffer), "\t, opcode: %d, ", op);
-            strcat(buffer, partToString(type2, str2, int2, attrID2).c_str());
+            strcat(buffer, partToString(type2, v2, attrID2).c_str());
             return buffer;
         }
     };

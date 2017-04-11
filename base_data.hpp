@@ -45,6 +45,7 @@ public:
 
 };
 
+typedef pair<Table*, int> Table_col;
 class BaseData{
 private:
 	map<string, Table> tables;
@@ -60,8 +61,7 @@ public:
 	void fillOutputTableSchema(Parser::SelectQueryData& sData, 
 							   vector<pair<Table*, int> >& selectedAttributes);
 	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
-	bool judgeComparePair(Value& v);
-	bool judgeComparePair(Value& v1, CompareOP op, Value& v2);
+	bool judgeComparePair(Value* v1, CompareOP op, Value* v2);
 	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row);
 	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row, pair<Table*, int> t2_row);
 	void push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row);
@@ -71,7 +71,8 @@ public:
 	bool checkPairTypes(Parser::SelectQueryData& selectedData);
 	string getTypeString(CompareType CT);
 	string getAttributeType(AttributeID attrID, Parser::SelectQueryData& selectedData);
-
+	Table* getSourceTable(AttributeID& attrID);
+	vector<pair<Table_col, Table_col> > comparePairs_table_col;
 	void show();
 };
 

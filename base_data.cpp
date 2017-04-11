@@ -168,19 +168,17 @@ bool Table::insert(vector<Value>& values) {
 	primary_key_columns.insert(primary_key_value);
 	return true;
 }
-
-bool BaseData::judgeComparePair(Value& v) {
-	return v.isTrue();
-}
-bool BaseData::judgeComparePair(Value& v1, CompareOP op, Value& v2) {
-	if (op == CompareOP::BIGGER) {
-		return v1.bigger(v2);
+bool BaseData::judgeComparePair(Value* v1, CompareOP op, Value* v2) {
+	if (op == CompareOP::OP_EMPTY) {
+		return v1->isTrue();
+	} else if (op == CompareOP::BIGGER) {
+		return v1->bigger(*v2);
 	} else if (op == CompareOP::SMALLER) {
-		return v1.smaller(v2);
+		return v1->smaller(*v2);
 	} else if (op == CompareOP::EQUAL) {
-		return v1.equal(v2);
+		return v1->equal(*v2);
 	} else if (op == CompareOP::NOT_EQUAL) {
-		return !v1.equal(v2);
+		return !v1->equal(*v2);
 	} else {
 		return false;
 	}
@@ -188,6 +186,38 @@ bool BaseData::judgeComparePair(Value& v1, CompareOP op, Value& v2) {
 bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row) {
 	if (sData.comparePairs.size() == 0) {
 		return true;
+	}
+	bool ans = false;
+	for (int i = 0; i < sData.comparePairs.size(); ++i) {
+		CompareOP op = sData.comparePairs[i].op;
+		Value *v1, *v2;
+		Table_col& table_col1 = comparePairs_table_col[i].first;
+		Table_col& table_col2 = comparePairs_table_col[i].second;
+
+		if ( table_col1.first != NULL) {
+			v1 = &table_col1.first->tuples[t1_row.second][table_col1.second];
+		} else {
+			// if ()
+		}
+		if (table_col2.first != NULL) {
+
+		} else {
+
+		}
+
+		bool pairResult = judgeComparePair(v1, op ,v2);
+		if (i == 0) {
+			ans |= pairResult;
+		} else {
+			if (sData.logicalOP == LogicalOP::AND) {
+				ans &= pairResult;
+			} else if (sData.logicalOP == LogicalOP::OR) {
+				ans |= pairResult;
+			} else {
+				fprintf(stderr, "No such LogicalOP: %d\n", sData.logicalOP);
+				exit(EXIT_FAILURE);
+			}
+		}
 	}
 	return true;
 }
@@ -222,6 +252,12 @@ void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, 
 	}
 	outputTable.tuples.push_back(tuple);
 }
+Table* BaseData::getSourceTable(AttributeID& attrID) {
+	// if table specified
+
+	// else
+
+}
 bool BaseData::select(Parser::SelectQueryData& sData) {
 	outputTable.clear();
 	// checkSelectQueryData(sData)
@@ -229,8 +265,32 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 		return false;
 	}
 
-	// map from table to selected attributes;
-	vector<pair<Table*, int> > selectedAttributes;
+	// map from table to selected attributes
+	vector<Table_col> selectedAttributes;
+	// map from comparePair to table_col 
+	comparePairs_table_col = vector<pair<Table_col, Table_col> >(sData.comparePairs.size());
+	for (int i=0; i<sData.comparePairs.size(); i++)
+	{
+		auto& comparePair = sData.comparePairs[i];
+		if (comparePair.type1 == CompareType::ATTRIBUTE) {
+			Table_col& table_col = comparePairs_table_col[i].first;
+			table_col.first = getSourceTable(comparePair.attrID1);
+			if (table_col.first != NULL) {
+				table_col.second = table_col.first->matchedAttributes(comparePair.attrID1.attr_name)[0];
+			}
+		} else {
+			comparePairs_table_col[i].first.first = NULL;
+		}
+		if (comparePair.type2 == CompareType::ATTRIBUTE) {
+			Table_col& table_col = comparePairs_table_col[i].second;
+			table_col.first = getSourceTable(comparePair.attrID2);
+			if (table_col.first != NULL) {
+				table_col.second = table_col.first->matchedAttributes(comparePair.attrID2.attr_name)[0];
+			}
+		} else {
+			comparePairs_table_col[i].second.first = NULL;
+		}
+	}
 
 	// create an outputTable with schema concatenation of all selectedItems
 	fillOutputTableSchema(sData, selectedAttributes);
