@@ -288,9 +288,19 @@ void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, 
 }
 Table* BaseData::getSourceTable(AttributeID& attrID) {
 	// if table specified
-
-	// else
-
+	if(attrID.tableSpecified){
+		return &(tables[getTrueTableName(*(parser->selectData), attrID.tableID)]);
+	}
+	//
+	else{
+		for(auto &table_name : parser->selectData->fromTables){
+			Table &table = tables[table_name];
+			if(table.matchedAttributes(attrID.attr_name).size() > 0){
+				return &table;
+			}
+		}
+	}
+	return NULL;
 }
 bool BaseData::select(Parser::SelectQueryData& sData) {
 	outputTable.clear();
@@ -511,18 +521,18 @@ bool BaseData::checkPairTypes(Parser::SelectQueryData& selectedData){
 		if(pair.op == CompareOP::OP_EMPTY){ continue; }
 		// Attr & Attr
 		if(pair.type1 == CompareType::ATTRIBUTE && pair.type2 == CompareType::ATTRIBUTE){
-			type1 = getAttributeType(pair.attrID1, selectedData);
-			type2 = getAttributeType(pair.attrID2, selectedData);
+			type1 = getAttributeType(pair.attrID1);
+			type2 = getAttributeType(pair.attrID2);
 		}
 		// Attr & !Attr
 		else if(pair.type1 == CompareType::ATTRIBUTE && pair.type2 != CompareType::ATTRIBUTE){
-			type1 = getAttributeType(pair.attrID1, selectedData);
+			type1 = getAttributeType(pair.attrID1);
 			type2 = getTypeString(pair.type2);
 		}
 		// !Attr & Attr
 		else if(pair.type1 != CompareType::ATTRIBUTE && pair.type2 == CompareType::ATTRIBUTE){
 			type1 = getTypeString(pair.type1);
-			type2 = getAttributeType(pair.attrID2, selectedData);
+			type2 = getAttributeType(pair.attrID2);
 		}
 		// !Attr & !Attr
 		else {
@@ -542,14 +552,14 @@ string BaseData::getTypeString(CompareType CT){
 	return "varchar";
 }
 
-string BaseData::getAttributeType(AttributeID attrID, Parser::SelectQueryData& selectedData){
+string BaseData::getAttributeType(AttributeID attrID){
 	if(attrID.tableSpecified){
-		Table &table = tables[getTrueTableName(selectedData, attrID.tableID)];
+		Table &table = tables[getTrueTableName(*(parser->selectData), attrID.tableID)];
 		vector<int> pos = table.matchedAttributes(attrID.attr_name);
 		return table.schema[pos[0]].type;
 	}
 	else{
-		for(auto &table_name : selectedData.fromTables){
+		for(auto &table_name : parser->selectData->fromTables){
 			Table &table = tables[table_name];
 			vector<int> pos;
 			if((pos = table.matchedAttributes(attrID.attr_name)).size() > 0){
