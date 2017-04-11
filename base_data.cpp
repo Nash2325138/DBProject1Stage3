@@ -183,7 +183,7 @@ bool BaseData::judgeComparePair(Value* v1, CompareOP op, Value* v2) {
 		return false;
 	}
 }
-bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row) {
+bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_row) {
 	if (sData.comparePairs.size() == 0) {
 		return true;
 	}
@@ -194,15 +194,15 @@ bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_r
 		Table_col& table_col1 = comparePairs_table_col[i].first;
 		Table_col& table_col2 = comparePairs_table_col[i].second;
 
-		if ( table_col1.first != NULL) {
+		if (table_col1.first != NULL) {
 			v1 = &table_col1.first->tuples[t1_row.second][table_col1.second];
 		} else {
-			// if ()
+			v1 = &sData.comparePairs[i].v1;
 		}
 		if (table_col2.first != NULL) {
-
+			v2 = &table_col2.first->tuples[t1_row.second][table_col2.second];
 		} else {
-
+			v2 = &sData.comparePairs[i].v2;
 		}
 
 		bool pairResult = judgeComparePair(v1, op ,v2);
@@ -219,11 +219,45 @@ bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_r
 			}
 		}
 	}
-	return true;
+	return ans;
 }
-bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row, pair<Table*, int> t2_row) {
+bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_row, pair<Table*, int>& t2_row) {
 	if (sData.comparePairs.size() == 0) {
 		return true;
+	}
+	bool ans = false;
+	for (int i = 0; i < sData.comparePairs.size(); ++i) {
+		CompareOP op = sData.comparePairs[i].op;
+		Value *v1, *v2;
+		Table_col& table_col1 = comparePairs_table_col[i].first;
+		Table_col& table_col2 = comparePairs_table_col[i].second;
+
+		if (table_col1.first != NULL) {
+			auto& table_row = (t1_row.first == table_col1.first) ? t1_row:t2_row;
+			v1 = &table_col1.first->tuples[table_row.second][table_col1.second];
+		} else {
+			v1 = &sData.comparePairs[i].v1;
+		}
+		if (table_col2.first != NULL) {
+			auto& table_row = (t1_row.first == table_col2.first) ? t1_row:t2_row;
+			v2 = &table_col2.first->tuples[table_row.second][table_col2.second];
+		} else {
+			v2 = &sData.comparePairs[i].v2;
+		}
+
+		bool pairResult = judgeComparePair(v1, op ,v2);
+		if (i == 0) {
+			ans |= pairResult;
+		} else {
+			if (sData.logicalOP == LogicalOP::AND) {
+				ans &= pairResult;
+			} else if (sData.logicalOP == LogicalOP::OR) {
+				ans |= pairResult;
+			} else {
+				fprintf(stderr, "No such LogicalOP: %d\n", sData.logicalOP);
+				exit(EXIT_FAILURE);
+			}
+		}
 	}
 	return true;
 }
