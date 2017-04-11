@@ -1,6 +1,6 @@
 create table Customers(CID int primary key, Name varchar(40),
 Gender varchar(5), Age int, Salary int);
-create table Orders(OID int primary key, Order_No int, CID int);
+create table Orders(ID int primary key, Order_No int, CID int);
 create table OrderInfo(Order_No int, Price int);
 insert into Customers values(1, 'Jimmy', 'F', 45, 600000);
 insert into Customers values(2, 'Pan', 'M', 30, 40000);
@@ -27,7 +27,23 @@ insert into OrderInfo values(7520, 3200);
 insert into OrderInfo values(7840, 2500);
 insert into OrderInfo values(8254, 20000);
 
-select c.*, Orders.* from Customers AS c, Orders AS o WHERE c.name = o.cid;
-select c.*, Orders.* from Customers AS c, Orders AS o WHERE c.name = id;
-select count(c.*), sum(Customers.Salary) from Customers AS c, Orders AS o WHERE c.CID <> o.CID AND 40000 = c.Salary;
+select * from Customers;
+select Customers.Name from Customers;
+select C.* from Customers AS C;
+select C.CID, C.Name from Customers AS C;
 
+select * from Customers where CID > 6;
+select * from Customers where CID > 6 OR Salary >50000;
+select * from Customers where CID > 6 AND Salary >50000;
+
+select * from Customers, Orders;
+select C.CID, C.Name, O.ID from Customers AS C, Orders AS O;
+
+select C.*, O.* from Customers AS C, Orders AS O WHERE C.CID = O.CID;
+select C.*, O.* from Customers AS C, Orders AS O WHERE C.CID <> O.CID;
+
+select C.*, O.* from Customers AS C, Orders AS O WHERE C.CID = O.CID AND C.Salary > 35000;
+select C.*, O.* from Customers AS C, Orders AS O WHERE C.CID = O.CID AND 35000 < C.Salary;
+
+select count(c.Name) from Customers AS c, Orders AS o WHERE C.CID = O.CID AND 35000 < C.Salary;
+select sum(Customers.Salary) from Customers AS c, Orders AS o WHERE C.CID = O.CID AND 35000 < C.Salary;
