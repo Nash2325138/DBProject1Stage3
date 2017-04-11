@@ -186,9 +186,15 @@ bool BaseData::judgeComparePair(Value& v1, CompareOP op, Value& v2) {
 	}
 }
 bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row) {
+	if (sData.comparePairs.size() == 0) {
+		return true;
+	}
 	return true;
 }
 bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int> t1_row, pair<Table*, int> t2_row) {
+	if (sData.comparePairs.size() == 0) {
+		return true;
+	}
 	return true;
 }
 void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row) {
@@ -229,24 +235,39 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	// create an outputTable with schema concatenation of all selectedItems
 	fillOutputTableSchema(sData, selectedAttributes);
 
-	bool conditional = (sData.comparePairs.size() > 0);
+	bool isAggregation = (selectedAttributes.size() == 0);
 	// one table
 	if (sData.fromTables.size() == 1) {
 		Table& t = tables[sData.fromTables[0]]; // fromTable must be true name
 		for (int i=0 ; i<t.tuples.size(); i++) {
 			pair<Table*, int> table_row = make_pair(&t, i);
-			if (conditional) {
-				if (judgeWhere(sData, table_row) == false) continue;
+			if (judgeWhere(sData, table_row) == false) continue;
+			if (not isAggregation) {
 				push_back_output(selectedAttributes, table_row);
 			} else {
-				push_back_output(selectedAttributes, table_row);
+				// handle aggregation
 			}
 		}
 	}
 
 	// two tables
 	else if (sData.fromTables.size() == 2) {
-
+		Table& t1 = tables[sData.fromTables[0]];
+		Table& t2 = tables[sData.fromTables[1]];
+		for (int i=0; i<t1.tuples.size(); ++i)
+		{
+			pair<Table*, int> t1_row = make_pair(&t1, i);
+			for (int j=0; j<t2.tuples.size(); ++j)
+			{
+				pair<Table*, int> t2_row = make_pair(&t2, j);
+				if (judgeWhere(sData, t1_row, t2_row) == false) continue;
+				if (not isAggregation) {
+					push_back_output(selectedAttributes, t1_row, t2_row);
+				} else {
+					// handle aggregation
+				}
+			}
+		}
 	}
 	// for (tuple1 in table1):
 	//   for (tuple2 in table2):
