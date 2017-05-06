@@ -18,7 +18,14 @@ public:
     string type;
     bool isPrimaryKey;
     int char_len;
-
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & name;
+        ar & type;
+        ar & isPrimaryKey;
+        ar & char_len;
+    }
     Attribute(){
         name = "";
         type = "";
@@ -36,6 +43,16 @@ public:
     
     int intData;
     string strData;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & isNull;
+        ar & isInt;
+        ar & isString;
+        ar & intData;
+        ar & strData;
+    }
 
     Value() {
         isNull = true;
@@ -186,6 +203,7 @@ public:
     vector<string> orders;
     vector<Value> values;
 
+    // items after SELECT   
     struct SelectedItem {
         bool isAggregation;
         string aggreFuncStr;
@@ -210,6 +228,8 @@ public:
             return buffer;
         }
     };
+
+    // items after WHERE
     struct ComparePair {
         CompareType type1;
         CompareType type2;

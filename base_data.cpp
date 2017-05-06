@@ -628,10 +628,10 @@ string BaseData::getAttributeType(AttributeID attrID){
 }
 
 bool BaseData::Query(string query_str){
-	if (regex_match(query_str, regex("[ ]*show[ ]*"))) {
+	if (regex_match(query_str, regex("[ \n\t]*show[ \n\t]*"))) {
 		this->show();
 		return true;
-	} else if (regex_match(query_str, regex("[ ]*load[ \n\t]*[^ \n\t]*[ \n\t]*"))) {
+	} else if (regex_match(query_str, regex("[ \n\t]*load[ \n\t]*[^ \n\t]*[ \n\t]*"))) {
 		char fileName[100];
 		char buffer[1000];
 		sscanf(query_str.c_str()," %*s %s", fileName);
@@ -647,7 +647,13 @@ bool BaseData::Query(string query_str){
 		printf("Done\n");
 		return true;
 	} else if (regex_match(query_str, regex("[ ]*quit[ \n\t]*"))) {
-		printf("quiting!!\n");
+		// Saving the data into 'base.save'
+		printf("Saving the data into 'base.save' ...\n");
+		{
+			std::ofstream ofs("base.save");
+			boost::archive::text_oarchive oa(ofs);
+			oa << *this;
+		}
 		exit(EXIT_SUCCESS);
 	}
 	parser = new Parser(query_str);

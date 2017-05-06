@@ -2,6 +2,7 @@ CC=g++
 FLAG=-Wall -std=c++11 -lboost_serialization
 all: base_data.o
 	$(CC) $(FLAG) main.cpp *.o
+	rm -f base.save
 
 scanner_test: scanner.o
 	$(CC) $(FLAG) *.o tester/testScanner.cpp
@@ -25,4 +26,4 @@ base_data.o: parser.o base_data.cpp base_data.hpp
 	$(CC) $(FLAG) -c base_data.hpp base_data.cpp
 
 clean:
-	rm -f *.o *.out
+	rm -f *.o *.out base.save

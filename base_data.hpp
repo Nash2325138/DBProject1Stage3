@@ -1,17 +1,23 @@
 #ifndef BASE_DATA_HPP
 #define BASE_DATA_HPP
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/set.hpp>
+#include <boost/serialization/string.hpp>
+#include <fstream>
 #include "parser.hpp"
 #include "scanner.hpp"
 #include <map>
 #include <set>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 
 typedef vector<Value> Tuple;
 using namespace std; 
 class Table{
 public:
+	// class functions
 	Table(string& table_name, vector<Attribute>& schema);
 	Table();
 	~Table();
@@ -24,6 +30,7 @@ public:
 	void show();
 	string schemaToString();
 
+	// class members
 	string table_name;
 	vector<Attribute> schema;
 
@@ -33,6 +40,18 @@ public:
 	bool hasPrimary;
 	string primary_key_name;
 	set<Value> primary_key_columns;
+
+	template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & table_name;
+        ar & schema;
+        ar & name_to_i;
+        ar & tuples;
+        ar & hasPrimary;
+        ar & primary_key_name;
+        ar & primary_key_columns;
+    }
 };
 
 class OutputTable {
@@ -56,6 +75,11 @@ private:
 public:
 	BaseData(){};
 	~BaseData(){};
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & tables;
+    }
 	bool Query(string query_str);
 
 	bool select(Parser::SelectQueryData& sData);
