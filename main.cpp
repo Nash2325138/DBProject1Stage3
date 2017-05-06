@@ -1,6 +1,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <fstream>
+
 #include "base_data.hpp"
 #include "color.h"
 
@@ -9,6 +14,11 @@ using std::string;
 int main(int argc, char const *argv[])
 {
 	BaseData base;
+	std::ifstream ifs("base.save");
+	if (not ifs.fail()) {
+		boost::archive::text_iarchive ia(ifs);
+		// ia >> base;
+	}
 	const int MAXSIZE = 10000;
 	char buffer[MAXSIZE*2];
 	if (argc == 1) {

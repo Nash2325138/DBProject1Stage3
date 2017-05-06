@@ -360,6 +360,7 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 					if (item.aggreFuncStr == "sum") {
 						Table& table = *getSourceTable(item.attributeID);
 						auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
+						/*** these checks can be put outside for loop  ***/
 						if (indexes.size() > 1) {
 							printErr("We can't sum up multiple attributes\n");
 							return false;
@@ -404,6 +405,7 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 						if (item.aggreFuncStr == "sum") {
 							Table& table = *getSourceTable(item.attributeID);
 							auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
+							/*** these checks can be put outside for loop  ***/
 							if (indexes.size() > 1) {
 								printErr("We can't sum up multiple attributes\n");
 								return false;
@@ -644,6 +646,9 @@ bool BaseData::Query(string query_str){
 		}
 		printf("Done\n");
 		return true;
+	} else if (regex_match(query_str, regex("[ ]*quit[ \n\t]*"))) {
+		printf("quiting!!\n");
+		exit(EXIT_SUCCESS);
 	}
 	parser = new Parser(query_str);
 	if(not parser->Parse()) return false;

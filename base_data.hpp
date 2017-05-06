@@ -5,6 +5,8 @@
 #include "scanner.hpp"
 #include <map>
 #include <set>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 typedef vector<Value> Tuple;
 using namespace std; 

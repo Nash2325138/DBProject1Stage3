@@ -1,5 +1,5 @@
 CC=g++
-FLAG=-Wall -std=c++11
+FLAG=-Wall -std=c++11 -lboost_serialization
 all: base_data.o
 	$(CC) $(FLAG) main.cpp *.o
 
