@@ -1,7 +1,8 @@
 CC=g++
-FLAG=-Wall -std=c++11 -lboost_serialization
+FLAG=-Wall -std=c++11
+SERIAL_FLAG=-lboost_serialization
 all: base_data.o
-	$(CC) $(FLAG) main.cpp *.o
+	$(CC) $(FLAG) $(SERIAL_FLAG) main.cpp *.o
 	rm -f base.save
 
 scanner_test: scanner.o
@@ -22,7 +23,10 @@ scanner.o: scanner.cpp scanner.hpp
 parser.o: scanner.o parser.cpp parser.hpp
 	$(CC) $(FLAG) -c parser.hpp parser.cpp
 
-base_data.o: parser.o base_data.cpp base_data.hpp
+index_struct.o: parser.o index_struct.cpp index_struct.hpp
+	$(CC) $(FLAG) -c index_struct.hpp index_struct.cpp
+
+base_data.o: parser.o base_data.cpp base_data.hpp index_struct.o
 	$(CC) $(FLAG) -c base_data.hpp base_data.cpp
 
 clean:

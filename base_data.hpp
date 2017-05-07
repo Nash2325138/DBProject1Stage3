@@ -7,6 +7,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/string.hpp>
+#include <boost/serialization/unordered_map.hpp>
 #include <fstream>
 #include "parser.hpp"
 #include "scanner.hpp"

@@ -314,26 +314,35 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	vector<Table_col> selectedAttributes;
 	// map from comparePair to table_col 
 	comparePairs_table_col = vector<pair<Table_col, Table_col> >(sData.comparePairs.size());
+	
+	// fill comparePairs_table_col
 	for (int i=0; i<sData.comparePairs.size(); i++)
 	{
 		auto& comparePair = sData.comparePairs[i];
-		if (comparePair.type1 == CompareType::ATTRIBUTE) {
-			Table_col& table_col = comparePairs_table_col[i].first;
-			table_col.first = getSourceTable(comparePair.attrID1);
-			if (table_col.first != NULL) {
-				table_col.second = table_col.first->matchedAttributes(comparePair.attrID1.attr_name)[0];
+
+		// fill table_col of first one of compare pair i
+		{
+			auto& table_col = comparePairs_table_col[i].first;
+			if (comparePair.type1 == CompareType::ATTRIBUTE) {
+				table_col.first = getSourceTable(comparePair.attrID1);
+				if (table_col.first != NULL) {
+					table_col.second = table_col.first->matchedAttributes(comparePair.attrID1.attr_name)[0];
+				}
+			} else {
+				table_col.first = NULL;
 			}
-		} else {
-			comparePairs_table_col[i].first.first = NULL;
 		}
-		if (comparePair.type2 == CompareType::ATTRIBUTE) {
-			Table_col& table_col = comparePairs_table_col[i].second;
-			table_col.first = getSourceTable(comparePair.attrID2);
-			if (table_col.first != NULL) {
-				table_col.second = table_col.first->matchedAttributes(comparePair.attrID2.attr_name)[0];
+		// fill table_col of second one of compare pair i
+		{
+			auto& table_col = comparePairs_table_col[i].second;
+			if (comparePair.type2 == CompareType::ATTRIBUTE) {
+				table_col.first = getSourceTable(comparePair.attrID2);
+				if (table_col.first != NULL) {
+					table_col.second = table_col.first->matchedAttributes(comparePair.attrID2.attr_name)[0];
+				}
+			} else {
+				table_col.first = NULL;
 			}
-		} else {
-			comparePairs_table_col[i].second.first = NULL;
 		}
 	}
 
