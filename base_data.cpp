@@ -3,6 +3,8 @@
 #include <regex>
 #include <utility>
 #include <string>
+#include <cstdlib>
+#include <cstring>
 #include "base_data.hpp"
 #include "color.h"
 
@@ -121,7 +123,7 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 		printErr("You can't insert exact the same tuple to a table\n");
 		return false;
 	}
-
+	writeNewRecord(tuple);
 	tuples.push_back(tuple);
 	primary_key_columns.insert(primary_key_value);
 	return true;
@@ -165,19 +167,44 @@ bool Table::insert(vector<Value>& values) {
 		printErr("You can't insert exact the same tuple to a table\n");
 		return false;
 	}
+	writeNewRecord(tuple);
 	tuples.push_back(tuple);
 	primary_key_columns.insert(primary_key_value);
 	return true;
 }
 
-bool Table::writeNewRecord(const vector<Value> tuple, const string &table_name, const int &row){
-	char output_path[] = "datas/";
-	strcat(output_path, (table_name + "_").c_str());
-	strcat(output_path, row + '0');
+bool Table::writeNewRecord(const vector<Value> &tuple){
+	char output_path[100];
+	sprintf(output_path, "datas/%s_%lu.dat", table_name.c_str(), tuples.size());
 	ofstream ofs(output_path);
-	boost::archive::text_iarchive oa(ofs);
-	oa << tuple;
+	{
+		boost::archive::text_oarchive oa(ofs);
+		oa << tuple;
+	}
 	return true;
+}
+
+void Table::readTuples(){
+	int record = 0;
+	char record_path[100];
+	
+	while(true){
+		sprintf(record_path, "datas/%s_%d.dat", table_name.c_str(), record++);
+		ifstream ifs(record_path);	
+		if(!ifs) break;
+		{
+			vector<Value> tuple;
+			boost::archive::text_iarchive ia(ifs);
+			ia >> tuple;
+			tuples.push_back(tuple);
+		}
+	}
+}
+
+void BaseData::reconstructTables(){
+	for(auto &table : tables){
+		table.second.readTuples();
+	}
 }
 
 bool BaseData::judgeComparePair(Value* v1, CompareOP op, Value* v2) {
@@ -195,6 +222,7 @@ bool BaseData::judgeComparePair(Value* v1, CompareOP op, Value* v2) {
 		return false;
 	}
 }
+
 bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_row) {
 	if (sData.comparePairs.size() == 0) {
 		return true;
@@ -670,11 +698,11 @@ bool BaseData::Query(string query_str){
 	} else if (regex_match(query_str, regex("[ ]*quit[ \n\t]*"))) {
 		// Saving the data into 'base.save'
 		printf("Saving the data into 'base.save' ...\n");
-		{
-			std::ofstream ofs("base.save");
-			boost::archive::text_oarchive oa(ofs);
-			oa << *this;
-		}
+		// {
+		// 	std::ofstream ofs("base.save");
+		// 	boost::archive::text_oarchive oa(ofs);
+		// 	oa << *this;
+		// }
 		exit(EXIT_SUCCESS);
 	}
 	parser = new Parser(query_str);
@@ -690,6 +718,11 @@ bool BaseData::Query(string query_str){
 		else {
 			// Map table into tables
 			tables[table.table_name] = table;	// std::move(table) ?
+			{
+				std::ofstream ofs("base.save");
+				boost::archive::text_oarchive oa(ofs);
+				oa << *this;
+			}
 		}
 	}
 	else if(parser->isInsertQuery){

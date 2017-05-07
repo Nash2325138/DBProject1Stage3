@@ -19,6 +19,7 @@ int main(int argc, char const *argv[])
 		printf("Loading 'base.save' into database ...\n");
 		boost::archive::text_iarchive ia(ifs);
 		ia >> base;
+		base.reconstructTables();
 	}
 	const int MAXSIZE = 10000;
 	char buffer[MAXSIZE*2];

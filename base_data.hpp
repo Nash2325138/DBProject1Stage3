@@ -26,8 +26,9 @@ public:
 	bool insert(vector<Value>& values);
 	bool checkDataType(string& attr_name, Value &value);
 	bool checkPrimaryKey(Value &value);
-	bool writeNewRecord(const string &table_name, const int &row);
-	
+	bool writeNewRecord(const vector<Value> &tuple);
+	void readTuples();
+
 	const vector<int>& matchedAttributes(const string str);
 
 	void show();
@@ -50,7 +51,6 @@ public:
         ar & table_name;
         ar & schema;
         ar & name_to_i;
-        ar & tuples;
         ar & hasPrimary;
         ar & primary_key_name;
         ar & primary_key_columns;
@@ -89,6 +89,7 @@ public:
 	bool checkSelectQueryData(Parser::SelectQueryData& sData);
 	void fillOutputTableSchema(Parser::SelectQueryData& sData, 
 							   vector<pair<Table*, int> >& selectedAttributes);
+	void reconstructTables();
 	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
 	bool judgeComparePair(Value* v1, CompareOP op, Value* v2);
 	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_row);
