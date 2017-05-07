@@ -30,3 +30,6 @@
 
 # Unknown
 .DS_Store
+
+# data
+base.save
