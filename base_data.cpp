@@ -200,7 +200,35 @@ void Table::readTuples(){
 		}
 	}
 }
-
+bool Table::checkAttrNameExist(const string& attr_name) {
+	for (auto& attr: schema) {
+		if (attr.name == attr_name) return true;
+	}
+	return false;
+}
+int Table::findAttrColume(const string& attr_name) {
+	for (int i=0; i < schema.size(); i++) {
+		if (schema[i].name == attr_name) return i;
+	}
+	return -1;
+}
+bool Table::setIndex(const string& attr_name, const string& index_type) {
+	if (not checkAttrNameExist(attr_name)) {
+		printErr("No such attribute '%s' in table '%s'\n", attr_name.c_str(), this->table_name.c_str());
+		return false;
+	}
+	int col = findAttrColume(attr_name);
+	if (index_type == "tree") {
+		new Tree_Index_Struct();
+		return true;
+	} else if (index_type == "hash"){
+		new Hash_Index_Struct();
+		return true;
+	} else {
+		printErr("No such indexing type %s", index_type.c_str());
+		return false;
+	}
+}
 void BaseData::reconstructTables(){
 	for(auto &table : tables){
 		table.second.readTuples();
@@ -695,7 +723,7 @@ bool BaseData::Query(string query_str){
 		}
 		printf("Done\n");
 		return true;
-	} else if (regex_match(query_str, regex("[ ]*quit[ \n\t]*"))) {
+	} else if (regex_match(query_str, regex("[ \n\t]*quit[ \n\t]*"))) {
 		// Saving the data into 'base.save'
 		printf("Saving the data into 'base.save' ...\n");
 		// {
@@ -704,6 +732,19 @@ bool BaseData::Query(string query_str){
 		// 	oa << *this;
 		// }
 		exit(EXIT_SUCCESS);
+	} else if (regex_match(query_str, regex("[ \n\t]set[ \n\t]*(hash|tree)[ \n\t]*index[ \n\t]*[a-zA-Z0-9_]*[ \n\t]*\\([ \n\t]*[a-zA-Z0-9_]*[ \n\t]*\\)[ \n\t]*"))) {
+		char which[10];
+		char table_name[100];
+		char attr_name[100];
+		sscanf(query_str.c_str(), " set %s index %s ( %s ) ", which, table_name, attr_name);
+		auto it = tables.find(string(table_name));
+		if (it == tables.end()) {
+			printErr("No such table '%s'\n", table_name);
+			return false;
+		} else {
+			it->second.setIndex(string(attr_name), string(which));
+			return true;
+		}
 	}
 	parser = new Parser(query_str);
 	if(not parser->Parse()) return false;

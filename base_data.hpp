@@ -11,6 +11,7 @@
 #include <fstream>
 #include "parser.hpp"
 #include "scanner.hpp"
+#include "index_struct.hpp"
 #include <map>
 #include <set>
 
@@ -26,8 +27,11 @@ public:
 	bool insert(vector<Value>& values);
 	bool checkDataType(string& attr_name, Value &value);
 	bool checkPrimaryKey(Value &value);
+	bool checkAttrNameExist(const string& attr_name);
+	int findAttrColume(const string& attr_name);
 	bool writeNewRecord(const vector<Value> &tuple);
 	void readTuples();
+	bool setIndex(const string& attr_name, const string& index_type);
 
 	const vector<int>& matchedAttributes(const string str);
 
@@ -44,6 +48,9 @@ public:
 	bool hasPrimary;
 	string primary_key_name;
 	set<Value> primary_key_columns;
+
+	// map column to index_struct;
+	map<int, Index_Struct*> index_structs;
 
 	template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
