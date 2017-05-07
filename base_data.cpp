@@ -121,6 +121,7 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 		printErr("You can't insert exact the same tuple to a table\n");
 		return false;
 	}
+
 	tuples.push_back(tuple);
 	primary_key_columns.insert(primary_key_value);
 	return true;
@@ -168,6 +169,17 @@ bool Table::insert(vector<Value>& values) {
 	primary_key_columns.insert(primary_key_value);
 	return true;
 }
+
+bool Table::writeNewRecord(const vector<Value> tuple, const string &table_name, const int &row){
+	char output_path[] = "datas/";
+	strcat(output_path, (table_name + "_").c_str());
+	strcat(output_path, row + '0');
+	ofstream ofs(output_path);
+	boost::archive::text_iarchive oa(ofs);
+	oa << tuple;
+	return true;
+}
+
 bool BaseData::judgeComparePair(Value* v1, CompareOP op, Value* v2) {
 	if (op == CompareOP::OP_EMPTY) {
 		return v1->isTrue();
