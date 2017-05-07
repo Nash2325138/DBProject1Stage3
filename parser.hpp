@@ -122,7 +122,7 @@ public:
         fprintf(stderr, "WTF!?? at Value operator == \n");
         return false;
     }
-    bool smaller(const Value& a) {
+    bool smaller(const Value& a) const{
         // if (isNull) {};
         if (isInt) {
             return (intData < a.intData);
@@ -134,7 +134,7 @@ public:
             return false;
         }
     }
-    bool bigger(const Value& a) {
+    bool bigger(const Value& a) const{
         if (isInt) {
             return (intData > a.intData);
         } else if (isString) {
@@ -145,7 +145,7 @@ public:
             return false;
         }
     }
-    bool equal(const Value& a) {
+    bool equal(const Value& a) const{
         if (isInt) {
             return (intData == a.intData);
         } else if (isString) {
@@ -156,7 +156,7 @@ public:
             return false;
         }
     }
-    bool isTrue() {
+    bool isTrue() const{
         if (isNull) return false;
         if (isInt) return (intData != 0);
         if (isString) return (!strData.empty());
