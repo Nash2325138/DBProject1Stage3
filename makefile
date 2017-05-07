@@ -23,8 +23,8 @@ scanner.o: scanner.cpp scanner.hpp
 parser.o: scanner.o parser.cpp parser.hpp
 	$(CC) $(FLAG) -c parser.hpp parser.cpp
 
-index_struct.o: parser.o index_struct.hpp
-	$(CC) $(FLAG) -c index_struct.hpp
+index_struct.o: parser.o index_struct.hpp index_struct.cpp
+	$(CC) $(FLAG) -c index_struct.hpp index_struct.cpp
 
 base_data.o: parser.o base_data.cpp base_data.hpp index_struct.o
 	$(CC) $(FLAG) -c base_data.hpp base_data.cpp

@@ -219,10 +219,10 @@ bool Table::setIndex(const string& attr_name, const string& index_type) {
 	}
 	int col = findAttrColume(attr_name);
 	if (index_type == "tree") {
-		new Tree_Index_Struct();
+		index_structs[col] = new Tree_Index_Struct();
 		return true;
 	} else if (index_type == "hash"){
-		new Hash_Index_Struct();
+		index_structs[col] = new Hash_Index_Struct();
 		return true;
 	} else {
 		printErr("No such indexing type %s", index_type.c_str());
