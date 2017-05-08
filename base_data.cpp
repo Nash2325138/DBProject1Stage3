@@ -424,6 +424,22 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	if (isAggregation) {
 		// Tulpe tuple(sData.selectedItems.size(), Value("0"));
 		outputTable.tuples.emplace_back(sData.selectedItems.size(), Value("0"));
+		// check all aggregated attributes are valid
+		for (int j=0; j<sData.selectedItems.size(); j++) {
+			auto& item = sData.selectedItems[j];
+			if (item.aggreFuncStr == "sum") {
+				Table& table = *getSourceTable(item.attributeID);
+				auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
+				if (indexes.size() > 1) {
+					printErr("We can't sum up multiple attributes\n");
+					return false;
+				}
+				if ( table.schema[indexes[0]].type != "int") {
+					printErr("Type error: type %s can't be aggregated\n", table.schema[indexes[0]].type.c_str());
+					return false;
+				}
+			}
+		}
 	}
 	// one table
 	if (sData.fromTables.size() == 1) {
@@ -437,22 +453,11 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 				// is aggregation
 				for (int j=0; j<sData.selectedItems.size(); j++) {
 					auto& item = sData.selectedItems[j];
+					Table& table = *getSourceTable(item.attributeID);
+					auto& indexes = table.matchedAttributes(item.attributeID.attr_name);	
 					if (item.aggreFuncStr == "sum") {
-						Table& table = *getSourceTable(item.attributeID);
-						auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
-						/*** these checks can be put outside for loop  ***/
-						if (indexes.size() > 1) {
-							printErr("We can't sum up multiple attributes\n");
-							return false;
-						}
-						if ( table.schema[indexes[0]].type != "int") {
-							printErr("Type error: type %s can't be aggregated\n", table.schema[indexes[0]].type.c_str());
-							return false;
-						}
 						outputTable.tuples[0][j].intData += table.tuples[i][indexes[0]].intData;
 					} else if (item.aggreFuncStr == "count") {
-						Table& table = *getSourceTable(item.attributeID);
-						auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
 						for (int index: indexes) {
 							if (not table.tuples[i][index].isNull) {
 								outputTable.tuples[0][j].intData++;
@@ -482,22 +487,11 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 					// is aggregation
 					for (int k=0; k<sData.selectedItems.size(); k++) {
 						auto& item = sData.selectedItems[k];
+						Table& table = *getSourceTable(item.attributeID);
+						auto& indexes = table.matchedAttributes(item.attributeID.attr_name);	
 						if (item.aggreFuncStr == "sum") {
-							Table& table = *getSourceTable(item.attributeID);
-							auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
-							/*** these checks can be put outside for loop  ***/
-							if (indexes.size() > 1) {
-								printErr("We can't sum up multiple attributes\n");
-								return false;
-							}
-							if ( table.schema[indexes[0]].type != "int") {
-								printErr("Type error: type %s can't be aggregated\n", table.schema[indexes[0]].type.c_str());
-								return false;
-							}
 							outputTable.tuples[0][k].intData += table.tuples[i][indexes[0]].intData;
 						} else if (item.aggreFuncStr == "count") {
-							Table& table = *getSourceTable(item.attributeID);
-							auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
 							for (int index: indexes) {
 								if (not table.tuples[i][index].isNull) {
 									outputTable.tuples[0][k].intData++;
