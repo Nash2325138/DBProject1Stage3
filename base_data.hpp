@@ -81,6 +81,7 @@ class BaseData{
 private:
 	map<string, Table> tables;
 	Parser *parser;
+	Parser::SelectQueryData *sData;
 	OutputTable outputTable;
 public:
 	BaseData(){};
@@ -92,21 +93,21 @@ public:
     }
 	bool Query(string query_str);
 
-	bool select(Parser::SelectQueryData& sData);
-	bool checkSelectQueryData(Parser::SelectQueryData& sData);
-	void fillOutputTableSchema(Parser::SelectQueryData& sData, 
+	bool select();
+	bool checkSelectQueryData();
+	void fillOutputTableSchema(
 							   vector<pair<Table*, int> >& selectedAttributes);
-	void fill_comparePairs_table_col(Parser::SelectQueryData& sData);
+	void fill_comparePairs_table_col();
 	void reconstructTables();
-	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
+	string getTrueTableName(string tableID);
 	bool judgeComparePair(Value* v1, CompareOP op, Value* v2);
-	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_row);
-	bool judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_row, pair<Table*, int>& t2_row);
+	bool judgeWhere(pair<Table*, int>& t1_row);
+	bool judgeWhere(pair<Table*, int>& t1_row, pair<Table*, int>& t2_row);
 	void push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row);
 	void push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row, pair<Table*, int> t2_row);
 	bool checkTableExistence(vector<string>& fromTables);
-	bool checkAttributeStatus(Parser::SelectQueryData& selectedData);
-	bool checkPairTypes(Parser::SelectQueryData& selectedData);
+	bool checkAttributeStatus();
+	bool checkPairTypes();
 	string getTypeString(CompareType CT);
 	string getAttributeType(AttributeID attrID);
 	Table* getSourceTable(AttributeID& attrID);

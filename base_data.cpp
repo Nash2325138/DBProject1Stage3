@@ -251,13 +251,13 @@ bool BaseData::judgeComparePair(Value* v1, CompareOP op, Value* v2) {
 	}
 }
 
-bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_row) {
-	if (sData.comparePairs.size() == 0) {
+bool BaseData::judgeWhere(pair<Table*, int>& t1_row) {
+	if (sData->comparePairs.size() == 0) {
 		return true;
 	}
 	bool ans = false;
-	for (int i = 0; i < sData.comparePairs.size(); ++i) {
-		CompareOP op = sData.comparePairs[i].op;
+	for (int i = 0; i < sData->comparePairs.size(); ++i) {
+		CompareOP op = sData->comparePairs[i].op;
 		Value *v1, *v2;
 		Table_col& table_col1 = comparePairs_table_col[i].first;
 		Table_col& table_col2 = comparePairs_table_col[i].second;
@@ -265,36 +265,36 @@ bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_
 		if (table_col1.first != NULL) {
 			v1 = &table_col1.first->tuples[t1_row.second][table_col1.second];
 		} else {
-			v1 = &sData.comparePairs[i].v1;
+			v1 = &(sData->comparePairs[i].v1);
 		}
 		if (table_col2.first != NULL) {
 			v2 = &table_col2.first->tuples[t1_row.second][table_col2.second];
 		} else {
-			v2 = &sData.comparePairs[i].v2;
+			v2 = &(sData->comparePairs[i].v2);
 		}
 		bool pairResult = judgeComparePair(v1, op ,v2);
 		if (i == 0) {
 			ans |= pairResult;
 		} else {
-			if (sData.logicalOP == LogicalOP::AND) {
+			if (sData->logicalOP == LogicalOP::AND) {
 				ans &= pairResult;
-			} else if (sData.logicalOP == LogicalOP::OR) {
+			} else if (sData->logicalOP == LogicalOP::OR) {
 				ans |= pairResult;
 			} else {
-				fprintf(stderr, "No such LogicalOP: %d\n", sData.logicalOP);
+				fprintf(stderr, "No such LogicalOP: %d\n", sData->logicalOP);
 				exit(EXIT_FAILURE);
 			}
 		}
 	}
 	return ans;
 }
-bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_row, pair<Table*, int>& t2_row) {
-	if (sData.comparePairs.size() == 0) {
+bool BaseData::judgeWhere(pair<Table*, int>& t1_row, pair<Table*, int>& t2_row) {
+	if (sData->comparePairs.size() == 0) {
 		return true;
 	}
 	bool ans = false;
-	for (int i = 0; i < sData.comparePairs.size(); ++i) {
-		CompareOP op = sData.comparePairs[i].op;
+	for (int i = 0; i < sData->comparePairs.size(); ++i) {
+		CompareOP op = sData->comparePairs[i].op;
 		Value *v1, *v2;
 		Table_col& table_col1 = comparePairs_table_col[i].first;
 		Table_col& table_col2 = comparePairs_table_col[i].second;
@@ -303,27 +303,27 @@ bool BaseData::judgeWhere(Parser::SelectQueryData& sData, pair<Table*, int>& t1_
 			auto& table_row = (t1_row.first == table_col1.first) ? t1_row:t2_row;
 			v1 = &table_col1.first->tuples[table_row.second][table_col1.second];
 		} else {
-			v1 = &sData.comparePairs[i].v1;
+			v1 = &(sData->comparePairs[i].v1);
 		}
 		if (table_col2.first != NULL) {
 			auto& table_row = (t1_row.first == table_col2.first) ? t1_row:t2_row;
 			v2 = &table_col2.first->tuples[table_row.second][table_col2.second];
 		} else {
-			v2 = &sData.comparePairs[i].v2;
+			v2 = &(sData->comparePairs[i].v2);
 		}
 		// printf("Comparing v1: %s with v2: %s, op = %d\n", v1->toString().c_str(), v2->toString().c_str(), op);
 		bool pairResult = judgeComparePair(v1, op ,v2);
 		// printf("result == %d\n", pairResult);
-		// printf("sData.comparePairs.size(): %d\n", sData.comparePairs.size());
+		// printf("sData->comparePairs.size(): %d\n", sData->comparePairs.size());
 		if (i == 0) {
 			ans |= pairResult;
 		} else {
-			if (sData.logicalOP == LogicalOP::AND) {
+			if (sData->logicalOP == LogicalOP::AND) {
 				ans &= pairResult;
-			} else if (sData.logicalOP == LogicalOP::OR) {
+			} else if (sData->logicalOP == LogicalOP::OR) {
 				ans |= pairResult;
 			} else {
-				fprintf(stderr, "No such LogicalOP: %d\n", sData.logicalOP);
+				fprintf(stderr, "No such LogicalOP: %d\n", sData->logicalOP);
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -358,7 +358,7 @@ void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, 
 Table* BaseData::getSourceTable(AttributeID& attrID) {
 	// if table specified
 	if(attrID.tableSpecified){
-		return &(tables[getTrueTableName(*(parser->selectData), attrID.tableID)]);
+		return &(tables[getTrueTableName(attrID.tableID)]);
 	}
 	//
 	else{
@@ -371,10 +371,10 @@ Table* BaseData::getSourceTable(AttributeID& attrID) {
 	}
 	return NULL;
 }
-void BaseData::fill_comparePairs_table_col(Parser::SelectQueryData& sData) {
-	for (int i=0; i<sData.comparePairs.size(); i++)
+void BaseData::fill_comparePairs_table_col() {
+	for (int i=0; i<sData->comparePairs.size(); i++)
 	{
-		auto& comparePair = sData.comparePairs[i];
+		auto& comparePair = sData->comparePairs[i];
 
 		// fill table_col of first one of compare pair i
 		{
@@ -402,31 +402,31 @@ void BaseData::fill_comparePairs_table_col(Parser::SelectQueryData& sData) {
 		}
 	}
 }
-bool BaseData::select(Parser::SelectQueryData& sData) {
+bool BaseData::select() {
 	outputTable.clear();
 	// checkSelectQueryData(sData)
-	if (not checkSelectQueryData(sData)) {
+	if (not checkSelectQueryData()) {
 		return false;
 	}
 
 	// map from table to selected attributes
 	vector<Table_col> selectedAttributes;
 	// map from comparePair to table_col 
-	comparePairs_table_col = vector<pair<Table_col, Table_col> >(sData.comparePairs.size());
+	comparePairs_table_col = vector<pair<Table_col, Table_col> >(sData->comparePairs.size());
 	
 	// fill comparePairs_table_col
-	fill_comparePairs_table_col(sData);
+	fill_comparePairs_table_col();
 
 	// create an outputTable with schema concatenation of all selectedItems
-	fillOutputTableSchema(sData, selectedAttributes);
+	fillOutputTableSchema(selectedAttributes);
 
 	bool isAggregation = (selectedAttributes.size() == 0);
 	if (isAggregation) {
-		// Tulpe tuple(sData.selectedItems.size(), Value("0"));
-		outputTable.tuples.emplace_back(sData.selectedItems.size(), Value("0"));
+		// Tulpe tuple(sData->selectedItems.size(), Value("0"));
+		outputTable.tuples.emplace_back(sData->selectedItems.size(), Value("0"));
 		// check all aggregated attributes are valid
-		for (int j=0; j<sData.selectedItems.size(); j++) {
-			auto& item = sData.selectedItems[j];
+		for (int j=0; j<sData->selectedItems.size(); j++) {
+			auto& item = sData->selectedItems[j];
 			if (item.aggreFuncStr == "sum") {
 				Table& table = *getSourceTable(item.attributeID);
 				auto& indexes = table.matchedAttributes(item.attributeID.attr_name);
@@ -442,17 +442,17 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 		}
 	}
 	// one table
-	if (sData.fromTables.size() == 1) {
-		Table& t = tables[sData.fromTables[0]]; // fromTable must be true name
+	if (sData->fromTables.size() == 1) {
+		Table& t = tables[sData->fromTables[0]]; // fromTable must be true name
 		for (int i=0 ; i<t.tuples.size(); i++) {
 			pair<Table*, int> table_row = make_pair(&t, i);
-			if (judgeWhere(sData, table_row) == false) continue;
+			if (judgeWhere(table_row) == false) continue;
 			if (not isAggregation) {
 				push_back_output(selectedAttributes, table_row);
 			} else {
 				// is aggregation
-				for (int j=0; j<sData.selectedItems.size(); j++) {
-					auto& item = sData.selectedItems[j];
+				for (int j=0; j<sData->selectedItems.size(); j++) {
+					auto& item = sData->selectedItems[j];
 					Table& table = *getSourceTable(item.attributeID);
 					auto& indexes = table.matchedAttributes(item.attributeID.attr_name);	
 					if (item.aggreFuncStr == "sum") {
@@ -471,22 +471,22 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	}
 
 	// two tables
-	else if (sData.fromTables.size() == 2) {
-		Table& t1 = tables[sData.fromTables[0]];
-		Table& t2 = tables[sData.fromTables[1]];
+	else if (sData->fromTables.size() == 2) {
+		Table& t1 = tables[sData->fromTables[0]];
+		Table& t2 = tables[sData->fromTables[1]];
 		for (int i=0; i<t1.tuples.size(); ++i)
 		{
 			pair<Table*, int> t1_row = make_pair(&t1, i);
 			for (int j=0; j<t2.tuples.size(); ++j)
 			{
 				pair<Table*, int> t2_row = make_pair(&t2, j);
-				if (judgeWhere(sData, t1_row, t2_row) == false) continue;
+				if (judgeWhere(t1_row, t2_row) == false) continue;
 				if (not isAggregation) {
 					push_back_output(selectedAttributes, t1_row, t2_row);
 				} else {
 					// is aggregation
-					for (int k=0; k<sData.selectedItems.size(); k++) {
-						auto& item = sData.selectedItems[k];
+					for (int k=0; k<sData->selectedItems.size(); k++) {
+						auto& item = sData->selectedItems[k];
 						Table& table = *getSourceTable(item.attributeID);
 						auto& indexes = table.matchedAttributes(item.attributeID.attr_name);	
 						if (item.aggreFuncStr == "sum") {
@@ -515,22 +515,21 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 	outputTable.show();
 	return true;
 }
-string BaseData::getTrueTableName(Parser::SelectQueryData& sData, string tableID) {
-	auto it = sData.aliasToTableName.find(tableID);
-	if ( it == sData.aliasToTableName.end()) {
+string BaseData::getTrueTableName(string tableID) {
+	auto it = sData->aliasToTableName.find(tableID);
+	if ( it == sData->aliasToTableName.end()) {
 		return tableID;
 	} else {
 		return it->second; 
 	}
 }
-void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
-						vector<pair<Table*, int> >& selectedAttributes) {
-	for (auto& item: sData.selectedItems) {
+void BaseData::fillOutputTableSchema(						vector<pair<Table*, int> >& selectedAttributes) {
+	for (auto& item: sData->selectedItems) {
 		if (not item.isAggregation) {
 			AttributeID attrID = item.attributeID;
 			if (attrID.tableSpecified) {
 				// get the table specified
-				string trueName = getTrueTableName(sData, attrID.tableID);
+				string trueName = getTrueTableName(attrID.tableID);
 				Table& specifiedTable = tables[trueName];
 
 				// find those matched attribute name
@@ -540,7 +539,7 @@ void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
 					selectedAttributes.push_back(make_pair(&specifiedTable, i));
 				}
 			} else {
-				for (auto& fromTableStr: sData.fromTables) {
+				for (auto& fromTableStr: sData->fromTables) {
 					Table& fromTable = tables[fromTableStr];
 					auto matched = fromTable.matchedAttributes(attrID.attr_name);
 					for (int i:matched) {
@@ -555,9 +554,9 @@ void BaseData::fillOutputTableSchema(Parser::SelectQueryData& sData,
 	}
 }
 
-bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
+bool BaseData::checkSelectQueryData() {
 	// 1. check if all fromTables in sData are also in Base
-	if(not checkTableExistence(sData.fromTables)){
+	if(not checkTableExistence(sData->fromTables)){
 		return false;
 	}
 	
@@ -565,12 +564,12 @@ bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
 	//		a. table specified: is in the specified table
 	//		b. not table specified: exist in any fromTable and not ambiguous amoung fromTables
 	// note: be careful of wildcard charactor: * (use matchedAttributes() to decide)
-	if(not checkAttributeStatus(sData)){
+	if(not checkAttributeStatus()){
 		return false;
 	}
 
 	// 3. check if both side of compare pairs is the same type
-	if(not checkPairTypes(sData)){
+	if(not checkPairTypes()){
 		return false;
 	}
 	
@@ -578,13 +577,13 @@ bool BaseData::checkSelectQueryData(Parser::SelectQueryData& sData) {
 	//    are in selected item together, it's a error
 	bool has_aggregation = false;
 	int aggregation_count = 0;
-	for(auto &item : sData.selectedItems){
+	for(auto &item : sData->selectedItems){
 		if(item.isAggregation){
 			has_aggregation = true;
 			aggregation_count++;
 		}
 	}
-	if(has_aggregation && sData.selectedItems.size() > aggregation_count){
+	if(has_aggregation && sData->selectedItems.size() > aggregation_count){
 		printErr("The attributes without aggregation function should be grouped by\n");
 		return false;
 	}
@@ -602,14 +601,14 @@ bool BaseData::checkTableExistence(vector<string> &fromTables){
 	return true;
 }
 
-bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
+bool BaseData::checkAttributeStatus(){
 	vector<AttributeID> attrIDs;
 	attrIDs.clear();
 	// get select items & comparepairs
-	for(auto &item : selectedData.selectedItems){
+	for(auto &item : sData->selectedItems){
 		attrIDs.push_back(item.attributeID);
 	}
-	for(auto &pair : selectedData.comparePairs){
+	for(auto &pair : sData->comparePairs){
 		if(pair.type1 == CompareType::ATTRIBUTE){
 			attrIDs.push_back(pair.attrID1);
 		}
@@ -621,7 +620,7 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 	for(auto &attrID : attrIDs){
 		// table specified
 		if(attrID.tableSpecified){
-			string table_name = getTrueTableName(selectedData, attrID.tableID);
+			string table_name = getTrueTableName(attrID.tableID);
 			if(tables[table_name].matchedAttributes(attrID.attr_name).size() == 0){
 				printErr("No such attribute '%s' in table '%s'\n", attrID.attr_name.c_str(), table_name.c_str());
 				return false;
@@ -629,7 +628,7 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 		}
 		else{	// not table specified
 			int numOfThisAttr = 0;
-			for(auto &table_name : selectedData.fromTables){
+			for(auto &table_name : sData->fromTables){
 				Table &table = tables[table_name];
 				numOfThisAttr += table.matchedAttributes(attrID.attr_name).size();
 			}
@@ -646,8 +645,8 @@ bool BaseData::checkAttributeStatus(Parser::SelectQueryData &selectedData){
 	return true;
 }
 
-bool BaseData::checkPairTypes(Parser::SelectQueryData& selectedData){
-	for(auto &pair : selectedData.comparePairs){
+bool BaseData::checkPairTypes(){
+	for(auto &pair : sData->comparePairs){
 		string type1, type2;
 		if(pair.op == CompareOP::OP_EMPTY){ continue; }
 		// Attr & Attr
@@ -685,7 +684,7 @@ string BaseData::getTypeString(CompareType CT){
 
 string BaseData::getAttributeType(AttributeID attrID){
 	if(attrID.tableSpecified){
-		Table &table = tables[getTrueTableName(*(parser->selectData), attrID.tableID)];
+		Table &table = tables[getTrueTableName(attrID.tableID)];
 		vector<int> pos = table.matchedAttributes(attrID.attr_name);
 		return table.schema[pos[0]].type;
 	}
@@ -745,6 +744,7 @@ bool BaseData::Query(string query_str){
 	}
 	parser = new Parser(query_str);
 	if(not parser->Parse()) return false;
+	sData = parser->selectData;
 
 	if(parser->isCreateTableQuery){
 		// Create table
@@ -780,7 +780,7 @@ bool BaseData::Query(string query_str){
 		}
 	}
 	else if(parser->isSelectQuery){
-		if (not select(*parser->selectData)) return false;
+		if (not select()) return false;
 	}
 
 	delete parser;
