@@ -127,3 +127,18 @@ const std::vector<int>& Tree_Index_Struct::satisfied_rows(const Value& v, Compar
     }
     return ret;
 }
+
+void Hash_Index_Struct::print() {
+    printf("Hash_Index_Struct:\n");
+    for (auto p : m) {
+        printf("Value: %s, row: %d\n", p.first.toString().c_str(), p.second);
+    }
+    printf("\n");
+}
+void Tree_Index_Struct::print() {
+    printf("Tree_Index_Struct:\n");
+    for (auto p : m) {
+        printf("Value: %s, row: %d\n", p.first.toString().c_str(), p.second);
+    }
+    printf("\n");
+}

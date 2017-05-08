@@ -30,15 +30,11 @@ class Index_Struct
 {
 public:
     Index_Struct(){};
-    Index_Struct(const std::vector<std::vector<Value>>& tuples, int col) {
-        for(int i=0; i<tuples.size(); i++) {
-            this->insert(tuples[i][col], i);
-        }
-    }
     ~Index_Struct(){};
     virtual void insert(const Value& v, const int row) {};
     virtual const std::vector<int>& satisfied_rows(CompareOP op, const Value& v) = 0;
     virtual const std::vector<int>& satisfied_rows(const Value& v, CompareOP op) = 0;
+    virtual void print(){};
 };
 
 class Hash_Index_Struct: public Index_Struct
@@ -46,12 +42,17 @@ class Hash_Index_Struct: public Index_Struct
 public:
     std::unordered_multimap<Value, int> m;
     Hash_Index_Struct(){};
-    Hash_Index_Struct(const std::vector<std::vector<Value>>& tuples, int col):Index_Struct(tuples, col) {};
+    Hash_Index_Struct(const std::vector<std::vector<Value>>& tuples, int col){
+        for(int i=0; i<tuples.size(); i++) {
+            this->insert(tuples[i][col], i);
+        }
+        // this->print();
+    };
     ~Hash_Index_Struct(){};
     void insert(const Value& v, const int row);
     const std::vector<int>& satisfied_rows(CompareOP op, const Value& v);
     const std::vector<int>& satisfied_rows(const Value& v, CompareOP op);
-
+    void print();
 };
 
 
@@ -60,12 +61,17 @@ class Tree_Index_Struct: public Index_Struct
 public:
     std::multimap<Value, int> m;
     Tree_Index_Struct(){};
-    Tree_Index_Struct(const std::vector<std::vector<Value>>& tuples, int col):Index_Struct(tuples, col) {};
+    Tree_Index_Struct(const std::vector<std::vector<Value>>& tuples, int col){
+        for(int i=0; i<tuples.size(); i++) {
+            this->insert(tuples[i][col], i);
+        }
+        // this->print();
+    };
     ~Tree_Index_Struct(){};
     void insert(const Value& v, const int row);
     const std::vector<int>& satisfied_rows(CompareOP op, const Value& v);
     const std::vector<int>& satisfied_rows(const Value& v, CompareOP op);
-
+    void print();
 };
 
 #endif

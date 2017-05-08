@@ -219,15 +219,15 @@ bool Table::setIndex(const string& attr_name, const string& index_type) {
 	}
 	int col = findAttrColume(attr_name);
 	if (index_type == "tree") {
-		index_structs[col] = new Tree_Index_Struct();
-		return true;
+		index_structs[col] = new Tree_Index_Struct(tuples, col);
 	} else if (index_type == "hash"){
-		index_structs[col] = new Hash_Index_Struct();
-		return true;
+		index_structs[col] = new Hash_Index_Struct(tuples, col);
 	} else {
 		printErr("No such indexing type %s", index_type.c_str());
 		return false;
 	}
+	// index_structs[col]->print();
+	return true;
 }
 void BaseData::reconstructTables(){
 	for(auto &table : tables){
@@ -729,11 +729,11 @@ bool BaseData::Query(string query_str){
 		// 	oa << *this;
 		// }
 		exit(EXIT_SUCCESS);
-	} else if (regex_match(query_str, regex("[ \n\t]set[ \n\t]*(hash|tree)[ \n\t]*index[ \n\t]*[a-zA-Z0-9_]*[ \n\t]*\\([ \n\t]*[a-zA-Z0-9_]*[ \n\t]*\\)[ \n\t]*"))) {
+	} else if (regex_match(query_str, regex("[ \n\t]*set[ \n\t]*(hash|tree)[ \n\t]*index[ \n\t]*[a-zA-Z0-9_]*[ \n\t]*[a-zA-Z0-9_]*[ \n\t]*"))) {
 		char which[10];
 		char table_name[100];
 		char attr_name[100];
-		sscanf(query_str.c_str(), " set %s index %s ( %s ) ", which, table_name, attr_name);
+		sscanf(query_str.c_str(), " set %s index %s %s ", which, table_name, attr_name);
 		auto it = tables.find(string(table_name));
 		if (it == tables.end()) {
 			printErr("No such table '%s'\n", table_name);

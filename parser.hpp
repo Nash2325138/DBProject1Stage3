@@ -75,7 +75,7 @@ public:
     };
     ~Value(){};
 
-    string toString() {
+    string toString() const{
         if (isNull) {
             return "";
         }
