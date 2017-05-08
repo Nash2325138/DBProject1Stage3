@@ -96,6 +96,7 @@ public:
 	bool checkSelectQueryData(Parser::SelectQueryData& sData);
 	void fillOutputTableSchema(Parser::SelectQueryData& sData, 
 							   vector<pair<Table*, int> >& selectedAttributes);
+	void fill_comparePairs_table_col(Parser::SelectQueryData& sData);
 	void reconstructTables();
 	string getTrueTableName(Parser::SelectQueryData& sData, string tableID);
 	bool judgeComparePair(Value* v1, CompareOP op, Value* v2);

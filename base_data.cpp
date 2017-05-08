@@ -371,19 +371,7 @@ Table* BaseData::getSourceTable(AttributeID& attrID) {
 	}
 	return NULL;
 }
-bool BaseData::select(Parser::SelectQueryData& sData) {
-	outputTable.clear();
-	// checkSelectQueryData(sData)
-	if (not checkSelectQueryData(sData)) {
-		return false;
-	}
-
-	// map from table to selected attributes
-	vector<Table_col> selectedAttributes;
-	// map from comparePair to table_col 
-	comparePairs_table_col = vector<pair<Table_col, Table_col> >(sData.comparePairs.size());
-	
-	// fill comparePairs_table_col
+void BaseData::fill_comparePairs_table_col(Parser::SelectQueryData& sData) {
 	for (int i=0; i<sData.comparePairs.size(); i++)
 	{
 		auto& comparePair = sData.comparePairs[i];
@@ -413,6 +401,21 @@ bool BaseData::select(Parser::SelectQueryData& sData) {
 			}
 		}
 	}
+}
+bool BaseData::select(Parser::SelectQueryData& sData) {
+	outputTable.clear();
+	// checkSelectQueryData(sData)
+	if (not checkSelectQueryData(sData)) {
+		return false;
+	}
+
+	// map from table to selected attributes
+	vector<Table_col> selectedAttributes;
+	// map from comparePair to table_col 
+	comparePairs_table_col = vector<pair<Table_col, Table_col> >(sData.comparePairs.size());
+	
+	// fill comparePairs_table_col
+	fill_comparePairs_table_col(sData);
 
 	// create an outputTable with schema concatenation of all selectedItems
 	fillOutputTableSchema(sData, selectedAttributes);
