@@ -431,6 +431,7 @@ Table* BaseData::getSourceTable(AttributeID& attrID) {
 	return NULL;
 }
 void BaseData::fill_comparePairs_table_col() {
+	// set<Table*> used_tables;
 	for (int i=0; i<sData->comparePairs.size(); i++)
 	{
 		auto& comparePair = sData->comparePairs[i];
@@ -442,6 +443,11 @@ void BaseData::fill_comparePairs_table_col() {
 				table_col.first = getSourceTable(comparePair.attrID1);
 				if (table_col.first != NULL) {
 					table_col.second = table_col.first->matchedAttributes(comparePair.attrID1.attr_name)[0];
+					// if (used_tables.find(table_col.first) != used_tables.end()) {
+					// 	table_col.first = new Table(*table_col.first);
+					// } else {
+					// 	used_tables.insert(table_col.first);
+					// }
 				}
 			} else {
 				table_col.first = NULL;
@@ -454,6 +460,11 @@ void BaseData::fill_comparePairs_table_col() {
 				table_col.first = getSourceTable(comparePair.attrID2);
 				if (table_col.first != NULL) {
 					table_col.second = table_col.first->matchedAttributes(comparePair.attrID2.attr_name)[0];
+					// if (used_tables.find(table_col.first) != used_tables.end()) {
+					// 	table_col.first = new Table(*table_col.first);
+					// } else {
+					// 	used_tables.insert(table_col.first);
+					// }
 				}
 			} else {
 				table_col.first = NULL;
