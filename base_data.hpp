@@ -32,6 +32,7 @@ public:
 	int findAttrColume(const string& attr_name);
 	bool writeNewRecord(const vector<Value> &tuple);
 	void readTuples();
+	void reconstruct_index_structs();
 	bool setIndex(const string& attr_name, const string& index_type);
 
 	const vector<int>& matchedAttributes(const string str);

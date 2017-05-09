@@ -23,7 +23,9 @@ ex2_test: all
 	rm -f base.save
 	./$(OUTPUT_FILE) sql/ex2.sql > myex2.ans
 	diff myex2.ans ex2.ans --side-by-side --suppress-common-lines
-	rm myex2.ans
+	./$(OUTPUT_FILE) sql/ex2_select.sql > myex2_select.ans
+	diff myex2_select.ans ex2_select.ans --side-by-side --suppress-common-lines
+	rm myex2.ans myex2_select.ans
 
 scanner.o: scanner.cpp scanner.hpp
 	$(CC) $(FLAG) -c scanner.hpp scanner.cpp

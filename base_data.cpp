@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdlib>
 #include <cstring>
+#include <cassert>
 #include "base_data.hpp"
 #include "color.h"
 
@@ -211,6 +212,19 @@ void Table::readTuples(){
 		}
 	}
 }
+void Table::reconstruct_index_structs() {
+	// reconstruct_index_structs using index_structs_meta_data (map from col to "hash" or "tree")
+	for (auto p: index_structs_meta_data) {
+		int col = p.first;
+		if (p.second == "tree") {
+			index_structs[col] = new Tree_Index_Struct(tuples, col);
+		} else if (p.second == "hash") {
+			index_structs[col] = new Hash_Index_Struct(tuples, col);
+		} else {
+			assert(false);
+		}
+	}
+}
 bool Table::checkAttrNameExist(const string& attr_name) {
 	for (auto& attr: schema) {
 		if (attr.name == attr_name) return true;
@@ -243,8 +257,10 @@ bool Table::setIndex(const string& attr_name, const string& index_type) {
 	return true;
 }
 void BaseData::reconstructTables(){
-	for(auto &table : tables){
-		table.second.readTuples();
+	for(auto &p : tables){
+		auto& table = p.second;
+		table.readTuples();
+		table.reconstruct_index_structs();
 	}
 }
 
