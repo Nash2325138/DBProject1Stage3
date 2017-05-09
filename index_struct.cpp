@@ -102,6 +102,7 @@ const std::vector<int>& Tree_Index_Struct::satisfied_rows(CompareOP op, const Va
     } else {
         assert(false);
     }
+    std::sort(ret.begin(), ret.end());
     return ret;
 }
 
@@ -135,6 +136,7 @@ const std::vector<int>& Tree_Index_Struct::satisfied_rows(const Value& v, Compar
     } else {
         assert(false);
     }
+    std::sort(ret.begin(), ret.end());
     return ret;
 }
 

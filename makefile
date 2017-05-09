@@ -28,6 +28,9 @@ ex2_test: all
 	diff myex2_select.ans ex2_select.ans --side-by-side --suppress-common-lines
 	rm myex2.ans myex2_select.ans
 
+loadind_test:
+	./$(OUTPUT_FILE) test/trans.sql test/user.sql > /dev/null
+
 scanner.o: scanner.cpp scanner.hpp
 	$(CC) $(FLAG) -c scanner.hpp scanner.cpp
 

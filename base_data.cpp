@@ -479,10 +479,8 @@ vector<int>* BaseData::get_filtered_rows_from_cmpps(Table* t) {
 					ret = new vector<int>(satisfied_rows);
 				} else {
 					// union ret and satisfied_rows to result
-					vector<int> result(ret->size() + satisfied_rows.size());
-					auto result_end = std::set_union(ret->begin(), ret->end(),
-						satisfied_rows.begin(), satisfied_rows.end(), result.begin());
-					result.resize(result_end-result.begin());
+					vector<int> result;
+					std::set_union(ret->begin(), ret->end(), satisfied_rows.begin(), satisfied_rows.end(), std::back_inserter(result));
 					// make ret = result
 					*ret = std::move(result);
 				}
@@ -495,10 +493,8 @@ vector<int>* BaseData::get_filtered_rows_from_cmpps(Table* t) {
 					ret = new vector<int>(satisfied_rows);
 				} else {
 					// union ret and satisfied_rows to result
-					vector<int> result(ret->size() + satisfied_rows.size());
-					auto result_end = std::set_union(ret->begin(), ret->end(),
-						satisfied_rows.begin(), satisfied_rows.end(), result.begin());
-					result.resize(result_end-result.begin());
+					vector<int> result;
+					std::set_union(ret->begin(), ret->end(), satisfied_rows.begin(), satisfied_rows.end(), std::back_inserter(result));
 					// make ret = result
 					*ret = std::move(result);
 				}
