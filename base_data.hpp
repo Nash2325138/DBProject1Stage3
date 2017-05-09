@@ -25,6 +25,7 @@ public:
 	~Table();
 	bool insert(vector<string>& orders, vector<Value>& values);
 	bool insert(vector<Value>& values);
+	void add_new_tuple(const vector<Value>& tuple, const Value& primary_key_value);
 	bool checkDataType(string& attr_name, Value &value);
 	bool checkPrimaryKey(Value &value);
 	bool checkAttrNameExist(const string& attr_name);

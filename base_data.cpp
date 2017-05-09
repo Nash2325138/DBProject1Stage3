@@ -86,6 +86,18 @@ bool Table::checkDataType(string& attr_name, Value &value){
 	return false;
 }
 
+void Table::add_new_tuple(const vector<Value>& tuple, const Value& primary_key_value) {
+	writeNewRecord(tuple);
+	// if the coloumn is indexed, add the (value, row) in to the corresbonding index structure
+	for (int j=0; j<tuple.size(); j++) {
+		auto it = index_structs.find(j);
+		if (it != index_structs.end()) {
+			it->second->insert(tuple[j], tuples.size());
+		}
+	}
+	tuples.push_back(tuple);
+	primary_key_columns.insert(primary_key_value);
+}
 bool Table::insert(vector<string>& orders, vector<Value>& values) {
 	if (orders.size() > schema.size()) {
 		printErr("Number of values exceeds number of atrributes\n");
@@ -123,9 +135,7 @@ bool Table::insert(vector<string>& orders, vector<Value>& values) {
 		printErr("You can't insert exact the same tuple to a table\n");
 		return false;
 	}
-	writeNewRecord(tuple);
-	tuples.push_back(tuple);
-	primary_key_columns.insert(primary_key_value);
+	this->add_new_tuple(tuple, primary_key_value);
 	return true;
 }
 
@@ -167,9 +177,7 @@ bool Table::insert(vector<Value>& values) {
 		printErr("You can't insert exact the same tuple to a table\n");
 		return false;
 	}
-	writeNewRecord(tuple);
-	tuples.push_back(tuple);
-	primary_key_columns.insert(primary_key_value);
+	this->add_new_tuple(tuple, primary_key_value);
 	return true;
 }
 
