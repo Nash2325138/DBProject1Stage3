@@ -16,7 +16,6 @@ int main(int argc, char const *argv[])
 	BaseData base;
 	std::ifstream ifs("base.save");
 	if (not ifs.fail()) {
-		printf("Loading 'base.save' into database ...\n");
 		boost::archive::text_iarchive ia(ifs);
 		ia >> base;
 		base.reconstructTables();

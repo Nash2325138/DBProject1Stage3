@@ -8,6 +8,7 @@
 #include <cassert>
 #include <numeric>
 #include <algorithm>
+#include <ctime>
 #include "base_data.hpp"
 #include "color.h"
 
@@ -646,7 +647,7 @@ bool BaseData::select() {
 		Table& t1 = tables[sData->fromTables[0]]; // fromTable must be true name
 		
 		vector<int>* t1_filtered_rows = get_filtered_rows_from_cmpps(&t1);
-		for (int i : *t1_filtered_rows) printf("%d, ", i); printf("\n");
+		// for (int i : *t1_filtered_rows) printf("%d, ", i); printf("\n");
 
 		// for (int i=0 ; i<t1.tuples.size(); i++) {
 		for (int i : *t1_filtered_rows) {
@@ -936,6 +937,8 @@ void BaseData::save_tables_meta() {
 	oa << *this;
 }
 bool BaseData::Query(string query_str){
+	clock_t t1, t2;
+	t1 = clock();
 	if (regex_match(query_str, regex("[ \n\t]*show[ \n\t]*"))) {
 		this->show();
 		return true;
@@ -1010,6 +1013,8 @@ bool BaseData::Query(string query_str){
 	}
 
 	delete parser;
+	t2 = clock();
+	printf(LIGHT_CYAN "Elapsed time: %lf ms\n" NONE, 1000.0*(t2-t1)/((double)CLOCKS_PER_SEC));
 	return true;
 }
 
