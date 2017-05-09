@@ -81,13 +81,15 @@ const std::vector<int>& Tree_Index_Struct::satisfied_rows(CompareOP op, const Va
             if (p.first.isTrue())
                 ret.push_back(p.second);
     } else if (op == CompareOP::BIGGER) {
-        for (auto& p:m)
-            if (p.first.bigger(v))
-                ret.push_back(p.second);
+        auto iter_pair = m.equal_range(v);
+        for (auto it = iter_pair.second; it != m.end(); it++) {
+            ret.push_back(it->second);
+        }
     } else if (op == CompareOP::SMALLER) {
-        for (auto& p:m)
-            if (p.first.smaller(v))
-                ret.push_back(p.second);
+        auto iter_pair = m.equal_range(v);
+        for (auto it = m.begin(); it != iter_pair.first; it++) {
+            ret.push_back(it->second);
+        }
     } else if (op == CompareOP::EQUAL) {
         auto iter_pair = m.equal_range(v);
         for (auto it = iter_pair.first; it != iter_pair.second; it++) {
@@ -112,13 +114,15 @@ const std::vector<int>& Tree_Index_Struct::satisfied_rows(const Value& v, Compar
             if (v.isTrue())
                 ret.push_back(p.second);
     } else if (op == CompareOP::BIGGER) {
-        for (auto& p:m)
-            if (v.bigger(p.first))
-                ret.push_back(p.second);
+        auto iter_pair = m.equal_range(v);
+        for (auto it = m.begin(); it != iter_pair.first; it++) {
+            ret.push_back(it->second);
+        }
     } else if (op == CompareOP::SMALLER) {
-        for (auto& p:m)
-            if (v.smaller(p.first))
-                ret.push_back(p.second);
+        auto iter_pair = m.equal_range(v);
+        for (auto it = iter_pair.second; it != m.end(); it++) {
+            ret.push_back(it->second);
+        }
     } else if (op == CompareOP::EQUAL) {
         auto iter_pair = m.equal_range(v);
         for (auto it = iter_pair.first; it != iter_pair.second; it++) {

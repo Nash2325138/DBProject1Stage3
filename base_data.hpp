@@ -99,6 +99,7 @@ public:
 
 	bool select();
 	vector<int>* get_filtered_rows_from_cmpps(Table* t);
+	vector<int>* get_filtered_rows_from_cmpps(Table* t1, Table* t2, int t1_now_row);
 	bool checkSelectQueryData();
 	void fillOutputTableSchema(vector<pair<Table*, int> >& selectedAttributes);
 	void fill_comparePairs_table_col();

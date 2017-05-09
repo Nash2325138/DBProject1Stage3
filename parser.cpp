@@ -261,6 +261,7 @@ bool Parser::Select_Query() {
     // read_Selected_Item_Sequence() to fill:
     //      selectData->selectedItems
     selectData = new Parser::SelectQueryData();
+    selectData->logicalOP = LogicalOP::AND;
     if (not read_Selected_Item_Sequence()) {
         return false;
     }
@@ -422,8 +423,11 @@ bool Parser::read_FromTable() {
             return false;
         } else {
             selectData->aliasToTableName[alias] = tableName;
+            selectData->aliases.push_back(alias);
             return true;
         }
+    } else {
+        selectData->aliases.push_back(tableName);
     }
     return true;
 }

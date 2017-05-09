@@ -374,6 +374,33 @@ void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, 
 }
 void BaseData::push_back_output(vector<pair<Table*, int> >& selectedAttributes, pair<Table*, int> t1_row, pair<Table*, int> t2_row) {
 	Tuple tuple;
+	if (t1_row.first == t2_row.first) {
+		if (sData->selectedItems[0].attributeID.attr_name != "*") {
+			// printf("!\n");
+			for (int i=0; i<sData->selectedItems.size(); i++) {
+				auto item = sData->selectedItems[i];
+				// printf("!!!!%s!!!\n", item.attributeID.tableID.c_str());
+				if (item.attributeID.tableID == sData->aliases[0]) {
+					tuple.push_back(t1_row.first->tuples.at(t1_row.second).at(selectedAttributes[i].second));
+				} else if (item.attributeID.tableID == sData->aliases[1]) {
+					tuple.push_back(t2_row.first->tuples.at(t2_row.second).at(selectedAttributes[i].second));
+				} else {
+					assert(false);
+				}
+			}
+		} else {
+			// printf("? %d\n", selectedAttributes.size());
+			int half = selectedAttributes.size()/2;
+			for (int i=0; i < half; i++) {
+				tuple.push_back(t1_row.first->tuples.at(t1_row.second).at(i));
+			}
+			for (int i=0; i < half; i++) {
+				tuple.push_back(t2_row.first->tuples.at(t2_row.second).at(i));
+			}
+		}
+		outputTable.tuples.push_back(tuple);
+		return;
+	}
 	for (auto& p: selectedAttributes) {
 		if (p.first == t1_row.first) {
 			tuple.push_back(t1_row.first->tuples.at(t1_row.second).at(p.second));
@@ -478,8 +505,97 @@ vector<int>* BaseData::get_filtered_rows_from_cmpps(Table* t) {
 		}
 	}
 	if (ret == NULL) {
-		// vector from 0 ~ t1.tuples.size()
+		// vector from 0 ~ t1.tuples.size()-1
 		vector<int>* all_rows = new vector<int>(t->tuples.size());
+		std::iota(all_rows->begin(), all_rows->end(), 0);
+		ret = all_rows;
+	}
+	return ret;
+}
+vector<int>* BaseData::get_filtered_rows_from_cmpps(Table* t1, Table* t2, int t1_now_row) {
+	vector<int>* ret = NULL;
+	for (int i=0; i<sData->comparePairs.size(); i++) {
+		auto& table_col_pair = comparePairs_table_col[i];
+		Table* cmpp1_table = table_col_pair.first.first;
+		int cmpp1_col = table_col_pair.first.second;
+
+		Table* cmpp2_table = table_col_pair.second.first;
+		int cmpp2_col = table_col_pair.second.second;
+
+		string cmpp1_tableID = sData->comparePairs[i].attrID1.tableID;
+		string cmpp2_tableID = sData->comparePairs[i].attrID2.tableID;
+		string t1_tableID = sData->aliases[0];
+		string t2_tableID = sData->aliases[1];
+		// if ( (cmpp1_table != NULL and cmpp1_tableID == t2_tableID) and cmpp2_table == NULL) {
+		if (cmpp1_table == t2 and cmpp2_table == NULL) {
+			auto index_struct = cmpp1_table->index_structs.find(cmpp1_col);
+			if (index_struct != cmpp1_table->index_structs.end()) {
+				const auto& satisfied_rows = index_struct->second->satisfied_rows(sData->comparePairs[i].op, sData->comparePairs[i].v2);
+				if (ret == NULL) {
+					ret = new vector<int>(satisfied_rows);
+				} else {
+					// union ret and satisfied_rows to result
+					vector<int> result(ret->size() + satisfied_rows.size());
+					auto result_end = std::set_union(ret->begin(), ret->end(),
+						satisfied_rows.begin(), satisfied_rows.end(), result.begin());
+					result.resize(result_end-result.begin());
+					// make ret = result
+					*ret = std::move(result);
+				}
+			}
+		} else if (cmpp1_table == NULL and cmpp2_table == t2) {
+			auto index_struct = cmpp2_table->index_structs.find(cmpp2_col);
+			if (index_struct != cmpp2_table->index_structs.end()) {
+				const auto& satisfied_rows = index_struct->second->satisfied_rows(sData->comparePairs[i].v1, sData->comparePairs[i].op);
+				if (ret == NULL) {
+					ret = new vector<int>(satisfied_rows);
+				} else {
+					// union ret and satisfied_rows to result
+					vector<int> result(ret->size() + satisfied_rows.size());
+					auto result_end = std::set_union(ret->begin(), ret->end(),
+						satisfied_rows.begin(), satisfied_rows.end(), result.begin());
+					result.resize(result_end-result.begin());
+					// make ret = result
+					*ret = std::move(result);
+				}
+			}
+		} else if (cmpp1_table == t1 and cmpp2_table == t2) {
+			auto index_struct = cmpp2_table->index_structs.find(cmpp2_col);
+			if (index_struct != cmpp2_table->index_structs.end()) {
+				const auto& satisfied_rows = index_struct->second->satisfied_rows(t1->tuples[t1_now_row][cmpp1_col], sData->comparePairs[i].op);
+				if (ret == NULL) {
+					ret = new vector<int>(satisfied_rows);
+				} else {
+					// union ret and satisfied_rows to result
+					vector<int> result(ret->size() + satisfied_rows.size());
+					auto result_end = std::set_union(ret->begin(), ret->end(),
+						satisfied_rows.begin(), satisfied_rows.end(), result.begin());
+					result.resize(result_end-result.begin());
+					// make ret = result
+					*ret = std::move(result);
+				}
+			}
+		} else if (cmpp1_table == t2 and cmpp2_table == t1) {
+			auto index_struct = cmpp1_table->index_structs.find(cmpp1_col);
+			if (index_struct != cmpp1_table->index_structs.end()) {
+				const auto& satisfied_rows = index_struct->second->satisfied_rows(sData->comparePairs[i].op, t1->tuples[t1_now_row][cmpp2_col]);
+				if (ret == NULL) {
+					ret = new vector<int>(satisfied_rows);
+				} else {
+					// union ret and satisfied_rows to result
+					vector<int> result(ret->size() + satisfied_rows.size());
+					auto result_end = std::set_union(ret->begin(), ret->end(),
+						satisfied_rows.begin(), satisfied_rows.end(), result.begin());
+					result.resize(result_end-result.begin());
+					// make ret = result
+					*ret = std::move(result);
+				}
+			}
+		} 
+	}
+	if (ret == NULL) {
+		// vector from 0 ~ t1.tuples.size()-1
+		vector<int>* all_rows = new vector<int>(t2->tuples.size());
 		std::iota(all_rows->begin(), all_rows->end(), 0);
 		ret = all_rows;
 	}
@@ -530,10 +646,7 @@ bool BaseData::select() {
 		Table& t1 = tables[sData->fromTables[0]]; // fromTable must be true name
 		
 		vector<int>* t1_filtered_rows = get_filtered_rows_from_cmpps(&t1);
-		// for (int i : *t1_filtered_rows) {
-		// 	printf("%d, ", i);
-		// }
-		// printf("\n");
+		for (int i : *t1_filtered_rows) printf("%d, ", i); printf("\n");
 
 		// for (int i=0 ; i<t1.tuples.size(); i++) {
 		for (int i : *t1_filtered_rows) {
@@ -560,16 +673,40 @@ bool BaseData::select() {
 				} 
 			}
 		}
+		delete t1_filtered_rows;
 	}
 
 	// two tables
 	else if (sData->fromTables.size() == 2) {
 		Table& t1 = tables[sData->fromTables[0]];
 		Table& t2 = tables[sData->fromTables[1]];
-		for (int i=0; i<t1.tuples.size(); ++i)
+
+		vector<int>* t1_filtered_rows;
+		if (sData->logicalOP == LogicalOP::OR) {
+			t1_filtered_rows = new std::vector<int>(t1.tuples.size());
+			std::iota(t1_filtered_rows->begin(), t1_filtered_rows->end(), 0);
+		} else {
+			t1_filtered_rows = get_filtered_rows_from_cmpps(&t1);
+		}
+		// printf("Outer:\n"); for (int i : *t1_filtered_rows) printf("%d, ", i); printf("\n");
+
+		for (int i : *t1_filtered_rows)
+		// for (int i=0; i<t1.tuples.size(); i++)
 		{
 			pair<Table*, int> t1_row = make_pair(&t1, i);
-			for (int j=0; j<t2.tuples.size(); ++j)
+			
+			vector<int>* t2_filtered_rows;
+			if (sData->logicalOP == LogicalOP::OR) {
+ 				t2_filtered_rows = new std::vector<int>(t2.tuples.size());
+ 				std::iota(t2_filtered_rows->begin(), t2_filtered_rows->end(), 0);
+			} else {
+				t2_filtered_rows = get_filtered_rows_from_cmpps(&t1, &t2, i);
+			}
+			// printf("Inner:\n"); for (int i : *t2_filtered_rows) printf("%d, ", i); printf("\n");
+
+
+			for (int j : *t2_filtered_rows)
+			// for (int j=0; j<t2.tuples.size(); j++)
 			{
 				pair<Table*, int> t2_row = make_pair(&t2, j);
 				if (judgeWhere(t1_row, t2_row) == false) continue;
@@ -594,7 +731,9 @@ bool BaseData::select() {
 					} 
 				}
 			}
+			delete t2_filtered_rows;
 		}
+		delete t1_filtered_rows;
 	}
 	// for (tuple1 in table1):
 	//   for (tuple2 in table2):
@@ -934,6 +1073,10 @@ void Table::show(){
 		puts("|");
 	}
 	puts(row_seperator(column_widths));
+
+	for (auto& index_struct : index_structs) {
+		index_struct.second->print();
+	}
 }
 void OutputTable::show() {
 	static const int OFFSET = 3;

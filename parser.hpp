@@ -310,6 +310,7 @@ public:
 
         map<string, string> aliasToTableName;
         vector<string> fromTables;
+        vector<string> aliases;
         string toString() {
             char buffer[40000];
             
@@ -325,6 +326,13 @@ public:
             strcat(buffer, NONE);
             for (auto& table: fromTables) {
                 strcat(strcat(buffer, table.c_str()), "\n");
+            }
+
+            strcat(buffer, YELLOW);
+            strcat(buffer, "\naliased:\n");
+            strcat(buffer, NONE);
+            for (auto& alias: aliases) {
+                strcat(strcat(buffer, alias.c_str()), "\n");
             }
 
             strcat(buffer, YELLOW);

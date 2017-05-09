@@ -47,3 +47,12 @@ select C.*, O.* from Customers AS C, Orders AS O WHERE C.CID = O.CID AND 35000 <
 
 select count(c.Name) from Customers AS c, Orders AS o WHERE C.CID = O.CID AND 35000 < C.Salary;
 select sum(Customers.Salary) from Customers AS c, Orders AS o WHERE C.CID = O.CID AND 35000 < C.Salary;
+
+set tree index orders id;
+set hash index customers cid;
+set hash index orders cid;
+select * from orders as o, customers as c where o.id >3;
+select * from orders as o, customers as c where 3 < o.id;
+select * from orders as o, Customers as c where c.cid > 5 or o.id > 3;
+select * from orders as o, customers as c where o.cid = c.cid;
+select * from orders as o, Customers as c where c.cid = o.cid;
