@@ -52,6 +52,7 @@ public:
 
 	// map column to index_struct;
 	map<int, Index_Struct*> index_structs;
+	map<int, string> index_structs_meta_data;
 
 	template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
@@ -62,6 +63,7 @@ public:
         ar & hasPrimary;
         ar & primary_key_name;
         ar & primary_key_columns;
+        ar & index_structs_meta_data;
     }
 };
 
@@ -114,6 +116,7 @@ public:
 	Table* getSourceTable(AttributeID& attrID);
 	vector<pair<Table_col, Table_col> > comparePairs_table_col;
 	void show();
+	void save_tables_meta();
 };
 
 #endif

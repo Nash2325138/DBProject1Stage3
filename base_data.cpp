@@ -231,8 +231,10 @@ bool Table::setIndex(const string& attr_name, const string& index_type) {
 	int col = findAttrColume(attr_name);
 	if (index_type == "tree") {
 		index_structs[col] = new Tree_Index_Struct(tuples, col);
+		index_structs_meta_data[col] = "tree";
 	} else if (index_type == "hash"){
 		index_structs[col] = new Hash_Index_Struct(tuples, col);
+		index_structs_meta_data[col] = "hash";
 	} else {
 		printErr("No such indexing type %s", index_type.c_str());
 		return false;
@@ -457,7 +459,7 @@ bool BaseData::select() {
 	if (sData->fromTables.size() == 1) {
 		Table& t1 = tables[sData->fromTables[0]]; // fromTable must be true name
 		// vector<int>* filtered_t1_rows;
-		// vector<int> t1_all_rows(t1.tuples)
+		// vector<int> t1_all_rows(t1.tuples);
 		for (int i=0 ; i<t1.tuples.size(); i++) {
 			pair<Table*, int> table_row = make_pair(&t1, i);
 			if (judgeWhere(table_row) == false) continue;
@@ -713,7 +715,11 @@ string BaseData::getAttributeType(AttributeID attrID){
 	}
 	return "";
 }
-
+void BaseData::save_tables_meta() {
+	std::ofstream ofs("base.save");
+	boost::archive::text_oarchive oa(ofs);
+	oa << *this;
+}
 bool BaseData::Query(string query_str){
 	if (regex_match(query_str, regex("[ \n\t]*show[ \n\t]*"))) {
 		this->show();
@@ -734,13 +740,6 @@ bool BaseData::Query(string query_str){
 		printf("Done\n");
 		return true;
 	} else if (regex_match(query_str, regex("[ \n\t]*quit[ \n\t]*"))) {
-		// Saving the data into 'base.save'
-		printf("Saving the data into 'base.save' ...\n");
-		// {
-		// 	std::ofstream ofs("base.save");
-		// 	boost::archive::text_oarchive oa(ofs);
-		// 	oa << *this;
-		// }
 		exit(EXIT_SUCCESS);
 	} else if (regex_match(query_str, regex("[ \n\t]*set[ \n\t]*(hash|tree)[ \n\t]*index[ \n\t]*[a-zA-Z0-9_]*[ \n\t]*[a-zA-Z0-9_]*[ \n\t]*"))) {
 		char which[10];
@@ -753,9 +752,11 @@ bool BaseData::Query(string query_str){
 			return false;
 		} else {
 			it->second.setIndex(string(attr_name), string(which));
-			return true;
 		}
+		this->save_tables_meta();
+		return true;
 	}
+
 	parser = new Parser(query_str);
 	if(not parser->Parse()) return false;
 	sData = parser->selectData;
@@ -770,11 +771,7 @@ bool BaseData::Query(string query_str){
 		else {
 			// Map table into tables
 			tables[table.table_name] = table;	// std::move(table) ?
-			{
-				std::ofstream ofs("base.save");
-				boost::archive::text_oarchive oa(ofs);
-				oa << *this;
-			}
+			this->save_tables_meta();
 		}
 	}
 	else if(parser->isInsertQuery){
