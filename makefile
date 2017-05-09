@@ -31,6 +31,19 @@ ex2_test: all
 loadind_test:
 	./$(OUTPUT_FILE) test/trans.sql test/user.sql > /dev/null
 
+total_test:
+	$(CC) $(FLAG) $(SERIAL_FLAG) main.cpp *.o -o $(OUTPUT_FILE)
+	rm -f base.save
+	rm -rf datas/
+	mkdir datas
+	./$(OUTPUT_FILE) test/trans.sql test/user.sql > /dev/null
+	./$(OUTPUT_FILE) test/setIndex.sql
+	./$(OUTPUT_FILE) test/query1.sql
+	./$(OUTPUT_FILE) test/query2.sql
+	./$(OUTPUT_FILE) test/query3.sql
+	./$(OUTPUT_FILE) test/query4.sql
+	./$(OUTPUT_FILE) test/query5.sql
+
 scanner.o: scanner.cpp scanner.hpp
 	$(CC) $(FLAG) -c scanner.hpp scanner.cpp
 
