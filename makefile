@@ -5,6 +5,7 @@ OUTPUT_FILE=a.out
 all: base_data.o main.cpp
 	$(CC) $(FLAG) $(SERIAL_FLAG) main.cpp *.o -o $(OUTPUT_FILE)
 	rm -f base.save
+	rm -f datas/*
 
 scanner_test: scanner.o
 	$(CC) $(FLAG) *.o tester/testScanner.cpp

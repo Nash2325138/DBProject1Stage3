@@ -197,6 +197,9 @@ void Table::readTuples(){
 			boost::archive::text_iarchive ia(ifs);
 			ia >> tuple;
 			tuples.push_back(tuple);
+			if(hasPrimary) {
+				primary_key_columns.insert(tuple[name_to_i[primary_key_name]]);
+			}
 		}
 	}
 }
@@ -441,11 +444,14 @@ bool BaseData::select() {
 			}
 		}
 	}
+
 	// one table
 	if (sData->fromTables.size() == 1) {
-		Table& t = tables[sData->fromTables[0]]; // fromTable must be true name
-		for (int i=0 ; i<t.tuples.size(); i++) {
-			pair<Table*, int> table_row = make_pair(&t, i);
+		Table& t1 = tables[sData->fromTables[0]]; // fromTable must be true name
+		// vector<int>* filtered_t1_rows;
+		// vector<int> t1_all_rows(t1.tuples)
+		for (int i=0 ; i<t1.tuples.size(); i++) {
+			pair<Table*, int> table_row = make_pair(&t1, i);
 			if (judgeWhere(table_row) == false) continue;
 			if (not isAggregation) {
 				push_back_output(selectedAttributes, table_row);
