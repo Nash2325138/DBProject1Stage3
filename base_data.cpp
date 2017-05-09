@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
+#include <numeric>
+#include <algorithm>
 #include "base_data.hpp"
 #include "color.h"
 
@@ -431,6 +433,58 @@ void BaseData::fill_comparePairs_table_col() {
 		}
 	}
 }
+vector<int>* BaseData::get_filtered_rows_from_cmpps(Table* t) {
+	vector<int>* ret = NULL;
+	for (int i=0; i<sData->comparePairs.size(); i++) {
+		auto& table_col_pair = comparePairs_table_col[i];
+		Table* cmpp1_table = table_col_pair.first.first;
+		int cmpp1_col = table_col_pair.first.second;
+
+		Table* cmpp2_table = table_col_pair.second.first;
+		int cmpp2_col = table_col_pair.second.second;
+
+		if (cmpp1_table == t and cmpp2_table == NULL) {
+			auto index_struct = cmpp1_table->index_structs.find(cmpp1_col);
+			if (index_struct != cmpp1_table->index_structs.end()) {
+				const auto& satisfied_rows = index_struct->second->satisfied_rows(sData->comparePairs[i].op, sData->comparePairs[i].v2);
+				if (ret == NULL) {
+					ret = new vector<int>(satisfied_rows);
+				} else {
+					// union ret and satisfied_rows to result
+					vector<int> result(ret->size() + satisfied_rows.size());
+					auto result_end = std::set_union(ret->begin(), ret->end(),
+						satisfied_rows.begin(), satisfied_rows.end(), result.begin());
+					result.resize(result_end-result.begin());
+					// make ret = result
+					*ret = std::move(result);
+				}
+			}
+		} else if (cmpp1_table == NULL and cmpp2_table == t) {
+			auto index_struct = cmpp2_table->index_structs.find(cmpp2_col);
+			if (index_struct != cmpp2_table->index_structs.end()) {
+				const auto& satisfied_rows = index_struct->second->satisfied_rows(sData->comparePairs[i].v1, sData->comparePairs[i].op);
+				if (ret == NULL) {
+					ret = new vector<int>(satisfied_rows);
+				} else {
+					// union ret and satisfied_rows to result
+					vector<int> result(ret->size() + satisfied_rows.size());
+					auto result_end = std::set_union(ret->begin(), ret->end(),
+						satisfied_rows.begin(), satisfied_rows.end(), result.begin());
+					result.resize(result_end-result.begin());
+					// make ret = result
+					*ret = std::move(result);
+				}
+			}
+		}
+	}
+	if (ret == NULL) {
+		// vector from 0 ~ t1.tuples.size()
+		vector<int>* all_rows = new vector<int>(t->tuples.size());
+		std::iota(all_rows->begin(), all_rows->end(), 0);
+		ret = all_rows;
+	}
+	return ret;
+}
 bool BaseData::select() {
 	outputTable.clear();
 	// checkSelectQueryData(sData)
@@ -474,9 +528,15 @@ bool BaseData::select() {
 	// one table
 	if (sData->fromTables.size() == 1) {
 		Table& t1 = tables[sData->fromTables[0]]; // fromTable must be true name
-		// vector<int>* filtered_t1_rows;
-		// vector<int> t1_all_rows(t1.tuples);
-		for (int i=0 ; i<t1.tuples.size(); i++) {
+		
+		vector<int>* t1_filtered_rows = get_filtered_rows_from_cmpps(&t1);
+		// for (int i : *t1_filtered_rows) {
+		// 	printf("%d, ", i);
+		// }
+		// printf("\n");
+
+		// for (int i=0 ; i<t1.tuples.size(); i++) {
+		for (int i : *t1_filtered_rows) {
 			pair<Table*, int> table_row = make_pair(&t1, i);
 			if (judgeWhere(table_row) == false) continue;
 			if (not isAggregation) {

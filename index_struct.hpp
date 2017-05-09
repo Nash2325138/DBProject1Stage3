@@ -2,6 +2,7 @@
 #define INDEX_STRUCT_HPP
 
 #include <unordered_map>
+#include <cassert>
 #include "parser.hpp"
 
 namespace std {

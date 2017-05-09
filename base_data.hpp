@@ -98,9 +98,9 @@ public:
 	bool Query(string query_str);
 
 	bool select();
+	vector<int>* get_filtered_rows_from_cmpps(Table* t);
 	bool checkSelectQueryData();
-	void fillOutputTableSchema(
-							   vector<pair<Table*, int> >& selectedAttributes);
+	void fillOutputTableSchema(vector<pair<Table*, int> >& selectedAttributes);
 	void fill_comparePairs_table_col();
 	void reconstructTables();
 	string getTrueTableName(string tableID);

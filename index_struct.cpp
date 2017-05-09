@@ -30,7 +30,9 @@ const std::vector<int>& Hash_Index_Struct::satisfied_rows(CompareOP op, const Va
             if (!p.first.equal(v))
                 ret.push_back(p.second);
     } else {
+        assert(false);
     }
+    std::sort(ret.begin(), ret.end());
     return ret;
 }
 
@@ -60,7 +62,9 @@ const std::vector<int>& Hash_Index_Struct::satisfied_rows(const Value& v, Compar
             if (!v.equal(p.first))
                 ret.push_back(p.second);
     } else {
+        assert(false);
     }
+    std::sort(ret.begin(), ret.end());
     return ret;
 }
 
@@ -94,6 +98,7 @@ const std::vector<int>& Tree_Index_Struct::satisfied_rows(CompareOP op, const Va
             if (!p.first.equal(v))
                 ret.push_back(p.second);
     } else {
+        assert(false);
     }
     return ret;
 }
@@ -124,6 +129,7 @@ const std::vector<int>& Tree_Index_Struct::satisfied_rows(const Value& v, Compar
             if (!v.equal(p.first))
                 ret.push_back(p.second);
     } else {
+        assert(false);
     }
     return ret;
 }
